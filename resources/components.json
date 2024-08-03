@@ -1,0 +1,28 @@
+{
+	"pack_id": "core",
+
+	"components": {
+		"id": "",
+		"pack_id": false,
+		"prefab_id": false,
+		"name": false,
+
+		"transform": {
+			"position_x": 0,
+			"position_y": 0,
+			"position_z": 0,
+			"size_x": 1,
+			"size_y": 1,
+			"size_z": 1,
+			"scale_x": 1,
+			"scale_y": 1,
+			"scale_z": 1,
+			"rotation": 0
+		},
+
+		"game_object": {
+			"factory_url": "",
+			"is_slice9": false
+		}
+	}
+}

@@ -1,0 +1,21 @@
+{
+	"pack_id": "core",
+	"entities": {
+		"player": {
+			"transform": {},
+			"game_object": {
+				"factory_url": "/spawner/spawner#player"
+			}
+		},
+
+		"bullet": {
+			"transform": {
+				"scale_x": 1.25,
+				"scale_y": 1.25
+			},
+			"game_object": {
+				"factory_url": "/spawner/spawner#bullet"
+			}
+		}
+	}
+}
