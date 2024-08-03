@@ -25,4 +25,4 @@ jobs:
             uses: codecov/codecov-action@v4.0.1
             with:
               token: ${{ secrets.CODECOV_TOKEN }}
-              slug: insality/defold-decore
+              slug: insality/decore
