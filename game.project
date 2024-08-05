@@ -1,5 +1,5 @@
 [bootstrap]
-main_collection = /test/test.collectionc
+main_collection = /example/movement/movement.collectionc
 
 [script]
 shared_state = 1
@@ -18,6 +18,8 @@ publisher = Insality
 developer = Maksim Tuprikov, Insality
 custom_resources = /resources
 dependencies#0 = https://github.com/britzl/deftest/archive/master.zip
+dependencies#1 = https://github.com/Insality/defold-tweener/archive/refs/tags/3.zip
+dependencies#2 = https://github.com/Insality/panthera/archive/refs/tags/runtime.3.zip
 
 [library]
 include_dirs = decore
@@ -30,4 +32,13 @@ memory_tracking = 1
 info_block_length = 18
 info_block = %levelshort[%logger
 message_block = ]: %message %context %tab<%function>
+
+[test]
+report = 0
+
+[decore]
+is_prehash = 1
+
+[input]
+game_binding = /builtins/input/all.input_bindingc
 

@@ -4,7 +4,10 @@
 		"player": {
 			"transform": {},
 			"game_object": {
-				"factory_url": "/spawner/spawner#player"
+				"factory_url": "/system/spawner#player"
+			},
+			"movement_controller": {
+				"speed": 100
 			}
 		},
 

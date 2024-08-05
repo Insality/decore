@@ -1,0 +1,9 @@
+local movement_animation = require("example.movement.movement_animation")
+local panthera = require("panthera.panthera")
+
+function init(self)
+	local animation = panthera.create_go(movement_animation)
+	panthera.play(animation, "level", {
+		is_loop = true
+	})
+end

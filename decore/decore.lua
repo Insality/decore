@@ -3,6 +3,7 @@ local decore_data = require("decore.decore_data")
 local decore_internal = require("decore.decore_internal")
 
 local TYPE_TABLE = "table"
+local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 0) == 1
 
 ---@class decore
 local M = {}
@@ -24,11 +25,20 @@ function M.get_logger(name, level)
 end
 
 
+local last_created_world = nil
 ---Create the new ECS world
 ---@return world
 function M.world()
 	local world = ecs.world()
+	last_created_world = world
+
 	return world
+end
+
+
+---Return the last created world
+function M.get_last_created_world()
+	return last_created_world
 end
 
 
@@ -43,16 +53,16 @@ function M.register_entities(entities_data_or_path)
 		return false
 	end
 
+	if IS_PREHASH_ENTITIES_ID then
+		for prefab_id, entity_data in pairs(entities_pack_data.entities) do
+			entities_pack_data.entities[hash(prefab_id)] = entity_data
+		end
+	end
+
 	local pack_id = entities_pack_data.pack_id
 
 	if not decore_data.entities[pack_id] then
 		decore_data.entities[pack_id] = entities_pack_data.entities
-
-		for prefab_id, entity_data in pairs(entities_pack_data.entities) do
-			entity_data.prefab_id = prefab_id
-			entity_data.pack_id = pack_id
-		end
-
 		table.insert(decore_data.entities_order, pack_id)
 	else
 		-- Merge entities, if conflict - throw error
@@ -92,7 +102,7 @@ end
 
 
 ---Create entity instance from prefab
----@param prefab_id string
+---@param prefab_id string|hash
 ---@param pack_id string|nil
 ---@return entity|nil
 function M.create_entity(prefab_id, pack_id)
@@ -220,9 +230,11 @@ end
 ---To refresh system filters, call world:addEntity(entity) after this function
 ---@param entity entity
 ---@param component_id string
----@param component_data any
+---@param component_data any|nil @if nil, create component with default values
 ---@return entity
 function M.apply_component(entity, component_id, component_data)
+	component_data = component_data or {}
+
 	if not entity[component_id] then
 		-- Create default component with default values if not exists
 		entity[component_id] = M.create_component(component_id)

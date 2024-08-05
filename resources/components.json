@@ -2,10 +2,10 @@
 	"pack_id": "core",
 
 	"components": {
-		"id": "",
-		"pack_id": false,
-		"prefab_id": false,
-		"name": false,
+		"id": null,
+		"pack_id": null,
+		"prefab_id": null,
+		"name": null,
 
 		"transform": {
 			"position_x": 0,
@@ -23,6 +23,12 @@
 		"game_object": {
 			"factory_url": "",
 			"is_slice9": false
+		},
+
+		"movement_controller": {
+			"speed": 0,
+			"movement_x": 0,
+			"movement_y": 0
 		}
 	}
 }

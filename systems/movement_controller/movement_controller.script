@@ -1,0 +1,13 @@
+go.property("speed", 100)
+
+function init(self)
+	local entity_count = go.get("#entity", "components_to_register")
+	go.set("#entity", "components_to_register", entity_count + 1)
+
+	msg.post(".", "set_component", {
+		id = "movement_controller",
+		data = {
+			speed = self.speed
+		}
+	})
+end

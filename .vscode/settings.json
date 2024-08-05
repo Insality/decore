@@ -33,5 +33,6 @@
 		"before",
 		"after",
 		"it"
-	]
+	],
+	"Lua.completion.autoRequire": false
 }
