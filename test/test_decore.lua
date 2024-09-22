@@ -21,7 +21,7 @@ return function()
 			assert(entity)
 			assert(entity.transform.position_x == 0)
 			assert(entity.transform.position_x == 0)
-			assert(entity.game_object.factory_url == "/spawner/spawner#player")
+			assert(entity.game_object.factory_url == "/system/spawner#player")
 		end)
 	end)
 end

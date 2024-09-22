@@ -1,4 +1,3 @@
-local ecs = require("decore.ecs")
 local decore_data = require("decore.decore_data")
 local decore_internal = require("decore.decore_internal")
 
@@ -7,8 +6,6 @@ local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 0) == 1
 
 ---@class decore
 local M = {}
----Link to the ECS module allowing to use decore.ecs
-M.ecs = ecs
 
 
 ---@param logger_instance decore.logger|nil
@@ -22,23 +19,6 @@ end
 ---@return decore.logger
 function M.get_logger(name, level)
 	return setmetatable({ name = name, level = level }, { __index = decore_internal.logger })
-end
-
-
-local last_created_world = nil
----Create the new ECS world
----@return world
-function M.world()
-	local world = ecs.world()
-	last_created_world = world
-
-	return world
-end
-
-
----Return the last created world
-function M.get_last_created_world()
-	return last_created_world
 end
 
 
@@ -214,7 +194,7 @@ function M.create_component(component_id, component_pack_id)
 		end
 	end
 
-	decore_internal.logger:error("No component with id", {
+	decore_internal.logger:error("No component_id in components data", {
 		component_id = component_id,
 		component_pack_id = component_pack_id
 	})

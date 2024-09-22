@@ -1,6 +1,9 @@
 go.property("prefab_id", hash(""))
-go.property("components_to_register", 0)
+go.property("size_x", 16)
+go.property("size_y", 16)
+go.property("components_to_register", 0) -- autocounter
 
+local events = require("event.events")
 local decore = require("decore.decore")
 
 local MSG_SET_COMPONENT = hash("set_component")
@@ -26,13 +29,16 @@ function on_message(self, message_id, message)
 	if message_id == MSG_INIT_ENTITY then
 		self.entity = decore.create_entity(self.prefab_id)
 
+		local world_position = go.get_world_position()
 		self.components["transform"] = {
-			position_x = go.get(".", POSITION_X),
-			position_y = go.get(".", POSITION_Y),
-			position_z = go.get(".", POSITION_Z),
+			position_x = world_position.x,
+			position_y = world_position.y,
+			position_z = world_position.z,
 			scale_x = go.get(".", SCALE_X),
 			scale_y = go.get(".", SCALE_Y),
 			scale_z = go.get(".", SCALE_Z),
+			size_x = self.size_x,
+			size_y = self.size_y,
 			rotation = go.get(".", ROTATION)
 		}
 	end
@@ -54,10 +60,7 @@ function on_message(self, message_id, message)
 			decore.apply_component(self.entity, k, v)
 		end
 
-		local world = decore.get_last_created_world()
-		if world then
-			world:addEntity(self.entity)
-		end
+		events.trigger("create_entity", self.entity)
 		go.delete(".", true)
 	end
 end

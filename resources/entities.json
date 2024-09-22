@@ -11,6 +11,11 @@
 			}
 		},
 
+		"camera": {
+			"transform": {},
+			"camera": {}
+		},
+
 		"bullet": {
 			"transform": {
 				"scale_x": 1.25,

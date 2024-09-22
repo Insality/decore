@@ -1,0 +1,13 @@
+go.property("camera_url", msg.url())
+
+function init(self)
+	local entity_count = go.get("#entity", "components_to_register")
+	go.set("#entity", "components_to_register", entity_count + 1)
+
+	msg.post(".", "set_component", {
+		id = "camera",
+		data = {
+			camera_url = self.camera_url
+		}
+	})
+end

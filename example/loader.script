@@ -1,9 +1,12 @@
+local ecs = require("decore.ecs")
 local decore = require("decore.decore")
+local events = require("event.events")
 
 local transform_system = require("systems.transform.transform")
 local game_object_system = require("systems.game_object.game_object")
 local input_system = require("systems.input.input")
 local movement_controller_system = require("systems.movement_controller.movement_controller")
+local camera_system = require("systems.camera.camera")
 
 local function init_decore(self)
 	decore.register_components("/resources/components.json")
@@ -16,13 +19,20 @@ local function load_systems(self)
 	self.world:add(game_object_system.create_system())
 	self.world:add(input_system.create_system())
 	self.world:add(movement_controller_system.create_system())
+	self.world:add(camera_system.create_system())
+end
+
+
+local function create_entity(self, entity)
+	self.world:addEntity(entity)
 end
 
 
 function init(self)
-	self.world = decore.world()
+	self.world = ecs.world()
 	init_decore(self)
 	load_systems(self)
+	events.subscribe("create_entity", create_entity, self)
 end
 
 
@@ -34,6 +44,7 @@ end
 function final(self)
 	self.world:clearEntities()
 	self.world:clearSystems()
+	events.unsubscribe("create_entity", create_entity, self)
 end
 
 

@@ -1,3 +1,4 @@
+local decore = require("decore.decore")
 local ecs = require("decore.ecs")
 
 local game_object_command = require("systems.game_object.game_object_command")
@@ -24,6 +25,10 @@ local M = {}
 local TEMP_VECTOR = vmath.vector3()
 local ROOT_URL = hash("/root")
 
+decore.register_component("game_object", {
+	factory_url = "",
+	is_slice9 = false
+})
 
 ---@static
 ---@return system.game_object, system.game_object_command

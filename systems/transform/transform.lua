@@ -1,4 +1,5 @@
 local ecs = require("decore.ecs")
+local decore = require("decore.decore")
 
 local transform_command = require("systems.transform.transform_command")
 local transform_event = require("systems.transform.transform_event")
@@ -27,6 +28,19 @@ local transform_event = require("systems.transform.transform_event")
 ---@class system.transform: system
 ---@field entities entity.transform[]
 local M = {}
+
+decore.register_component("transform", {
+	position_x = 0,
+	position_y = 0,
+	position_z = 0,
+	size_x = 1,
+	size_y = 1,
+	size_z = 1,
+	scale_x = 1,
+	scale_y = 1,
+	scale_z = 1,
+	rotation = 0,
+})
 
 ---@static
 ---@return system.transform, system.transform_command, system.transform_event
