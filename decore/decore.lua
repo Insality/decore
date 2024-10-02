@@ -8,7 +8,7 @@ local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 0) == 1
 local M = {}
 
 
----@param logger_instance decore.logger|nil
+---@param logger_instance decore.logger|table|nil
 function M.set_logger(logger_instance)
 	decore_internal.logger = logger_instance or decore_internal.empty_logger
 end

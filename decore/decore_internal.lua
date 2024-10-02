@@ -2,6 +2,14 @@ local TYPE_STRING = "string"
 
 local M = {}
 
+---Logger interface
+---@class decore.logger
+---@field trace fun(logger: decore.logger, message: string, data: any|nil)
+---@field debug fun(logger: decore.logger, message: string, data: any|nil)
+---@field info fun(logger: decore.logger, message: string, data: any|nil)
+---@field warn fun(logger: decore.logger, message: string, data: any|nil)
+---@field error fun(logger: decore.logger, message: string, data: any|nil)
+
 --- Use empty function to save a bit of memory
 local EMPTY_FUNCTION = function(_, message, context) end
 
