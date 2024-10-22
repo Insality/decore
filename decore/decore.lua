@@ -1,11 +1,46 @@
+local queue = require("decore.queue")
 local decore_data = require("decore.decore_data")
 local decore_internal = require("decore.decore_internal")
+
+local system_queue = require("decore.system.queue")
 
 local TYPE_TABLE = "table"
 local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 0) == 1
 
+---@class world
+---@field queue queue
+
 ---@class decore
-local M = {}
+---@field ecs tiny_ecs
+local M = {
+	ecs = require("decore.ecs"),
+}
+
+
+---Create a new world instance
+---@return world
+function M.world()
+	---@type world
+	local world = M.ecs.world()
+	world.queue = queue.create()
+
+	-- Always included systems
+	world:addSystem(system_queue.create_system())
+
+	return world
+end
+
+
+---Add input event to the world queue
+---@param world world
+---@param action_id hash
+---@param action action
+---@return boolean
+function M.on_input(world, action_id, action)
+	action.action_id = action_id
+	world.queue:push("input_event", action)
+	return false
+end
 
 
 ---@param logger_instance decore.logger|table|nil
@@ -84,8 +119,9 @@ end
 ---Create entity instance from prefab
 ---@param prefab_id string|hash
 ---@param pack_id string|nil
----@return entity|nil
-function M.create_entity(prefab_id, pack_id)
+---@param data table|nil @additional data to merge with prefab
+---@return entity
+function M.create_entity(prefab_id, pack_id, data)
 	for index = #decore_data.entities_order, 1, -1 do
 		local check_pack_id = decore_data.entities_order[index]
 		local entities_pack = decore_data.entities[check_pack_id]
@@ -107,16 +143,25 @@ function M.create_entity(prefab_id, pack_id)
 				M.apply_component(entity, component_id, prefab_data)
 			end
 
+			if data then
+				M.apply_components(entity, data)
+			end
+
 			return entity
 		end
 	end
 
-	decore_internal.logger:error("No entity with id", {
+	decore_internal.logger:warn("No entity with id", {
 		prefab_id = prefab_id,
 		pack_id = pack_id,
 	})
 
-	return nil
+	local entity = {}
+	if data then
+		M.apply_components(entity, data)
+	end
+
+	return entity
 end
 
 
@@ -430,6 +475,31 @@ function M.print_loaded_packs_debug_info()
 			logger:debug("   - " .. world_id)
 		end
 	end
+end
+
+
+---Call command from params array
+---@param world world
+---@param command any[] Example: {"system_name", "function_name", "arg1", "arg2", ...}
+function M.call_command(world, command)
+	local system_command = world[command[1]]
+	if not system_command then
+		print("System not found: " .. command[1])
+		return
+	end
+
+	local func = command[2]
+	if not system_command[func] then
+		print("Function not found: " .. func)
+		return
+	end
+
+	local args = {}
+	for i = 3, #command do
+		table.insert(args, command[i])
+	end
+
+	system_command[func](system_command, unpack(args))
 end
 
 

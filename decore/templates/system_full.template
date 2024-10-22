@@ -1,7 +1,6 @@
 local ecs = require("decore.ecs")
 
 local system_command = require("systems.TEMPLATE.TEMPLATE_command")
-local system_event = require("systems.TEMPLATE.TEMPLATE_event")
 
 ---@class entity
 ---@field TEMPLATE component.TEMPLATE|nil
@@ -17,26 +16,35 @@ local M = {}
 
 
 ---@static
----@return system.TEMPLATE, system.TEMPLATE_command, system.TEMPLATE_event
+---@return system.TEMPLATE, system.TEMPLATE_command
 function M.create_system()
 	local system = setmetatable(ecs.system(), { __index = M })
 	system.filter = ecs.requireAll("TEMPLATE")
 	system.id = "TEMPLATE"
 
-	return system, system_command.create_system(system), system_event.create_system()
+	return system, system_command.create_system(system)
 end
 
 
+---@private
+function M:postWrap()
+	--self.world.queue:process("transform_event", self.process_transform_event, self)
+end
+
+
+---@private
 ---@param entity entity.TEMPLATE
 function M:onAdd(entity)
 end
 
 
+---@private
 ---@param entity entity.TEMPLATE
 function M:onRemove(entity)
 end
 
 
+---@private
 ---@param dt number
 function M:update(dt)
 end
