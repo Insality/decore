@@ -17,6 +17,18 @@ local M = {
 }
 
 
+function M.init()
+	M.register_components({
+		pack_id = "decore",
+		components = {
+			id = "",
+			prefab_id = false,
+			pack_id = false,
+		}
+	})
+end
+
+
 ---Create a new world instance
 ---@return world
 function M.world()
@@ -31,6 +43,54 @@ function M.world()
 end
 
 
+---@generic T
+---@param system_module T
+---@param system_id string
+---@return T
+function M.system(system_module, system_id)
+	local system = setmetatable(M.ecs.system(), { __index = system_module })
+	system.id = system_id
+
+	return system
+end
+
+
+---@generic T
+---@param system_module T
+---@param system_id string
+---@return T
+function M.processing_system(system_module, system_id)
+	local system = setmetatable(M.ecs.processingSystem(), { __index = system_module })
+	system.id = system_id
+
+	return system
+end
+
+
+---@generic T
+---@param system_module T
+---@param system_id string
+---@return T
+function M.sorted_system(system_module, system_id)
+	local system = setmetatable(M.ecs.sortedSystem(), { __index = system_module })
+	system.id = system_id
+
+	return system
+end
+
+
+---@generic T
+---@param system_module T
+---@param system_id string
+---@return T
+function M.sorted_processing_system(system_module, system_id)
+	local system = setmetatable(M.ecs.sortedProcessingSystem(), { __index = system_module })
+	system.id = system_id
+
+	return system
+end
+
+
 ---Add input event to the world queue
 ---@param world world
 ---@param action_id hash
@@ -40,20 +100,6 @@ function M.on_input(world, action_id, action)
 	action.action_id = action_id
 	world.queue:push("input_event", action)
 	return false
-end
-
-
----@param logger_instance decore.logger|table|nil
-function M.set_logger(logger_instance)
-	decore_internal.logger = logger_instance or decore_internal.empty_logger
-end
-
-
----@param name string
----@param level string|nil
----@return decore.logger
-function M.get_logger(name, level)
-	return setmetatable({ name = name, level = level }, { __index = decore_internal.logger })
 end
 
 
@@ -177,7 +223,7 @@ function M.register_component(component_id, component_data, pack_id)
 		table.insert(decore_data.components_order, pack_id)
 	end
 
-	decore_data.components[pack_id][component_id] = component_data
+	decore_data.components[pack_id][component_id] = component_data or {}
 end
 
 
@@ -197,8 +243,9 @@ function M.register_components(components_data_or_path)
 		return false
 	end
 
-	decore_data.components[pack_id] = components_pack_data.components
-	table.insert(decore_data.components_order, pack_id)
+	for component_id, component_data in pairs(components_pack_data.components) do
+		M.register_component(component_id, component_data, pack_id)
+	end
 
 	decore_internal.logger:debug("Load components pack id", pack_id)
 	return true
@@ -374,6 +421,26 @@ function M.create_world(world_id, world_pack_id)
 
 						table.insert(entities, entity)
 					end
+
+					-- Entities can spawn a world
+					-- TODO: Add parent relations
+					local world_prefab_id = entity.world_prefab_id
+					if world_prefab_id then
+						local child_entities = M.create_world(world_prefab_id)
+						if child_entities then
+							for _, child_entity in ipairs(child_entities) do
+								child_entity.tiled_id = entity.tiled_id .. ":" .. child_entity.tiled_id
+								child_entity.transform.position_x = child_entity.transform.position_x + entity.transform.position_x - entity.transform.size_x/2
+								child_entity.transform.position_y = child_entity.transform.position_y + entity.transform.position_y - entity.transform.size_y/2
+
+								table.insert(entities, child_entity)
+							end
+						else
+							decore_internal.logger:error("Failed to create world prefab", {
+								world_prefab_id = world_prefab_id,
+							})
+						end
+					end
 				end
 			end
 
@@ -478,9 +545,9 @@ function M.print_loaded_packs_debug_info()
 end
 
 
----Call command from params array
+---Call command from params array. Example: {"system_name", "function_name", "arg1", "arg2", ...}
 ---@param world world
----@param command any[] Example: {"system_name", "function_name", "arg1", "arg2", ...}
+---@param command any[] Example: [ "debug_command", "toggle_profiler", true ],
 function M.call_command(world, command)
 	local system_command = world[command[1]]
 	if not system_command then
@@ -500,6 +567,20 @@ function M.call_command(world, command)
 	end
 
 	system_command[func](system_command, unpack(args))
+end
+
+
+---@param logger_instance decore.logger|table|nil
+function M.set_logger(logger_instance)
+	decore_internal.logger = logger_instance or decore_internal.empty_logger
+end
+
+
+---@param name string
+---@param level string|nil
+---@return decore.logger
+function M.get_logger(name, level)
+	return setmetatable({ name = name, level = level }, { __index = decore_internal.logger })
 end
 
 
