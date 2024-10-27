@@ -1,9 +1,12 @@
+local ecs = require("decore.ecs")
 local queue = require("decore.queue")
+local events = require("event.events")
 local decore_data = require("decore.decore_data")
 local decore_internal = require("decore.decore_internal")
 
 local system_queue = require("decore.system.queue")
 
+local EMPTY_HASH = hash("")
 local TYPE_TABLE = "table"
 local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 0) == 1
 
@@ -11,7 +14,6 @@ local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 0) == 1
 ---@field queue queue
 
 ---@class decore
----@field ecs tiny_ecs
 local M = {
 	ecs = require("decore.ecs"),
 }
@@ -37,6 +39,10 @@ function M.world()
 	local world = M.ecs.world()
 	world.queue = queue.create()
 
+	-- To make it works with entity.script to allows make entities in Defold editor
+	events.subscribe("decore.create_entity", world.addEntity, world)
+	events.subscribe("decore.destroy_entity", world.removeEntity, world)
+
 	-- Always included systems
 	world:addSystem(system_queue.create_system())
 
@@ -47,50 +53,40 @@ end
 ---@generic T
 ---@param system_module T
 ---@param system_id string
----@param require_all_filters string[]|nil
+---@param require_all_filters string|string[]|nil
 ---@return T
 function M.system(system_module, system_id, require_all_filters)
-	local system = setmetatable(M.ecs.system(), { __index = system_module })
-	system.id = system_id
-	system.filter = require_all_filters and M.ecs.requireAll(unpack(require_all_filters))
-
-	return system
+	return decore_internal.create_system(M.ecs.system(), system_module, system_id, require_all_filters)
 end
 
 
 ---@generic T
 ---@param system_module T
 ---@param system_id string
+---@param require_all_filters string|string[]|nil
 ---@return T
-function M.processing_system(system_module, system_id)
-	local system = setmetatable(M.ecs.processingSystem(), { __index = system_module })
-	system.id = system_id
-
-	return system
+function M.processing_system(system_module, system_id, require_all_filters)
+	return decore_internal.create_system(M.ecs.processingSystem(), system_module, system_id, require_all_filters)
 end
 
 
 ---@generic T
 ---@param system_module T
 ---@param system_id string
+---@param require_all_filters string|string[]|nil
 ---@return T
-function M.sorted_system(system_module, system_id)
-	local system = setmetatable(M.ecs.sortedSystem(), { __index = system_module })
-	system.id = system_id
-
-	return system
+function M.sorted_system(system_module, system_id, require_all_filters)
+	return decore_internal.create_system(M.ecs.sortedSystem(), system_module, system_id, require_all_filters)
 end
 
 
 ---@generic T
 ---@param system_module T
 ---@param system_id string
+---@param require_all_filters string|string[]|nil
 ---@return T
-function M.sorted_processing_system(system_module, system_id)
-	local system = setmetatable(M.ecs.sortedProcessingSystem(), { __index = system_module })
-	system.id = system_id
-
-	return system
+function M.sorted_processing_system(system_module, system_id, require_all_filters)
+	return decore_internal.create_system(M.ecs.sortedProcessingSystem(), system_module, system_id, require_all_filters)
 end
 
 
@@ -103,6 +99,23 @@ function M.on_input(world, action_id, action)
 	action.action_id = action_id
 	world.queue:push("input_event", action)
 	return false
+end
+
+
+function M.on_message(world, message_id, message, sender)
+	world.queue:push("on_message", {
+		message_id = message_id,
+		message = message,
+		sender = sender,
+	})
+end
+
+
+function M.final(world)
+	events.unsubscribe("decore.create_entity", world.addEntity, world)
+	events.unsubscribe("decore.destroy_entity", world.removeEntity, world)
+	world:clearEntities()
+	world:clearSystems()
 end
 
 
@@ -119,6 +132,10 @@ function M.register_entity(entity_id, entity_data, pack_id)
 	end
 
 	decore_data.entities[pack_id][entity_id] = entity_data or {}
+	if IS_PREHASH_ENTITIES_ID then
+		local hashed_id = hash(entity_id)
+		decore_data.entities[pack_id][hashed_id] = entity_data or decore_data.entities[pack_id][entity_id]
+	end
 
 	entity_data.prefab_id = entity_id
 	entity_data.pack_id = pack_id
@@ -132,12 +149,6 @@ end
 ---@param entities table<string, table>
 ---@return boolean
 function M.register_entities(pack_id, entities)
-	if IS_PREHASH_ENTITIES_ID then
-		for prefab_id, entity_data in pairs(entities) do
-			entities[hash(prefab_id)] = entity_data
-		end
-	end
-
 	-- Merge entities, if conflict - throw error
 	for prefab_id, entity_data in pairs(entities) do
 		M.register_entity(prefab_id, entity_data, pack_id)
@@ -179,21 +190,24 @@ end
 
 
 ---Create entity instance from prefab
----@param prefab_id string|hash
+---@param prefab_id string|hash|nil
 ---@param pack_id string|nil
 ---@param data table|nil @additional data to merge with prefab
 ---@return entity
 function M.create_entity(prefab_id, pack_id, data)
-	local prefab = M.get_entity(prefab_id, pack_id)
-	if not prefab then
-		decore_internal.logger:warn("No entity with id", {
-			prefab_id = prefab_id,
-			pack_id = pack_id,
-		})
+	local prefab = prefab_id and M.get_entity(prefab_id, pack_id)
 
+	if not prefab then
 		local entity = {}
 		if data then
 			M.apply_components(entity, data)
+		end
+
+		if prefab_id and prefab_id ~= EMPTY_HASH then
+			decore_internal.logger:error("The entity_id not registered", {
+				prefab_id = prefab_id,
+				pack_id = pack_id,
+			})
 		end
 
 		return entity
@@ -210,7 +224,6 @@ function M.create_entity(prefab_id, pack_id, data)
 	entity = entity or {}
 
 	M.apply_components(entity, prefab)
-
 	if data then
 		M.apply_components(entity, data)
 	end
@@ -546,7 +559,9 @@ function M.print_loaded_packs_debug_info()
 	for _, pack_id in ipairs(decore_data.entities_order) do
 		logger:debug(" - " .. pack_id)
 		for prefab_id, _ in pairs(decore_data.entities[pack_id]) do
-			logger:debug("   - " .. prefab_id)
+			if type(prefab_id) == "string" then
+				logger:debug("   - " .. prefab_id)
+			end
 		end
 	end
 
@@ -574,13 +589,13 @@ end
 function M.call_command(world, command)
 	local system_command = world[command[1]]
 	if not system_command then
-		print("System not found: " .. command[1])
+		decore_internal.logger:error("System not found", command[1])
 		return
 	end
 
 	local func = command[2]
 	if not system_command[func] then
-		print("Function not found: " .. func)
+		decore_internal.logger:error("Function not found", func)
 		return
 	end
 

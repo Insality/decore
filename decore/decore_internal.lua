@@ -1,3 +1,5 @@
+local ecs = require("decore.ecs")
+
 local TYPE_STRING = "string"
 local TYPE_TABLE = "table"
 
@@ -26,10 +28,10 @@ M.empty_logger = {
 ---@type decore.logger
 M.logger = {
 	trace = function(_, msg) print("TRACE: " .. msg) end,
-	debug = function(_, msg, data) pprint("DEBUG: " .. msg, data) end,
-	info = function(_, msg, data) pprint("INFO: " .. msg, data) end,
-	warn = function(_, msg, data) pprint("WARN: " .. msg, data) end,
-	error = function(_, msg, data) pprint("ERROR: " .. msg, data) end
+	debug = function(_, msg, data) print("DEBUG: " .. msg, data) end,
+	info = function(_, msg, data) print("INFO: " .. msg, data) end,
+	warn = function(_, msg, data) print("WARN: " .. msg, data) end,
+	error = function(_, msg, data) print("ERROR: " .. msg, data) end
 }
 
 
@@ -125,5 +127,27 @@ function M.remove_by_value(t, v)
 	return false
 end
 
+
+---@generic T
+---@param ecs_system system
+---@param system_module T
+---@param system_id string
+---@param require_all_filters string|string[]|nil
+---@return T
+function M.create_system(ecs_system, system_module, system_id, require_all_filters)
+	local system = setmetatable(ecs_system, { __index = system_module })
+	system.id = system_id
+
+	if require_all_filters then
+		if type(require_all_filters) == TYPE_TABLE then
+			---@cast require_all_filters string[]
+			system.filter = ecs.requireAll(unpack(require_all_filters))
+		else
+			system.filter = ecs.requireAll(require_all_filters)
+		end
+	end
+
+	return system
+end
 
 return M
