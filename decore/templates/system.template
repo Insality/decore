@@ -1,4 +1,4 @@
-local ecs = require("decore.ecs")
+local decore = require("decore.decore")
 
 ---@class entity
 ---@field TEMPLATE component.TEMPLATE|nil
@@ -7,6 +7,10 @@ local ecs = require("decore.ecs")
 ---@field TEMPLATE component.TEMPLATE
 
 ---@class component.TEMPLATE
+decore.register_component("TEMPLATE", {
+	gravity_x = 0,
+	gravity_y = 0,
+})
 
 ---@class system.TEMPLATE: system
 ---@field entities entity.TEMPLATE[]
@@ -16,11 +20,7 @@ local M = {}
 ---@static
 ---@return system.TEMPLATE
 function M.create_system()
-	local system = setmetatable(ecs.system(), { __index = M })
-	system.filter = ecs.requireAll("TEMPLATE")
-	system.id = "TEMPLATE"
-
-	return system
+	return decore.system(M, "TEMPLATE", { "TEMPLATE" })
 end
 
 
