@@ -1,12 +1,12 @@
----@class queue
+---@class decore.event_bus
 ---@field events table<string, table> The current list of events
 ---@field stash table<string, table> The list of events to be processed after :stash_to_events() is called
 ---@field merge_callbacks table<string, fun(events: any[], new_event: any):boolean> The merge policy for events. If the merge policy returns true, the events are merged and not will be added as new event
 local M = {}
 
 
----Creates a new event queue.
----@return queue
+---Creates a new event bus.
+---@return decore.event_bus
 function M.create()
 	local instance = {
 		events = {},
