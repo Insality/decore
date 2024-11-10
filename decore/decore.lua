@@ -1,17 +1,17 @@
-local ecs = require("decore.ecs")
-local queue = require("decore.queue")
-local events = require("event.events")
-local decore_data = require("decore.decore_data")
-local decore_internal = require("decore.decore_internal")
+local event_bus = require("decore.internal.event_bus")
+local decore_data = require("decore.internal.decore_data")
+local decore_internal = require("decore.internal.decore_internal")
+local system_event_bus = require("decore.internal.system_event_bus")
 
-local system_queue = require("decore.system.queue")
+local events = require("event.events")
+
 
 local EMPTY_HASH = hash("")
 local TYPE_TABLE = "table"
 local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 0) == 1
 
 ---@class world
----@field queue queue
+---@field event_bus decore.event_bus
 
 ---@class decore
 local M = {
@@ -37,14 +37,14 @@ end
 function M.world()
 	---@type world
 	local world = M.ecs.world()
-	world.queue = queue.create()
+	world.event_bus = event_bus.create()
 
 	-- To make it works with entity.script to allows make entities in Defold editor
 	events.subscribe("decore.create_entity", world.addEntity, world)
 	events.subscribe("decore.destroy_entity", world.removeEntity, world)
 
 	-- Always included systems
-	world:addSystem(system_queue.create_system())
+	world:addSystem(system_event_bus.create_system())
 
 	return world
 end
@@ -97,13 +97,13 @@ end
 ---@return boolean
 function M.on_input(world, action_id, action)
 	action.action_id = action_id
-	world.queue:push("input_event", action)
+	world.event_bus:push("input_event", action)
 	return false
 end
 
 
 function M.on_message(world, message_id, message, sender)
-	world.queue:push("on_message", {
+	world.event_bus:push("on_message", {
 		message_id = message_id,
 		message = message,
 		sender = sender,

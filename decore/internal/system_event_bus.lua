@@ -15,7 +15,7 @@ end
 
 
 function M:postWrap()
-	self.world.queue:stash_to_events()
+	self.world.event_bus:stash_to_events()
 end
 
 
