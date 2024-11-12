@@ -51,9 +51,9 @@ end
 
 
 ---@generic T
----@param system_module T
----@param system_id string
----@param require_all_filters string|string[]|nil
+---@param system_module T The module with system functions
+---@param system_id string The system id
+---@param require_all_filters string|string[]|nil The required components. Example: {"transform", "game_object"} or "transform"
 ---@return T
 function M.system(system_module, system_id, require_all_filters)
 	return decore_internal.create_system(M.ecs.system(), system_module, system_id, require_all_filters)
@@ -61,9 +61,9 @@ end
 
 
 ---@generic T
----@param system_module T
----@param system_id string
----@param require_all_filters string|string[]|nil
+---@param system_module T The module with system functions
+---@param system_id string The system id
+---@param require_all_filters string|string[]|nil The required components. Example: {"transform", "game_object"} or "transform"
 ---@return T
 function M.processing_system(system_module, system_id, require_all_filters)
 	return decore_internal.create_system(M.ecs.processingSystem(), system_module, system_id, require_all_filters)
@@ -71,9 +71,9 @@ end
 
 
 ---@generic T
----@param system_module T
----@param system_id string
----@param require_all_filters string|string[]|nil
+---@param system_module T The module with system functions
+---@param system_id string The system id
+---@param require_all_filters string|string[]|nil The required components. Example: {"transform", "game_object"} or "transform"
 ---@return T
 function M.sorted_system(system_module, system_id, require_all_filters)
 	return decore_internal.create_system(M.ecs.sortedSystem(), system_module, system_id, require_all_filters)
@@ -81,9 +81,9 @@ end
 
 
 ---@generic T
----@param system_module T
----@param system_id string
----@param require_all_filters string|string[]|nil
+---@param system_module T The module with system functions
+---@param system_id string The system id
+---@param require_all_filters string|string[]|nil The required components. Example: {"transform", "game_object"} or "transform"
 ---@return T
 function M.sorted_processing_system(system_module, system_id, require_all_filters)
 	return decore_internal.create_system(M.ecs.sortedProcessingSystem(), system_module, system_id, require_all_filters)
