@@ -20,7 +20,7 @@ M.ecs = require("decore.ecs")
 
 ---Create a new world instance
 ---@return world
-function M.world()
+function M.world(...)
 	---@type world
 	local world = M.ecs.world()
 	world.event_bus = event_bus.create()
@@ -31,6 +31,9 @@ function M.world()
 
 	-- Always included systems
 	world:addSystem(system_event_bus.create_system())
+
+	-- Add systems passed to world constructor
+	world:add(...)
 
 	return world
 end

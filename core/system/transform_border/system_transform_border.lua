@@ -1,5 +1,4 @@
 local decore = require("decore.decore")
---local command_transform_border = require("core.system.transform_border.command_transform_border")
 
 ---@class entity
 ---@field transform_border vector4
@@ -19,11 +18,6 @@ local M = {}
 ---@return system.transform_border
 function M.create_system()
 	return decore.system(M, "transform_border", { "transform_border", "transform" })
-end
-
-
-function M:onAddToWorld()
-	--self.world.command_transform_border = command_transform_border.create(self)
 end
 
 

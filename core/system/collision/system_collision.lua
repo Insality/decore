@@ -104,11 +104,6 @@ function M.physics_world_listener(self, event, data)
 				self.collided_this_frame[entity_source] = self.collided_this_frame[entity_source] or {}
 				self.collided_this_frame[entity_source][entity_target] = true
 			end
-
-			if entity_source.on_collision_remove then
-				b2d.body.set_linear_velocity(entity_source.physics.box2d_body, vmath.vector3(0))
-				b2d.body.set_awake(entity_source.physics.box2d_body, false)
-			end
 		end
 
 		local is_target_collided = self.collided_this_frame[entity_target] and self.collided_this_frame[entity_target][entity_source]
@@ -123,11 +118,6 @@ function M.physics_world_listener(self, event, data)
 			if entity_source then
 				self.collided_this_frame[entity_target] = self.collided_this_frame[entity_target] or {}
 				self.collided_this_frame[entity_target][entity_source] = true
-			end
-
-			if entity_target.on_collision_remove then
-				b2d.body.set_linear_velocity(entity_target.physics.box2d_body, vmath.vector3(0))
-				b2d.body.set_awake(entity_target.physics.box2d_body, false)
 			end
 		end
 

@@ -1,0 +1,64 @@
+name: "basic_collision"
+instances {
+  id: "player"
+  prototype: "/examples/basic_collision/entity/player.go"
+  position {
+    x: 480.0
+    y: 320.0
+  }
+}
+instances {
+  id: "coin"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 200.0
+    y: 120.0
+  }
+}
+instances {
+  id: "coin1"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 200.0
+    y: 230.0
+  }
+}
+instances {
+  id: "coin2"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 200.0
+    y: 321.0
+  }
+}
+instances {
+  id: "coin3"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 200.0
+    y: 484.0
+  }
+}
+instances {
+  id: "coin4"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 413.0
+    y: 484.0
+  }
+}
+scale_along_z: 0
+embedded_instances {
+  id: "root"
+  children: "coin"
+  children: "coin1"
+  children: "coin2"
+  children: "coin3"
+  children: "coin4"
+  children: "player"
+  data: "components {\n"
+  "  id: \"basic_collision\"\n"
+  "  component: \"/examples/basic_collision/basic_collision.script\"\n"
+  "}\n"
+  ""
+}
