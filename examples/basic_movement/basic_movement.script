@@ -5,7 +5,9 @@ function init(self)
 
 	self.world:add(
 		require("core.system.transform.system_transform").create_system(),
-		require("core.system.game_object.system_game_object").create_system()
+		require("core.system.game_object.system_game_object").create_system(),
+		require("core.system.input.system_input").create_system(),
+		require("examples.basic_movement.system.system_movement_controller").create_system()
 	)
 
 	decore.register_entity("player", require("examples.basic_movement.entity.player"))
@@ -14,4 +16,9 @@ end
 
 function update(self, dt)
 	self.world:update(dt)
+end
+
+
+function on_input(self, action_id, action)
+	return self.world.command_input:on_input(action_id, action)
 end

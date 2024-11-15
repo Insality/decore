@@ -14,9 +14,8 @@ local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 0) == 1
 ---@field event_bus decore.event_bus
 
 ---@class decore
-local M = {
-	ecs = require("decore.ecs"),
-}
+local M = {}
+M.ecs = require("decore.ecs")
 
 
 ---Create a new world instance

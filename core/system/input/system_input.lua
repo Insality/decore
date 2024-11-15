@@ -1,4 +1,5 @@
 local decore = require("decore.decore")
+local command_input = require("core.system.input.command_input")
 
 ---@class event.input_event: action
 
@@ -15,11 +16,18 @@ end
 
 function M:onAddToWorld()
 	msg.post(".", "acquire_input_focus")
+	self.world.command_input = command_input.create(self)
 end
 
 
 function M:onRemoveFromWorld()
 	msg.post(".", "release_input_focus")
+end
+
+
+function M:on_input(action_id, action)
+	action.action_id = action_id
+	self.world.event_bus:trigger("input_event", action)
 end
 
 

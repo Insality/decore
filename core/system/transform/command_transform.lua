@@ -28,6 +28,21 @@ end
 ---@param x number|nil
 ---@param y number|nil
 ---@param z number|nil
+function M:add_position(entity, x, y, z)
+	assert(entity.transform, "Entity does not have a transform component.")
+	---@cast entity entity.transform
+	local t = entity.transform
+	x = x or 0
+	y = y or 0
+	z = z or 0
+	self.transform:set_position(entity, t.position_x + x, t.position_y + y, t.position_z + z)
+end
+
+
+---@param entity entity
+---@param x number|nil
+---@param y number|nil
+---@param z number|nil
 function M:set_scale(entity, x, y, z)
 	assert(entity.transform, "Entity does not have a transform component.")
 	---@cast entity entity.transform
