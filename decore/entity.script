@@ -24,9 +24,9 @@ function init(self)
 end
 
 
-function final(self)
-	events.trigger("decore.destroy_entity", self.entity)
-end
+--function final(self)
+--	events.trigger("decore.destroy_entity", self.entity)
+--end
 
 
 function on_message(self, message_id, message)

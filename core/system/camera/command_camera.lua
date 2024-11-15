@@ -1,32 +1,14 @@
-local decore = require("decore.decore")
-
 ---@class world
----@field command_camera system.command_camera
+---@field command_camera command.camera
 
----@class system.command_camera: command_system
----@field camera system.camera|nil @Current camera system
----@field previous_camera_state table<string, any>|nil @Previous camera state
+---@class command.camera
+---@field camera system.camera @Current camera system
 local M = {}
 
 
----@return system.command_camera
-function M.create_system(camera_system)
-	local system = decore.system(M, "command_camera")
-	system.camera = camera_system
-
-	return system
-end
-
-
----@private
-function M:onAddToWorld()
-	self.world.command_camera = self
-end
-
-
----@private
-function M:onRemoveFromWorld()
-	self.world.command_camera = nil
+---@return command.camera
+function M.create(camera_system)
+	return setmetatable({ camera = camera_system }, { __index = M })
 end
 
 
@@ -39,12 +21,12 @@ end
 
 
 function M:world_to_screen(x, y)
-	return self.camera.world_to_screen(x, y)
+	return self.camera:world_to_screen(x, y)
 end
 
 
 function M:screen_to_world(x, y)
-	return self.camera.screen_to_world(x, y)
+	return self.camera:screen_to_world(x, y)
 end
 
 

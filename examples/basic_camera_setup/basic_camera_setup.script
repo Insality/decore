@@ -7,13 +7,17 @@ function init(self)
 		require("core.system.game_object.system_game_object").create_system(),
 		require("core.system.input.system_input").create_system(),
 		require("core.system.movement_controller.system_movement_controller").create_system(),
-		require("core.system.collision.system_collision").create_system(),
 
-		require("examples.basic_collision.system.system_on_collision_remove").create_system()
+		-- Debug
+		require("core.system.on_key_released.system_on_key_released").create_system(),
+		require("core.system.debug.system_debug").create_system(),
+		require("core.system.camera.system_camera").create_system(),
+		require("core.system.window_event.system_window_event").create_system()
 	)
 
-	decore.register_entity("player", require("examples.basic_collision.entity.player"))
-	decore.register_entity("coin", require("examples.basic_collision.entity.coin"))
+	decore.register_entity("player", require("examples.basic_camera_setup.entity.player"))
+	decore.register_entity("debug", require("core.system.debug.entity_debug"))
+	decore.register_entity("camera", require("core.system.camera.entity_camera"))
 end
 
 

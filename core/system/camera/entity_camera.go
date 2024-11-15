@@ -33,8 +33,8 @@ embedded_components {
   data: "default_animation: \"empty\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
   "size {\n"
-  "  x: 1920.0\n"
-  "  y: 1080.0\n"
+  "  x: 960.0\n"
+  "  y: 640.0\n"
   "}\n"
   "size_mode: SIZE_MODE_MANUAL\n"
   "textures {\n"
@@ -42,4 +42,7 @@ embedded_components {
   "  texture: \"/assets/atlases/game.atlas\"\n"
   "}\n"
   ""
+  position {
+    z: -1.0
+  }
 }

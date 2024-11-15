@@ -25,9 +25,9 @@ function M.world(...)
 	local world = M.ecs.world()
 	world.event_bus = event_bus.create()
 
-	-- To make it works with entity.script to allows make entities in Defold editor
+	-- To make it works with entity.script to allows make entities in Defold editor via collections
 	events.subscribe("decore.create_entity", world.addEntity, world)
-	events.subscribe("decore.destroy_entity", world.removeEntity, world)
+	--events.subscribe("decore.destroy_entity", world.removeEntity, world)
 
 	-- Always included systems
 	world:addSystem(system_event_bus.create_system())

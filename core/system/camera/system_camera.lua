@@ -39,10 +39,9 @@ local M = {}
 
 M.DEFAULT_SIZE = math.min(sys.get_config_int("display.width"), sys.get_config_int("display.height"))
 
----@return system.camera, system.command_camera
+---@return system.camera
 function M.create_system()
 	local system = decore.system(M, "camera", "camera")
-	system.id = "camera"
 
 	system.interval = 0.03
 	system.entities_camera = {}
@@ -54,12 +53,13 @@ function M.create_system()
 	system.shake_time = 0
 	system.shake_max_time = 0
 
-	return system, command_camera.create_system(system)
+	return system
 end
 
 
 function M:onAddToWorld()
 	msg.post("@render:", "use_camera_projection")
+	self.world.command_camera = command_camera.create(self)
 end
 
 
@@ -75,7 +75,7 @@ function M:process_window_event(window_event)
 		return
 	end
 
-	if window_event.is_resized then
+	if window_event == window.WINDOW_EVENT_RESIZED then
 		self:update_camera_position(self.camera)
 		self:update_camera_zoom(self.camera)
 	end

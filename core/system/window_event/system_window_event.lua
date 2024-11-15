@@ -15,12 +15,16 @@ end
 
 
 function M:onAddToWorld()
-	events.subscribe("window_event", self.on_window_event, self)
+	window.set_listener(function(_, window_event)
+		events.trigger("decore.window_event", window_event)
+	end)
+
+	events.subscribe("decore.window_event", self.on_window_event, self)
 end
 
 
 function M:onRemoveFromWorld()
-	events.unsubscribe("window_event", self.on_window_event, self)
+	events.unsubscribe("decore.window_event", self.on_window_event, self)
 end
 
 
