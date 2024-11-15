@@ -31,7 +31,7 @@ M.logger = {
 	debug = function(_, msg, data) pprint("DEBUG: " .. msg, data) end,
 	info = function(_, msg, data) pprint("INFO: " .. msg, data) end,
 	warn = function(_, msg, data) pprint("WARN: " .. msg, data) end,
-	error = function(_, msg, data) pprint("ERROR: " .. msg, data) end
+	error = function(_, msg, data) pprint(data) error("ERROR: " .. msg) end
 }
 
 

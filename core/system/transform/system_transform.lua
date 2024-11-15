@@ -35,7 +35,7 @@ decore.register_component("transform", {
 })
 
 ---@class event.transform_event
----@field entity entity The entity that was changed.
+---@field entity entity.transform The entity that was changed.
 ---@field is_position_changed boolean|nil If true, the position was changed.
 ---@field is_scale_changed boolean|nil If true, the scale was changed.
 ---@field is_rotation_changed boolean|nil If true, the rotation was changed.

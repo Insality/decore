@@ -80,16 +80,16 @@ end
 
 ---Return node borders relative to the current node parent
 ---@param entity entity
----@return number, number, number, number @left, right, top, bottom
+---@return number, number, number, number @left, top, right, bottom
 function M:get_transform_borders(entity)
 	local t = entity.transform --[[@as component.transform]]
 
 	local left = t.position_x - t.size_x * 0.5
-	local right = t.position_x + t.size_x * 0.5
 	local top = t.position_y + t.size_y * 0.5
+	local right = t.position_x + t.size_x * 0.5
 	local bottom = t.position_y - t.size_y * 0.5
 
-	return left, right, top, bottom
+	return left, top, right, bottom
 end
 
 

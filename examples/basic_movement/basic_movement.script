@@ -5,6 +5,7 @@ function init(self)
 
 	self.world:add(
 		require("core.system.transform.system_transform").create_system(),
+		require("core.system.transform_border.system_transform_border").create_system(),
 		require("core.system.game_object.system_game_object").create_system(),
 		require("core.system.input.system_input").create_system(),
 		require("examples.basic_movement.system.system_movement_controller").create_system()
