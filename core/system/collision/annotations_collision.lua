@@ -1,4 +1,3 @@
-
 ---@class physics.collision.object
 ---@field id hash @Id of the object
 ---@field group hash @Group of the object
