@@ -9,11 +9,9 @@ function init(self)
 		require("core.system.movement_controller.system_movement_controller").create_system(),
 		require("core.system.collision.system_collision").create_system(),
 
-		require("core.system.panthera.system_panthera").create_system(),
-
 		require("examples.basic_collision.system.system_on_collision_remove").create_system(),
-		require("examples.basic_collision.system.system_score_counter").create_system(),
-		require("examples.basic_collision.system.system_on_remove_event").create_system()
+		require("examples.basic_collision.system.system_on_remove_event").create_system(),
+		require("examples.basic_collision.system.system_score_counter").create_system()
 	)
 
 	decore.register_entity("player", require("examples.basic_collision.entity.player"))
