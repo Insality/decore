@@ -1,10 +1,42 @@
 name: "basic_collision"
 instances {
+  id: "coin3"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 200.0
+    y: 420.0
+  }
+}
+instances {
   id: "player"
   prototype: "/examples/basic_collision/entity/player.go"
   position {
     x: 480.0
     y: 320.0
+  }
+}
+instances {
+  id: "coin8"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 760.0
+    y: 420.0
+  }
+}
+instances {
+  id: "coin5"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 760.0
+    y: 120.0
+  }
+}
+instances {
+  id: "coin9"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 760.0
+    y: 520.0
   }
 }
 instances {
@@ -16,11 +48,11 @@ instances {
   }
 }
 instances {
-  id: "coin1"
+  id: "coin6"
   prototype: "/examples/basic_collision/entity/coin.go"
   position {
-    x: 200.0
-    y: 230.0
+    x: 760.0
+    y: 220.0
   }
 }
 instances {
@@ -28,34 +60,40 @@ instances {
   prototype: "/examples/basic_collision/entity/coin.go"
   position {
     x: 200.0
-    y: 321.0
+    y: 320.0
   }
 }
 instances {
-  id: "coin3"
+  id: "coin7"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 760.0
+    y: 320.0
+  }
+}
+instances {
+  id: "coin1"
   prototype: "/examples/basic_collision/entity/coin.go"
   position {
     x: 200.0
-    y: 484.0
+    y: 220.0
   }
 }
 instances {
   id: "coin4"
   prototype: "/examples/basic_collision/entity/coin.go"
   position {
-    x: 413.0
-    y: 484.0
+    x: 200.0
+    y: 520.0
   }
+}
+instances {
+  id: "score_counter"
+  prototype: "/examples/basic_collision/entity/score_counter.go"
 }
 scale_along_z: 0
 embedded_instances {
-  id: "root"
-  children: "coin"
-  children: "coin1"
-  children: "coin2"
-  children: "coin3"
-  children: "coin4"
-  children: "player"
+  id: "system"
   data: "components {\n"
   "  id: \"basic_collision\"\n"
   "  component: \"/examples/basic_collision/basic_collision.script\"\n"

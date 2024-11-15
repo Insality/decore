@@ -28,10 +28,10 @@ function M:trigger(event_name, data)
 	if merge_callback then
 		local is_merged = merge_callback(self.stash[event_name], data)
 		if not is_merged then
-			table.insert(self.stash[event_name], data)
+			table.insert(self.stash[event_name], data or true)
 		end
 	else
-		table.insert(self.stash[event_name], data)
+		table.insert(self.stash[event_name], data or true)
 	end
 end
 

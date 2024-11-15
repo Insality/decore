@@ -9,11 +9,14 @@ function init(self)
 		require("core.system.movement_controller.system_movement_controller").create_system(),
 		require("core.system.collision.system_collision").create_system(),
 
-		require("examples.basic_collision.system.system_on_collision_remove").create_system()
+		require("examples.basic_collision.system.system_on_collision_remove").create_system(),
+		require("examples.basic_collision.system.system_score_counter").create_system(),
+		require("examples.basic_collision.system.system_on_remove_event").create_system()
 	)
 
 	decore.register_entity("player", require("examples.basic_collision.entity.player"))
 	decore.register_entity("coin", require("examples.basic_collision.entity.coin"))
+	decore.register_entity("score_counter", require("examples.basic_collision.entity.score_counter"))
 end
 
 
