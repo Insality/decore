@@ -44,3 +44,9 @@ is_prehash = 1
 [input]
 game_binding = /builtins/input/all.input_bindingc
 
+[sprite]
+max_count = 512
+
+[physics]
+max_collision_object_count = 512
+

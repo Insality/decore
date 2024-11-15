@@ -12,8 +12,11 @@ function M.create(input)
 end
 
 
+---@param action_id hash
+---@param action action
+---@return boolean
 function M:on_input(action_id, action)
-	self.input:on_input(action_id, action)
+	return self.input:on_input(action_id, action)
 end
 
 

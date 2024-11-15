@@ -27,7 +27,6 @@ function M.world(...)
 
 	-- To make it works with entity.script to allows make entities in Defold editor via collections
 	events.subscribe("decore.create_entity", world.addEntity, world)
-	--events.subscribe("decore.destroy_entity", world.removeEntity, world)
 
 	-- Always included systems
 	world:addSystem(system_event_bus.create_system())
@@ -85,9 +84,7 @@ end
 ---@param action action
 ---@return boolean
 function M.on_input(world, action_id, action)
-	action.action_id = action_id
-	world.event_bus:trigger("input_event", action)
-	return false
+	return world.command_input:on_input(action_id, action)
 end
 
 
@@ -102,7 +99,6 @@ end
 
 function M.final(world)
 	events.unsubscribe("decore.create_entity", world.addEntity, world)
-	events.unsubscribe("decore.destroy_entity", world.removeEntity, world)
 	world:clearEntities()
 	world:clearSystems()
 end
