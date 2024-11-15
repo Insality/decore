@@ -21,7 +21,7 @@ end
 ---Pushes an event onto the queue, triggering it and processing the queue of callbacks.
 ---@param event_name string The name of the event to push onto the queue.
 ---@param data any The data to pass to the event and its associated callbacks.
-function M:push(event_name, data)
+function M:trigger(event_name, data)
 	self.stash[event_name] = self.stash[event_name] or {}
 
 	local merge_callback = self.merge_callbacks[event_name]
@@ -79,6 +79,11 @@ end
 
 function M:get_events(event_name)
 	return self.events[event_name]
+end
+
+
+function M:get_stash(event_name)
+	return self.stash[event_name]
 end
 
 

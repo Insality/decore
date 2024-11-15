@@ -34,5 +34,9 @@
 		"after",
 		"it"
 	],
-	"Lua.completion.autoRequire": false
+	"Lua.completion.autoRequire": false,
+	"Lua.workspace.library": [
+		"~/Library/Application Support/Code/User/globalStorage/astronachos.defold",
+		"~/Library/Application Support/Code/User/workspaceStorage/d5f9bf017bc262ec86a14da3c3f3032d/astronachos.defold"
+	]
 }

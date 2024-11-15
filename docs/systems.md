@@ -45,7 +45,6 @@ local transform_event = require("decore.system.transform.transform_event")
 local M = {}
 
 
----@static
 ---@return system.transform, system.transform_command, system.transform_event
 function M.create_system()
 	local system = setmetatable(ecs.system(), { __index = M })
@@ -83,27 +82,26 @@ local ecs = require("decore.ecs")
 ---@field transform_command component.transform_command
 
 ---@class component.transform_command
----@field entity entity @The entity to apply the transform to.
----@field position_x number|nil @Position x in pixels.
----@field position_y number|nil @Position y in pixels.
----@field position_z number|nil @Position z in pixels.
----@field scale_x number|nil @Scale x in pixels.
----@field scale_y number|nil @Scale y in pixels.
----@field scale_z number|nil @Scale z in pixels.
----@field size_x number|nil @Size x in pixels.
----@field size_y number|nil @Size y in pixels.
----@field size_z number|nil @Size z in pixels.
----@field rotation number|nil @Rotation around x axis in degrees.
----@field animate_time number|nil @If true will animate the transform over time.
----@field easing userdata|nil @The easing function to use for the animation.
----@field relative boolean|nil @If true, the values are relative to the current values.
+---@field entity entity The entity to apply the transform to.
+---@field position_x number|nil Position x in pixels.
+---@field position_y number|nil Position y in pixels.
+---@field position_z number|nil Position z in pixels.
+---@field scale_x number|nil Scale x in pixels.
+---@field scale_y number|nil Scale y in pixels.
+---@field scale_z number|nil Scale z in pixels.
+---@field size_x number|nil Size x in pixels.
+---@field size_y number|nil Size y in pixels.
+---@field size_z number|nil Size z in pixels.
+---@field rotation number|nil Rotation around x axis in degrees.
+---@field animate_time number|nil If true will animate the transform over time.
+---@field easing userdata|nil The easing function to use for the animation.
+---@field relative boolean|nil If true, the values are relative to the current values.
 
 ---@class system.transform_command: system
 ---@field entities entity.transform_command[]
 local M = {}
 
 
----@static
 ---@return system.transform_command
 function M.create_system()
 	local system = ecs.system()
@@ -190,20 +188,19 @@ local ecs = require("decore.ecs")
 ---@field transform_event component.transform_event
 
 ---@class component.transform_event
----@field entity entity @The entity that was changed.
----@field is_position_changed boolean @If true, the position was changed.
----@field is_scale_changed boolean @If true, the scale was changed.
----@field is_rotation_changed boolean @If true, the rotation was changed.
----@field is_size_changed boolean @If true, the size was changed.
----@field animate_time number|nil @If true, the time it took to animate the transform.
----@field easing userdata|nil @The easing function used for the animation.
+---@field entity entity The entity that was changed.
+---@field is_position_changed boolean If true, the position was changed.
+---@field is_scale_changed boolean If true, the scale was changed.
+---@field is_rotation_changed boolean If true, the rotation was changed.
+---@field is_size_changed boolean If true, the size was changed.
+---@field animate_time number|nil If true, the time it took to animate the transform.
+---@field easing userdata|nil The easing function used for the animation.
 
 ---@class system.transform_event: system
 ---@field entities entity.transform_event[]
 local M = {}
 
 
----@static
 ---@return system.transform_event
 function M.create_system()
 	local system = ecs.system()

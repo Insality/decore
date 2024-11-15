@@ -97,13 +97,13 @@ end
 ---@return boolean
 function M.on_input(world, action_id, action)
 	action.action_id = action_id
-	world.event_bus:push("input_event", action)
+	world.event_bus:trigger("input_event", action)
 	return false
 end
 
 
 function M.on_message(world, message_id, message, sender)
-	world.event_bus:push("on_message", {
+	world.event_bus:trigger("on_message", {
 		message_id = message_id,
 		message = message,
 		sender = sender,
@@ -122,7 +122,7 @@ end
 ---Register entity to decore entities
 ---@param entity_id string
 ---@param entity_data table
----@param pack_id string|nil @default "decore"
+---@param pack_id string|nil default "decore"
 function M.register_entity(entity_id, entity_data, pack_id)
 	pack_id = pack_id or "decore"
 
@@ -192,7 +192,7 @@ end
 ---Create entity instance from prefab
 ---@param prefab_id string|hash|nil
 ---@param pack_id string|nil
----@param data table|nil @additional data to merge with prefab
+---@param data table|nil additional data to merge with prefab
 ---@return entity
 function M.create_entity(prefab_id, pack_id, data)
 	local prefab = prefab_id and M.get_entity(prefab_id, pack_id)
@@ -235,7 +235,7 @@ end
 ---Register component to decore components
 ---@param component_id string
 ---@param component_data any
----@param pack_id string|nil @default "decore"
+---@param pack_id string|nil default "decore"
 function M.register_component(component_id, component_data, pack_id)
 	pack_id = pack_id or "decore"
 
@@ -249,7 +249,7 @@ end
 
 
 ---Register components pack to decore components
----@param components_data_or_path decore.components_pack_data|string @if string, load data from JSON file from custom resources
+---@param components_data_or_path decore.components_pack_data|string if string, load data from JSON file from custom resources
 ---@return boolean
 function M.register_components(components_data_or_path)
 	local components_pack_data = decore_internal.load_config(components_data_or_path)
@@ -290,8 +290,8 @@ end
 
 ---Return new component instance from prefab
 ---@param component_id string
----@param component_pack_id string|nil @if nil, use first found from latest loaded pack
----@return any|nil @return nil if component not found
+---@param component_pack_id string|nil if nil, use first found from latest loaded pack
+---@return any|nil return nil if component not found
 function M.create_component(component_id, component_pack_id)
 	for index = #decore_data.components_order, 1, -1 do
 		local pack_id = decore_data.components_order[index]
@@ -323,7 +323,7 @@ end
 ---To refresh system filters, call world:addEntity(entity) after this function
 ---@param entity entity
 ---@param component_id string
----@param component_data any|nil @if nil, create component with default values
+---@param component_data any|nil if nil, create component with default values
 ---@return entity
 function M.apply_component(entity, component_id, component_data)
 	component_data = component_data or {}
@@ -359,7 +359,7 @@ end
 
 ---@param world_id string
 ---@param world_data decore.world.instance
----@param pack_id string|nil @default "decore"
+---@param pack_id string|nil default "decore"
 function M.register_world(world_id, world_data, pack_id)
 	pack_id = pack_id or "decore"
 
@@ -417,7 +417,7 @@ end
 
 ---Create entity instances from world prefab
 ---@param world_id string
----@param world_pack_id string|nil @if nil, use first found from latest loaded pack
+---@param world_pack_id string|nil if nil, use first found from latest loaded pack
 ---@return entity[]|nil
 function M.create_world(world_id, world_pack_id)
 	local world = M.get_world(world_id, world_pack_id)
@@ -505,7 +505,7 @@ end
 ---It looks for component_id in entity and entityToChange tables
 ---@param world world
 ---@param component_id string
----@param component_value any|nil @if nil, return all entities with component_id
+---@param component_value any|nil if nil, return all entities with component_id
 ---@return entity[]
 function M.find_entities_by_component_value(world, component_id, component_value)
 	local entities = {}
@@ -585,16 +585,16 @@ end
 
 ---Call command from params array. Example: {"system_name", "function_name", "arg1", "arg2", ...}
 ---@param world world
----@param command any[] Example: [ "debug_command", "toggle_profiler", true ],
+---@param command any[] Example: [ "command_debug", "toggle_profiler", true ],
 function M.call_command(world, command)
-	local system_command = world[command[1]]
-	if not system_command then
+	local command_system = world[command[1]]
+	if not command_system then
 		decore_internal.logger:error("System not found", command[1])
 		return
 	end
 
 	local func = command[2]
-	if not system_command[func] then
+	if not command_system[func] then
 		decore_internal.logger:error("Function not found", func)
 		return
 	end
@@ -604,7 +604,7 @@ function M.call_command(world, command)
 		table.insert(args, command[i])
 	end
 
-	system_command[func](system_command, unpack(args))
+	command_system[func](command_system, unpack(args))
 end
 
 
