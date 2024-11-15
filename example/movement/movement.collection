@@ -5,18 +5,10 @@ instances {
   position {
     x: 32.0
     y: 320.0
-    z: 0.0
   }
   rotation {
-    x: 0.0
-    y: 0.0
     z: -0.70710677
     w: 0.70710677
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
   }
 }
 instances {
@@ -25,18 +17,10 @@ instances {
   position {
     x: 928.0
     y: 320.0
-    z: 0.0
   }
   rotation {
-    x: 0.0
-    y: 0.0
     z: -0.70710677
     w: 0.70710677
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
   }
 }
 instances {
@@ -45,18 +29,6 @@ instances {
   position {
     x: 832.0
     y: 608.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
   }
 }
 instances {
@@ -65,18 +37,6 @@ instances {
   position {
     x: 389.0
     y: 126.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
   }
 }
 instances {
@@ -85,18 +45,6 @@ instances {
   position {
     x: 279.0
     y: 258.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
   }
 }
 instances {
@@ -105,47 +53,15 @@ instances {
   position {
     x: 351.0
     y: 451.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  component_properties {
-    id: "movement_controller"
-    properties {
-      id: "speed"
-      value: "400.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
   }
   scale3 {
     x: 1.5
     y: 1.5
-    z: 1.0
   }
 }
 collection_instances {
   id: "system"
   collection: "/example/system.collection"
-  position {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-  }
 }
 scale_along_z: 0
 embedded_instances {
@@ -153,54 +69,12 @@ embedded_instances {
   data: "components {\n"
   "  id: \"movement_level\"\n"
   "  component: \"/example/movement/movement_level.script\"\n"
-  "  position {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "  }\n"
-  "  rotation {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "    w: 1.0\n"
-  "  }\n"
-  "  property_decls {\n"
-  "  }\n"
   "}\n"
   "components {\n"
   "  id: \"screen_bounds\"\n"
   "  component: \"/example/movement/screen_bounds.gui\"\n"
-  "  position {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "  }\n"
-  "  rotation {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "    w: 1.0\n"
-  "  }\n"
-  "  property_decls {\n"
-  "  }\n"
   "}\n"
   ""
-  position {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-  }
 }
 embedded_instances {
   id: "camera"
@@ -212,21 +86,8 @@ embedded_instances {
   "fov: 1.0\\n"
   "near_z: -100.0\\n"
   "far_z: 100.0\\n"
-  "auto_aspect_ratio: 0\\n"
   "orthographic_projection: 1\\n"
-  "orthographic_zoom: 1.0\\n"
   "\"\n"
-  "  position {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "  }\n"
-  "  rotation {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "    w: 1.0\n"
-  "  }\n"
   "}\n"
   "embedded_components {\n"
   "  id: \"camera_area\"\n"
@@ -237,8 +98,6 @@ embedded_instances {
   "size {\\n"
   "  x: 960.0\\n"
   "  y: 640.0\\n"
-  "  z: 0.0\\n"
-  "  w: 0.0\\n"
   "}\\n"
   "size_mode: SIZE_MODE_MANUAL\\n"
   "textures {\\n"
@@ -246,17 +105,6 @@ embedded_instances {
   "  texture: \\\"/example/example.atlas\\\"\\n"
   "}\\n"
   "\"\n"
-  "  position {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "  }\n"
-  "  rotation {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "    w: 1.0\n"
-  "  }\n"
   "}\n"
   ""
   position {
@@ -264,56 +112,16 @@ embedded_instances {
     y: 320.0
     z: 10.0
   }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-  }
 }
 embedded_instances {
   id: "go"
   data: "components {\n"
   "  id: \"camera_component\"\n"
   "  component: \"/systems/camera/camera.script\"\n"
-  "  position {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "  }\n"
-  "  rotation {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "    w: 1.0\n"
-  "  }\n"
-  "  properties {\n"
-  "    id: \"camera_url\"\n"
-  "    value: \"/camera#camera\"\n"
-  "    type: PROPERTY_TYPE_URL\n"
-  "  }\n"
-  "  property_decls {\n"
-  "  }\n"
   "}\n"
   "components {\n"
   "  id: \"entity\"\n"
   "  component: \"/example/entities/entity.script\"\n"
-  "  position {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "  }\n"
-  "  rotation {\n"
-  "    x: 0.0\n"
-  "    y: 0.0\n"
-  "    z: 0.0\n"
-  "    w: 1.0\n"
-  "  }\n"
   "  properties {\n"
   "    id: \"prefab_id\"\n"
   "    value: \"camera\"\n"
@@ -329,24 +137,6 @@ embedded_instances {
   "    value: \"640.0\"\n"
   "    type: PROPERTY_TYPE_NUMBER\n"
   "  }\n"
-  "  property_decls {\n"
-  "  }\n"
   "}\n"
   ""
-  position {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-  }
-  rotation {
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0
-  }
-  scale3 {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-  }
 }

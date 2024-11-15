@@ -19,19 +19,6 @@ local M = {
 }
 
 
-function M.init()
-	M.register_components({
-		pack_id = "decore",
-		components = {
-			id = "",
-			prefab_id = false,
-			pack_id = false,
-			parent_prefab_id = false,
-		}
-	})
-end
-
-
 ---Create a new world instance
 ---@return world
 function M.world()

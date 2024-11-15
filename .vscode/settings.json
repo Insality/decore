@@ -32,7 +32,8 @@
 		"describe",
 		"before",
 		"after",
-		"it"
+		"it",
+		"editor"
 	],
 	"Lua.completion.autoRequire": false,
 	"Lua.workspace.library": [

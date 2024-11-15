@@ -1,0 +1,17 @@
+local decore = require("decore.decore")
+
+function init(self)
+	self.world = decore.world()
+
+	self.world:add(
+		require("core.system.transform.system_transform").create_system(),
+		require("core.system.game_object.system_game_object").create_system()
+	)
+
+	decore.register_entity("player", require("examples.basic_movement.entity.player"))
+end
+
+
+function update(self, dt)
+	self.world:update(dt)
+end
