@@ -95,7 +95,7 @@ local FROM, TO = vmath.vector3(), vmath.vector3()
 ---@static
 ---@return system.platformer_physics
 function M.create_system()
-	return decore.system(M, "platformer_physics", { "platformer_physics", "transform" })
+	return decore.processing_system(M, "platformer_physics", { "platformer_physics", "transform" })
 end
 
 
@@ -105,7 +105,17 @@ end
 
 
 function M:postWrap()
-	self.world.event_bus:process("collision_event", self.process_collision_event, self)
+	--self.world.event_bus:process("collision_event", self.process_collision_event, self)
+end
+
+
+function M:process(entity, dt)
+	local contact_point_events = entity.collision.contact_point_events
+	if contact_point_events then
+		for i = 1, #contact_point_events do
+			self:process_collision_event(contact_point_events[i])
+		end
+	end
 end
 
 

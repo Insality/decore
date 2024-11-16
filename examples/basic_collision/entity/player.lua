@@ -5,5 +5,5 @@ return {
 	movement_controller = {
 		speed = 20
 	},
-	collision = true
+	collision = {}
 }

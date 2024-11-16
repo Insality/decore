@@ -50,7 +50,6 @@ max_count = 512
 [physics]
 max_collision_object_count = 512
 scale = 0.01
-debug = 1
 
 [collection]
 max_instances = 2048
