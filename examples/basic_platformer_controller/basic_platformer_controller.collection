@@ -1,0 +1,138 @@
+name: "basic_platformer_controller"
+instances {
+  id: "player"
+  prototype: "/examples/basic_platformer_controller/entity/player.go"
+  position {
+    x: 480.0
+    y: 320.0
+  }
+}
+instances {
+  id: "score_counter"
+  prototype: "/examples/basic_platformer_controller/entity/score_counter.go"
+}
+instances {
+  id: "coin16"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: -270.0
+    y: -270.0
+  }
+}
+instances {
+  id: "coin5"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: 366.0
+    y: -270.0
+  }
+}
+instances {
+  id: "coin12"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: 290.0
+    y: -270.0
+  }
+}
+instances {
+  id: "coin"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: -194.0
+    y: -270.0
+  }
+}
+instances {
+  id: "coin22"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: -122.0
+    y: -270.0
+  }
+}
+instances {
+  id: "coin24"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: 438.0
+    y: -270.0
+  }
+}
+instances {
+  id: "coin69"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: 252.0
+    y: -270.0
+  }
+}
+instances {
+  id: "coin79"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: 400.0
+    y: -270.0
+  }
+}
+instances {
+  id: "coin100"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: -308.0
+    y: -270.0
+  }
+}
+instances {
+  id: "coin105"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: -232.0
+    y: -270.0
+  }
+}
+instances {
+  id: "coin110"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: -160.0
+    y: -270.0
+  }
+}
+instances {
+  id: "coin113"
+  prototype: "/examples/basic_platformer_controller/entity/coin.go"
+  position {
+    x: 328.0
+    y: -270.0
+  }
+}
+scale_along_z: 0
+embedded_instances {
+  id: "system"
+  data: "components {\n"
+  "  id: \"basic_platformer_controller\"\n"
+  "  component: \"/examples/basic_platformer_controller/basic_platformer_controller.script\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "coins"
+  children: "coin"
+  children: "coin100"
+  children: "coin105"
+  children: "coin110"
+  children: "coin113"
+  children: "coin12"
+  children: "coin16"
+  children: "coin22"
+  children: "coin24"
+  children: "coin5"
+  children: "coin69"
+  children: "coin79"
+  data: ""
+  position {
+    x: 480.0
+    y: 320.0
+  }
+}

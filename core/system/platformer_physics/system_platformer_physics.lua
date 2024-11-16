@@ -70,11 +70,14 @@ local RAYCAST_GROUPS = { hash("level") }
 local FROM, TO = vmath.vector3(), vmath.vector3()
 
 ---@static
----@return system.platformer_physics, system.command_platformer_physics
+---@return system.platformer_physics
 function M.create_system()
-	local system = decore.processing_system(M, "platformer_physics", { "platformer_physics", "transform" })
+	return decore.processing_system(M, "platformer_physics", { "platformer_physics", "transform" })
+end
 
-	return system, command_platformer_physics.create_system(system)
+
+function M:onAddToWorld()
+	self.world.command_platformer_physics = command_platformer_physics.create(self)
 end
 
 

@@ -1,32 +1,15 @@
-local decore = require("decore.decore")
-
 ---@class world
----@field command_platformer_physics system.command_platformer_physics
+---@field command_platformer_physics command.platformer_physics
 
----@class system.command_platformer_physics: command_system
+---@class command.platformer_physics
 ---@field platformer_physics system.platformer_physics
 local M = {}
 
 
 ---@static
----@return system.command_platformer_physics
-function M.create_system(platformer_physics)
-	local system = decore.system(M, "command_platformer_physics")
-	system.platformer_physics = platformer_physics
-
-	return system
-end
-
-
----@private
-function M:onAddToWorld()
-	self.world.command_platformer_physics = self
-end
-
-
----@private
-function M:onRemoveFromWorld()
-	self.world.command_platformer_physics = nil
+---@return command.platformer_physics
+function M.create(platformer_physics)
+	return setmetatable({ platformer_physics = platformer_physics }, { __index = M })
 end
 
 
