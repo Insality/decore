@@ -8,7 +8,7 @@ local events = require("event.events")
 
 local EMPTY_HASH = hash("")
 local TYPE_TABLE = "table"
-local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 0) == 1
+local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 1) == 1
 
 ---@class world
 ---@field event_bus decore.event_bus
