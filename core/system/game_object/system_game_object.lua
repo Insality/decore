@@ -120,8 +120,6 @@ function M:remove_entity(entity)
 				-- Right before it will be deleted with upper removeEntity
 				if go.exists(object) then
 					go.delete(object, false)
-				else
-					print("False deletion", entity)
 				end
 			end
 		end
