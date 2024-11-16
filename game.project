@@ -24,7 +24,7 @@ dependencies#3 = https://github.com/Insality/defold-event/archive/refs/tags/10.z
 dependencies#4 = https://github.com/subsoap/defos/archive/refs/tags/v2.7.1.zip
 
 [library]
-include_dirs = decore
+include_dirs = decore,core
 
 [log]
 level = ERROR
