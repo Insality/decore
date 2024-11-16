@@ -95,7 +95,7 @@ local FROM, TO = vmath.vector3(), vmath.vector3()
 ---@static
 ---@return system.platformer_physics
 function M.create_system()
-	return decore.processing_system(M, "platformer_physics", { "platformer_physics", "transform" })
+	return decore.system(M, "platformer_physics", { "platformer_physics", "transform" })
 end
 
 
@@ -105,17 +105,7 @@ end
 
 
 function M:postWrap()
-	--self.world.event_bus:process("collision_event", self.process_collision_event, self)
-end
-
-
-function M:process(entity, dt)
-	local contact_point_events = entity.collision.contact_point_events
-	if contact_point_events then
-		for i = 1, #contact_point_events do
-			self:process_collision_event(contact_point_events[i])
-		end
-	end
+	self.world.event_bus:process("collision_event", self.process_collision_event, self)
 end
 
 
@@ -136,18 +126,21 @@ function M:fixed_update(dt)
 			pf.gravity_multiplier = pf.downward_movement_multiplier
 		end
 
-		self:update_velocity(entity, dt)
-
 		pf.ground_timer = math.max(0, pf.ground_timer - dt)
 		for i = 1, #pf.contact_timers do
 			pf.contact_timers[i] = math.max(0, pf.contact_timers[i] - dt)
 		end
+
 		-- apply the compensation to the player character
 		local corr = pf.correction
 		self.world.command_transform:add_position(entity, corr.x, corr.y, corr.z)
 		pf.correction.x = 0
 		pf.correction.y = 0
 		pf.correction.z = 0
+
+		-- update velocity
+
+		self:update_velocity(entity, dt)
 	end
 end
 

@@ -8,14 +8,7 @@ local decore = require("decore.decore")
 
 ---If true, will get collision events.
 ---@class component.collision
----@field contact_point_events physics.collision.contact_point_event[]|nil
----@field collision_events physics.collision.collision_event[]|nil
----@field trigger_events physics.collision.trigger_event[]|nil
-decore.register_component("collision", {
-	contact_point_events = nil,
-	collision_events = nil,
-	trigger_events = nil
-})
+decore.register_component("collision", {})
 
 ---@class event.collision_event
 ---@field entity entity
@@ -91,16 +84,6 @@ function M:preWrap()
 end
 
 
-function M:postWrap()
-	for index = 1, #self.entities do
-		local entity = self.entities[index]
-		entity.collision.contact_point_events = nil
-		entity.collision.collision_events = nil
-		entity.collision.trigger_events = nil
-	end
-end
-
-
 local CONTACT_POINT_EVENT = hash("contact_point_event")
 local COLLISION_EVENT = hash("collision_event")
 local TRIGGER_EVENT = hash("trigger_event")
@@ -138,9 +121,7 @@ function M:handle_contact_point_event(event_data)
 			other = entity_target,
 			contact_point_event = event_data
 		}
-		--self.world.event_bus:trigger("collision_event", collision_event)
-		entity_source.collision.contact_point_events = entity_source.collision.contact_point_events or {}
-		table.insert(entity_source.collision.contact_point_events, collision_event)
+		self.world.event_bus:trigger("collision_event", collision_event)
 	end
 
 	if entity_target and entity_target.collision then
@@ -150,9 +131,7 @@ function M:handle_contact_point_event(event_data)
 			other = entity_source,
 			contact_point_event = event_data
 		}
-		--self.world.event_bus:trigger("collision_event", collision_event)
-		entity_target.collision.contact_point_events = entity_target.collision.contact_point_events or {}
-		table.insert(entity_target.collision.contact_point_events, collision_event)
+		self.world.event_bus:trigger("collision_event", collision_event)
 	end
 end
 
@@ -170,9 +149,7 @@ function M:handle_trigger_event(event_data)
 			other = entity_target,
 			trigger_event = event_data
 		}
-		--self.world.event_bus:trigger("collision_event", collision_event)
-		entity_source.collision.trigger_events = entity_source.collision.trigger_events or {}
-		table.insert(entity_source.collision.trigger_events, collision_event)
+		self.world.event_bus:trigger("collision_event", collision_event)
 	end
 
 	if entity_target and entity_target.collision then
@@ -182,9 +159,7 @@ function M:handle_trigger_event(event_data)
 			other = entity_source,
 			trigger_event = event_data
 		}
-		--self.world.event_bus:trigger("collision_event", collision_event)
-		entity_target.collision.trigger_events = entity_target.collision.trigger_events or {}
-		table.insert(entity_target.collision.trigger_events, collision_event)
+		self.world.event_bus:trigger("collision_event", collision_event)
 	end
 end
 
@@ -202,9 +177,7 @@ function M:handle_collision_event(event_data)
 			other = entity_target,
 			collision_event = event_data
 		}
-		--self.world.event_bus:trigger("collision_event", collision_event)
-		entity_source.collision.collision_events = entity_source.collision.collision_events or {}
-		table.insert(entity_source.collision.collision_events, collision_event)
+		self.world.event_bus:trigger("collision_event", collision_event)
 
 		if entity_target then
 			self.collided_this_frame[entity_source] = self.collided_this_frame[entity_source] or {}
@@ -220,9 +193,7 @@ function M:handle_collision_event(event_data)
 			other = entity_source,
 			collision_event = event_data
 		}
-		--self.world.event_bus:trigger("collision_event", collision_event)
-		entity_target.collision.collision_events = entity_target.collision.collision_events or {}
-		table.insert(entity_target.collision.collision_events, collision_event)
+		self.world.event_bus:trigger("collision_event", collision_event)
 
 		if entity_source then
 			self.collided_this_frame[entity_target] = self.collided_this_frame[entity_target] or {}

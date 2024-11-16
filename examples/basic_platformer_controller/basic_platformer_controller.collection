@@ -107,6 +107,28 @@ instances {
     y: -270.0
   }
 }
+instances {
+  id: "entity_camera"
+  prototype: "/core/system/camera/entity_camera.go"
+  position {
+    x: 480.0
+    y: 320.0
+    z: 10.0
+  }
+  component_properties {
+    id: "entity"
+    properties {
+      id: "size_x"
+      value: "960.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+    properties {
+      id: "size_y"
+      value: "640.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+  }
+}
 scale_along_z: 0
 embedded_instances {
   id: "system"
@@ -170,7 +192,7 @@ embedded_instances {
   "material: \\\"/builtins/materials/sprite.material\\\"\\n"
   "size {\\n"
   "  x: 1920.0\\n"
-  "  y: 16.0\\n"
+  "  y: 20.0\\n"
   "}\\n"
   "size_mode: SIZE_MODE_MANUAL\\n"
   "textures {\\n"
