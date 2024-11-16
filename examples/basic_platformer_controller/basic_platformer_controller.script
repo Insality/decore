@@ -6,11 +6,10 @@ function init(self)
 		require("core.system.transform_border.system_transform_border").create_system(),
 		require("core.system.game_object.system_game_object").create_system(),
 		require("core.system.input.system_input").create_system(),
-		--require("core.system.movement_controller.system_movement_controller").create_system(),
+		require("core.system.collision.system_collision").create_system(),
 		require("core.system.platformer_controller.system_platformer_controller").create_system(),
 		require("core.system.platformer_physics.system_platformer_physics").create_system(),
 
-		require("core.system.collision.system_collision").create_system(),
 
 		require("examples.basic_platformer_controller.system.system_on_collision_remove").create_system(),
 		require("examples.basic_platformer_controller.system.system_on_remove_event").create_system(),
@@ -30,6 +29,11 @@ end
 
 function fixed_update(self, dt)
 	self.world:fixed_update(dt)
+end
+
+
+function on_message(self, message_id, message, sender)
+	decore.on_message(self.world, message_id, message, sender)
 end
 
 

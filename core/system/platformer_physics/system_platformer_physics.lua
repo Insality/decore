@@ -14,7 +14,8 @@ local command_platformer_physics = require("core.system.platformer_physics.comma
 ---@field gravity_y number
 ---@field gravity_multiplier number
 ---@field gravity_scale number
----@field is_on_ground boolean
+---@field ground_timer number
+---@field contact_timers number[]
 ---@field velocity_x number
 ---@field velocity_y number
 ---@field target_velocity_x number
@@ -35,17 +36,19 @@ local command_platformer_physics = require("core.system.platformer_physics.comma
 ---@field jump_duration number
 ---@field is_double_jump boolean
 ---@field coyote_time number
----@field jump_buffer
+---@field jump_buffer number
 ---@field terminal_velocity number
 ---@field air_control number
 ---@field air_brake number
 ---@field jump_cutoff boolean
+---@field correction vector3
 decore.register_component("platformer_physics", {
 	gravity_x = 0,
 	gravity_y = 0,
 	gravity_multiplier = 1,
 	gravity_scale = 1,
-	is_on_ground = false,
+	ground_timer = 0,
+	contact_timers = { 0, 0, 0, 0 },
 
 	velocity_x = 0,
 	velocity_y = 0,
@@ -78,6 +81,8 @@ decore.register_component("platformer_physics", {
 	terminal_velocity = 0,
 	air_control = 0,
 	air_brake = 0,
+
+	correction = vmath.vector3(),
 })
 
 ---@class system.platformer_physics: system
@@ -90,7 +95,7 @@ local FROM, TO = vmath.vector3(), vmath.vector3()
 ---@static
 ---@return system.platformer_physics
 function M.create_system()
-	return decore.processing_system(M, "platformer_physics", { "platformer_physics", "transform" })
+	return decore.system(M, "platformer_physics", { "platformer_physics", "transform" })
 end
 
 
@@ -99,47 +104,8 @@ function M:onAddToWorld()
 end
 
 
----@param entity entity.platformer_physics
-function M:process(entity, dt)
-	local t = entity.transform
-	local pf = entity.platformer_physics
-
-	pf.is_on_ground = self:is_on_ground(entity)
-
-	-- Acceleration
-	local acceleration = pf.is_on_ground and pf.acceleration or pf.air_acceleration
-	local deceleration = pf.is_on_ground and pf.deceleration or pf.air_deceleration
-	local turn_speed = pf.is_on_ground and pf.turn_speed or pf.air_turn_speed
-
-	local max_speed_change = deceleration * dt
-	if pf.target_velocity_x ~= 0 then
-		if self:sign(pf.target_velocity_x) ~= self:sign(pf.velocity_x) then
-			max_speed_change = turn_speed * dt
-		else
-			max_speed_change = acceleration * dt
-		end
-	end
-
-	pf.velocity_x = self:step(pf.velocity_x, pf.target_velocity_x, max_speed_change)
-
-	local gravity_y = (-2 * pf.jump_height) / (pf.time_to_jump_apex * pf.time_to_jump_apex)
-	pf.gravity_scale = (gravity_y / pf.gravity_y) * pf.gravity_multiplier
-
-	if not pf.is_on_ground then
-		pf.velocity_y = pf.velocity_y + pf.gravity_y * dt
-	else
-		if pf.velocity_y < 0 then
-			pf.velocity_y = 0
-		end
-	end
-
-	local velocity_x = pf.velocity_x
-	local velocity_y = pf.velocity_y
-	if velocity_x ~= 0 or velocity_y ~= 0 then
-		local target_x = t.position_x + velocity_x * dt
-		local target_y = t.position_y + velocity_y * dt
-		self.world.command_transform:set_position(entity, target_x, target_y)
-	end
+function M:postWrap()
+	self.world.event_bus:process("collision_event", self.process_collision_event, self)
 end
 
 
@@ -160,6 +126,65 @@ function M:fixed_update(dt)
 			pf.gravity_multiplier = pf.downward_movement_multiplier
 		end
 
+		self:update_velocity(entity, dt)
+
+		pf.ground_timer = math.max(0, pf.ground_timer - dt)
+		for i = 1, #pf.contact_timers do
+			pf.contact_timers[i] = math.max(0, pf.contact_timers[i] - dt)
+		end
+		-- apply the compensation to the player character
+		local corr = pf.correction
+		self.world.command_transform:add_position(entity, corr.x, corr.y, corr.z)
+		pf.correction.x = 0
+		pf.correction.y = 0
+		pf.correction.z = 0
+	end
+end
+
+
+---@param entity entity.platformer_physics
+function M:update_velocity(entity, dt)
+	local t = entity.transform
+	local pf = entity.platformer_physics
+
+	local is_on_ground = pf.contact_timers[4] > 0
+	local is_on_left_wall = pf.contact_timers[1] > 0
+	local is_on_ceiling = pf.contact_timers[2] > 0
+	local is_on_right_wall = pf.contact_timers[3] > 0
+
+	-- Acceleration
+	local acceleration = is_on_ground and pf.acceleration or pf.air_acceleration
+	local deceleration = is_on_ground and pf.deceleration or pf.air_deceleration
+	local turn_speed = is_on_ground and pf.turn_speed or pf.air_turn_speed
+
+	local max_speed_change = deceleration * dt
+	if pf.target_velocity_x ~= 0 then
+		if self:sign(pf.target_velocity_x) ~= self:sign(pf.velocity_x) then
+			max_speed_change = turn_speed * dt
+		else
+			max_speed_change = acceleration * dt
+		end
+	end
+
+	pf.velocity_x = self:step(pf.velocity_x, pf.target_velocity_x, max_speed_change)
+
+	local gravity_y = (-2 * pf.jump_height) / (pf.time_to_jump_apex * pf.time_to_jump_apex)
+	pf.gravity_scale = (gravity_y / pf.gravity_y) * pf.gravity_multiplier
+
+	if not is_on_ground then
+		pf.velocity_y = pf.velocity_y + pf.gravity_y * dt
+	else
+		if pf.velocity_y < 0 then
+			pf.velocity_y = 0
+		end
+	end
+
+	local velocity_x = pf.velocity_x
+	local velocity_y = pf.velocity_y
+	if velocity_x ~= 0 or velocity_y ~= 0 then
+		local target_x = t.position_x + velocity_x * dt
+		local target_y = t.position_y + velocity_y * dt
+		self.world.command_transform:set_position(entity, target_x, target_y)
 	end
 end
 
@@ -168,7 +193,7 @@ end
 function M:jump(entity)
 	local pf = entity.platformer_physics
 
-	if pf.is_on_ground then
+	if pf.contact_timers[4] > 0 then
 		pf.desired_jump = false
 		pf.jump_speed = math.sqrt(-2 * pf.gravity_y * pf.jump_height * pf.gravity_scale)
 
@@ -182,20 +207,6 @@ function M:jump(entity)
 	end
 
 	pf.desired_jump = false
-end
-
-
----@param entity entity.platformer_physics
----@return boolean
-function M:is_on_ground(entity)
-	local t = entity.transform
-	local pf = entity.platformer_physics
-
-	FROM.x = t.position_x
-	FROM.y = t.position_y
-	TO.x = t.position_x
-	TO.y = t.position_y - t.size_y/2 - 1
-	return not not (physics.raycast(FROM, TO, RAYCAST_GROUPS))
 end
 
 
@@ -220,6 +231,55 @@ function M:step(current, target, step)
 		return math.min(current + step, target)
 	else
 		return math.max(target, current - step)
+	end
+end
+
+
+---@param collision_event event.collision_event
+function M:process_collision_event(collision_event)
+	local contact_point_event = collision_event.contact_point_event
+
+	if contact_point_event then
+		 -- project the correction vector onto the contact normal
+		-- (the correction vector is the 0-vector for the first contact point)
+		local entity = collision_event.entity
+		local pf = entity.platformer_physics
+		local normal = collision_event.contact_point_event.b.normal
+		if not normal then
+			normal = collision_event.contact_point_event.a.normal
+		end
+
+		if not normal or not pf then
+			return
+		end
+
+		local distance = collision_event.contact_point_event.distance
+
+		local proj = vmath.dot(pf.correction, normal)
+		-- calculate the compensation we need to make for this contact point
+		local comp = (distance - proj) * normal
+		-- add it to the correction vector
+		pf.correction = pf.correction + comp
+
+		-- check if the normal points enough up to consider the player standing on the ground
+		-- (0.7 is roughly equal to 45 degrees deviation from pure vertical direction)
+		pf.ground_timer = normal.y > 0.7 and 0.06 or 0
+
+		pf.contact_timers[1] = normal.x > 0.7 and 0.06 or pf.contact_timers[1]
+		pf.contact_timers[2] = normal.y < -0.7 and 0.06 or pf.contact_timers[2]
+		pf.contact_timers[3] = normal.x < -0.7 and 0.06 or pf.contact_timers[3]
+		pf.contact_timers[4] = normal.y > 0.7 and 0.06 or pf.contact_timers[4]
+
+		local velocity = vmath.vector3(0)
+		-- project the velocity onto the normal
+		proj = vmath.dot(velocity, normal)
+		-- if the projection is negative, it means that some of the velocity points towards the contact point
+		if proj < 0 then
+			-- remove that component in that case
+			local c = proj * normal
+			pf.velocity_x = pf.velocity_x - c.x
+			pf.velocity_y = pf.velocity_y - c.y
+		end
 	end
 end
 

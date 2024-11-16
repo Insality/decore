@@ -21,6 +21,13 @@ function M:move_vertical(entity, power)
 
 	local pf = entity.platformer_physics
 	pf.target_velocity_x = power * pf.speed
+
+	if self.platformer_physics:sign(pf.target_velocity_x) > 0 and pf.contact_timers[3] > 0 then
+		pf.target_velocity_x = 0
+	end
+	if self.platformer_physics:sign(pf.target_velocity_x) < 0 and pf.contact_timers[1] > 0 then
+		pf.target_velocity_x = 0
+	end
 end
 
 
