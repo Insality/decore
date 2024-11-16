@@ -43,7 +43,7 @@ end
 
 
 function M:onAddToWorld()
-	self.world.command_panthera = command_panthera.create(panthera)
+	self.world.command_panthera = command_panthera.create(self)
 end
 
 
@@ -87,7 +87,6 @@ function M:onRemove(entity)
 		end
 	end
 
-	pprint(p.play_on_remove)
 	if p.play_on_remove then
 		panthera.play(p.animation_state, p.play_on_remove)
 	end
