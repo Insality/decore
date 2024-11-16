@@ -312,9 +312,11 @@ end
 ---@param component_data any|nil if nil, create component with default values
 ---@return entity
 function M.apply_component(entity, component_id, component_data)
-	component_data = component_data or {}
+	if component_data == nil then
+		component_data = {}
+	end
 
-	if not entity[component_id] then
+	if entity[component_id] == nil then
 		-- Create default component with default values if not exists
 		entity[component_id] = M.create_component(component_id)
 	end
