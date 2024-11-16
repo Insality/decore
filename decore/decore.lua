@@ -180,19 +180,20 @@ end
 ---@param data table|nil additional data to merge with prefab
 ---@return entity
 function M.create_entity(prefab_id, pack_id, data)
+	if prefab_id == EMPTY_HASH and not data then
+		decore_internal.logger:error("The entity_id is empty", {
+			prefab_id = prefab_id,
+			pack_id = pack_id,
+		})
+		return {}
+	end
+
 	local prefab = prefab_id and M.get_entity(prefab_id, pack_id)
 
 	if not prefab then
 		local entity = {}
 		if data then
 			M.apply_components(entity, data)
-		end
-
-		if prefab_id and prefab_id ~= EMPTY_HASH then
-			decore_internal.logger:error("The entity_id not registered", {
-				prefab_id = prefab_id,
-				pack_id = pack_id,
-			})
 		end
 
 		return entity
@@ -568,10 +569,47 @@ function M.print_loaded_packs_debug_info()
 end
 
 
+
+---@param command string Example: "system_name.function_name, arg1, arg2". Separators are : " ", "," and "\n" only
+---@return any[]
+function M.parse_command(command)
+	-- Split the command string into a table. check numbers, remove newlines and spaces
+	local command_table = decore_internal.split_by_several_separators(command, { " ", ",", "\n" })
+
+	-- Trim the command table
+	for i = 1, #command_table do
+		command_table[i] = string.gsub(command_table[i], "%s+", "")
+	end
+
+	-- Checks types
+	for i = 1, #command_table do
+		-- Check number
+		if tonumber(command_table[i]) then
+			command_table[i] = tonumber(command_table[i])
+		end
+		-- Check boolean
+		if command_table[i] == "true" then
+			command_table[i] = true
+		elseif command_table[i] == "false" then
+			command_table[i] = false
+		end
+	end
+
+
+	return command_table
+end
+
+
 ---Call command from params array. Example: {"system_name", "function_name", "arg1", "arg2", ...}
 ---@param world world
 ---@param command any[] Example: [ "command_debug", "toggle_profiler", true ],
 function M.call_command(world, command)
+	if not command then
+		decore_internal.logger:error("Command is nil")
+		print(debug.traceback())
+		return
+	end
+
 	local command_system = world[command[1]]
 	if not command_system then
 		decore_internal.logger:error("System not found", command[1])
