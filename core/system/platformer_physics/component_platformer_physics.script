@@ -1,0 +1,34 @@
+go.property("gravity_x", 0)
+go.property("gravity_y", 0)
+go.property("gravity_multiplier", 1)
+go.property("max_speed", 600)
+go.property("max_acceleration", 1000)
+go.property("max_deceleration", 500)
+go.property("max_air_acceleration", 1000)
+go.property("max_air_deceleration", 1000)
+go.property("max_turn_speed", 1000)
+go.property("max_air_turn_speed", 1000)
+
+go.property("time_to_jump_apex", 0.3)
+go.property("jump_height", 100)
+go.property("downward_movement_multiplier", 1)
+
+local component = require("decore.component")
+
+function init(self)
+	component.init("platformer_physics", {
+		gravity_x = self.gravity_x,
+		gravity_y = self.gravity_y,
+		gravity_multiplier = self.gravity_multiplier,
+		max_speed = self.max_speed,
+		max_acceleration = self.max_acceleration,
+		max_deceleration = self.max_deceleration,
+		max_air_acceleration = self.max_air_acceleration,
+		max_air_deceleration = self.max_air_deceleration,
+		max_turn_speed = self.max_turn_speed,
+		max_air_turn_speed = self.max_air_turn_speed,
+		time_to_jump_apex = self.time_to_jump_apex,
+		jump_height = self.jump_height,
+		downward_movement_multiplier = self.downward_movement_multiplier,
+	})
+end
