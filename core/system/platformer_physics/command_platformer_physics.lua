@@ -20,7 +20,7 @@ function M:move_vertical(entity, power)
 	---@cast entity entity.platformer_physics
 
 	local pf = entity.platformer_physics
-	pf.target_velocity_x = power * pf.max_speed
+	pf.target_velocity_x = power * pf.speed
 end
 
 
@@ -29,7 +29,7 @@ function M:move_horizontal(entity, power)
 	---@cast entity entity.platformer_physics
 
 	local pf = entity.platformer_physics
-	pf.target_velocity_y = power * pf.max_speed
+	pf.target_velocity_y = power * pf.speed
 end
 
 

@@ -28,7 +28,7 @@ end
 function on_message(self, message_id, message)
 	if message_id == MSG_INIT_ENTITY then
 		if self.prefab_id == HASH_EMPTY then
-			print("", msg.url(), debug.traceback("The entity_id is empty"))
+			print(msg.url(), debug.traceback("The entity_id is empty"))
 			return
 		end
 		self.entity = decore.create_entity(self.prefab_id)

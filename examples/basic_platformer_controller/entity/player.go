@@ -20,15 +20,6 @@ components {
 components {
   id: "component_platformer_physics"
   component: "/core/system/platformer_physics/component_platformer_physics.script"
-  properties {
-    id: "gravity_y"
-    value: "-200.0"
-    type: PROPERTY_TYPE_NUMBER
-  }
-}
-components {
-  id: "basic_platformer_controller"
-  component: "/examples/basic_platformer_controller/basic_platformer_controller.script"
 }
 embedded_components {
   id: "sprite"

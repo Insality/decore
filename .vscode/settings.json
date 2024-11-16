@@ -33,7 +33,8 @@
 		"before",
 		"after",
 		"it",
-		"editor"
+		"editor",
+		"fixed_update"
 	],
 	"Lua.completion.autoRequire": false,
 	"Lua.workspace.library": [

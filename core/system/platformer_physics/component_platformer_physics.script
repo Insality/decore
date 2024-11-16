@@ -1,17 +1,26 @@
 go.property("gravity_x", 0)
-go.property("gravity_y", 0)
+go.property("gravity_y", -5000)
 go.property("gravity_multiplier", 1)
-go.property("max_speed", 600)
-go.property("max_acceleration", 1000)
-go.property("max_deceleration", 500)
-go.property("max_air_acceleration", 1000)
-go.property("max_air_deceleration", 1000)
-go.property("max_turn_speed", 1000)
-go.property("max_air_turn_speed", 1000)
+go.property("speed", 1000)
+go.property("acceleration", 2000)
+go.property("deceleration", 5000)
+go.property("air_acceleration", 5000)
+go.property("air_deceleration", 1000)
+go.property("turn_speed", 5000)
+go.property("air_turn_speed", 5000)
+go.property("air_control", 5000)
+go.property("air_brake", 5000)
 
 go.property("time_to_jump_apex", 0.3)
-go.property("jump_height", 100)
+go.property("jump_height", 200)
+go.property("jump_duration", 3)
 go.property("downward_movement_multiplier", 1)
+go.property("is_instant_movement", false)
+go.property("is_double_jump", true)
+go.property("coyote_time", 0)
+go.property("jump_buffer", 0)
+go.property("terminal_velocity", 0)
+go.property("jump_cutoff", 2.3) -- 1 is no cutoff
 
 local component = require("decore.component")
 
@@ -20,15 +29,24 @@ function init(self)
 		gravity_x = self.gravity_x,
 		gravity_y = self.gravity_y,
 		gravity_multiplier = self.gravity_multiplier,
-		max_speed = self.max_speed,
-		max_acceleration = self.max_acceleration,
-		max_deceleration = self.max_deceleration,
-		max_air_acceleration = self.max_air_acceleration,
-		max_air_deceleration = self.max_air_deceleration,
-		max_turn_speed = self.max_turn_speed,
-		max_air_turn_speed = self.max_air_turn_speed,
+		speed = self.speed,
+		acceleration = self.acceleration,
+		deceleration = self.deceleration,
+		air_acceleration = self.air_acceleration,
+		air_deceleration = self.air_deceleration,
+		turn_speed = self.turn_speed,
+		air_turn_speed = self.air_turn_speed,
 		time_to_jump_apex = self.time_to_jump_apex,
 		jump_height = self.jump_height,
 		downward_movement_multiplier = self.downward_movement_multiplier,
+		is_instant_movement = self.is_instant_movement,
+		jump_duration = self.jump_duration,
+		is_double_jump = self.is_double_jump,
+		coyote_time = self.coyote_time,
+		jump_buffer = self.jump_buffer,
+		terminal_velocity = self.terminal_velocity,
+		air_control = self.air_control,
+		air_brake = self.air_brake,
+		jump_cutoff = self.jump_cutoff
 	})
 end

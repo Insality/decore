@@ -19,18 +19,27 @@ local command_platformer_physics = require("core.system.platformer_physics.comma
 ---@field velocity_y number
 ---@field target_velocity_x number
 ---@field target_velocity_y number
----@field max_speed number
----@field max_acceleration number
----@field max_deceleration number
----@field max_air_acceleration number
----@field max_air_deceleration number
----@field max_turn_speed number
----@field max_air_turn_speed number
+---@field speed number
+---@field acceleration number
+---@field deceleration number
+---@field air_acceleration number
+---@field air_deceleration number
+---@field turn_speed number
+---@field air_turn_speed number
 ---@field desired_jump boolean
 ---@field time_to_jump_apex number
 ---@field jump_height number
 ---@field jump_speed number
 ---@field downward_movement_multiplier number
+---@field is_instant_movement boolean
+---@field jump_duration number
+---@field is_double_jump boolean
+---@field coyote_time number
+---@field jump_buffer
+---@field terminal_velocity number
+---@field air_control number
+---@field air_brake number
+---@field jump_cutoff boolean
 decore.register_component("platformer_physics", {
 	gravity_x = 0,
 	gravity_y = 0,
@@ -43,13 +52,13 @@ decore.register_component("platformer_physics", {
 	target_velocity_x = 0,
 	target_velocity_y = 0,
 
-	max_speed = 10,
-	max_acceleration = 52,
-	max_deceleration = 52,
-	max_air_acceleration = 52,
-	max_air_deceleration = 52,
-	max_turn_speed = 80,
-	max_air_turn_speed = 80,
+	speed = 10,
+	acceleration = 52,
+	deceleration = 52,
+	air_acceleration = 52,
+	air_deceleration = 52,
+	turn_speed = 80,
+	air_turn_speed = 80,
 
 	desired_jump = false,
 	time_to_jump_apex = 0.3,
@@ -60,6 +69,15 @@ decore.register_component("platformer_physics", {
 
 	jump_buffer_counter = 0,
 	coyote_time_counter = 0,
+
+	jump_cutoff = false,
+	jump_duration = 0,
+	is_double_jump = false,
+	coyote_time = 0,
+	jump_buffer = 0,
+	terminal_velocity = 0,
+	air_control = 0,
+	air_brake = 0,
 })
 
 ---@class system.platformer_physics: system
@@ -89,9 +107,9 @@ function M:process(entity, dt)
 	pf.is_on_ground = self:is_on_ground(entity)
 
 	-- Acceleration
-	local acceleration = pf.is_on_ground and pf.max_acceleration or pf.max_air_acceleration
-	local deceleration = pf.is_on_ground and pf.max_deceleration or pf.max_air_deceleration
-	local turn_speed = pf.is_on_ground and pf.max_turn_speed or pf.max_air_turn_speed
+	local acceleration = pf.is_on_ground and pf.acceleration or pf.air_acceleration
+	local deceleration = pf.is_on_ground and pf.deceleration or pf.air_deceleration
+	local turn_speed = pf.is_on_ground and pf.turn_speed or pf.air_turn_speed
 
 	local max_speed_change = deceleration * dt
 	if pf.target_velocity_x ~= 0 then
