@@ -39,7 +39,7 @@ embedded_components {
   "size_mode: SIZE_MODE_MANUAL\n"
   "textures {\n"
   "  sampler: \"texture_sampler\"\n"
-  "  texture: \"/assets/atlases/game.atlas\"\n"
+  "  texture: \"/core/atlas/core.atlas\"\n"
   "}\n"
   ""
   position {

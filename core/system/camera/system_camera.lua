@@ -27,8 +27,6 @@ decore.register_component("camera", {
 
 ---@class system.camera: system
 ---@field entities (entity.camera)[]
----@field entities_camera entity.camera[]
----@field is_window_resized boolean
 ---@field camera entity.camera|nil @Current camera entity
 ---@field camera_borders vector4|nil @Borders of camera visible area vmath.vector4(left, right, top, bottom). Camera will not move outside of these borders
 ---@field shake_power number|nil
@@ -44,8 +42,6 @@ function M.create_system()
 	local system = decore.system(M, "camera", "camera")
 
 	system.interval = 0.03
-	system.entities_camera = {}
-	system.is_window_resized = false
 	system.camera = nil
 	system.camera_borders = nil
 	system.zoom = 1

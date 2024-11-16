@@ -28,7 +28,7 @@ local TEMP_VECTOR = vmath.vector3()
 
 ---@return system.physics
 function M.create_system()
-	return decore.system(M, "physics", { "physics", "game_object", "transform" })
+	return decore.processing_system(M, "physics", { "physics", "game_object", "transform" })
 end
 
 
