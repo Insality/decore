@@ -10,6 +10,7 @@ local decore = require("decore.decore")
 local MSG_SET_COMPONENT = hash("set_component")
 local MSG_INIT_ENTITY = hash("init_entity")
 local MSG_ADD_ENTITY = hash("add_entity")
+local HASH_EMPTY = hash("")
 
 local SCALE_X = hash("scale.x")
 local SCALE_Y = hash("scale.y")
@@ -26,6 +27,10 @@ end
 
 function on_message(self, message_id, message)
 	if message_id == MSG_INIT_ENTITY then
+		if self.prefab_id == HASH_EMPTY then
+			print("", msg.url(), debug.traceback("The entity_id is empty"))
+			return
+		end
 		self.entity = decore.create_entity(self.prefab_id)
 
 		local world_position = go.get_world_position()
