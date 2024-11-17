@@ -1,4 +1,5 @@
 local decore = require("decore.decore")
+local command_game_object = require("core.system.game_object.command_game_object")
 
 ---@class entity
 ---@field game_object component.game_object|nil
@@ -41,6 +42,11 @@ function M.create_system()
 	system.root_to_entity = {}
 
 	return system
+end
+
+
+function M:onAddToWorld()
+	self.world.command_game_object = command_game_object.create(self)
 end
 
 
@@ -149,6 +155,24 @@ function M:process_transform_event(transform_event)
 			go.set_position(TEMP_VECTOR, root)
 		end
 	end
+end
+
+
+function M:refresh_transform(entity)
+	local root = entity.game_object.root
+	if not root then
+		return
+	end
+
+	TEMP_VECTOR.x = entity.transform.position_x
+	TEMP_VECTOR.y = entity.transform.position_y
+	TEMP_VECTOR.z = entity.transform.position_z
+	go.set_position(TEMP_VECTOR, root)
+
+	TEMP_VECTOR.x = entity.transform.scale_x
+	TEMP_VECTOR.y = entity.transform.scale_y
+	TEMP_VECTOR.z = entity.transform.scale_x -- X to keep uniform for physics
+	go.set_scale(TEMP_VECTOR, root)
 end
 
 

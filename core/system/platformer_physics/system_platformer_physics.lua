@@ -194,6 +194,10 @@ function M:update_velocity(entity, dt)
 		local target_x = t.position_x + velocity_x * dt
 		local target_y = t.position_y + velocity_y * dt
 		self.world.command_transform:set_position(entity, target_x, target_y)
+
+		if entity.game_object then
+			self.world.command_game_object:refresh_transform(entity)
+		end
 	end
 end
 
