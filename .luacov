@@ -59,7 +59,7 @@ return {
     "^test%/.+$",
     "^decore/ecs$",
     -- Dont include all **/test_NAME files
-    "^%/.+/test%/.+$",
+     "^.+/test_%w+$"
   },
 
   --- Table mapping names of modules to be included to their filenames.
