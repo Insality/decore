@@ -28,8 +28,10 @@ def duplicate_folder_with_assets(folder_path, target_folder_name):
 		item_path = os.path.join(folder_path, item)
 		target_item_path = os.path.join(target_folder_path, item)
 		if os.path.isdir(item_path):
+			print(f"Copying folder: {item_path} to: {target_item_path}")
 			shutil.copytree(item_path, target_item_path)
 		else:
+			print(f"Copying file: {item_path} to: {target_item_path}")
 			shutil.copy2(item_path, target_item_path)
 
 	for root, _, files in os.walk(target_folder_path):
@@ -39,18 +41,38 @@ def duplicate_folder_with_assets(folder_path, target_folder_name):
 
 
 def replace_file_name_and_content(file_path, folder_name, target_folder_name):
-	new_file_path = file_path.replace(folder_name, target_folder_name)
-	os.rename(file_path, new_file_path)
-	print(f"Renamed file: {file_path} to: {new_file_path}")
+	# Handle binary files
+	try:
+		with open(file_path, 'r') as file:
+			file_content = file.read()
+	except UnicodeDecodeError:
+		print(f"Skipping binary file: {file_path}")
+		return
 
-	with open(new_file_path, 'r') as file:
-		file_content = file.read()
+	# Replace file content using word boundaries to avoid partial matches
+	import re
+	pattern = r'\b' + re.escape(folder_name) + r'\b'
+	new_file_content = re.sub(pattern, target_folder_name, file_content)
 
-	new_file_content = file_content.replace(folder_name, target_folder_name)
-	with open(new_file_path, 'w') as file:
+	# Write updated content back to original file
+	with open(file_path, 'w') as file:
 		file.write(new_file_content)
-		print(f"Replaced content in file: {new_file_path}")
 
+	# Handle file renaming
+	dir_path = os.path.dirname(file_path)
+	file_name = os.path.basename(file_path)
+
+	# Only replace the exact folder name in the filename
+	if folder_name in file_name:
+		new_file_name = file_name.replace(folder_name, target_folder_name)
+		new_file_path = os.path.join(dir_path, new_file_name)
+
+		if new_file_path != file_path:
+			print(f"Renaming: {file_path} -> {new_file_path}")
+			os.rename(file_path, new_file_path)
+			return new_file_path
+
+	return file_path
 
 if __name__ == "__main__":
 	main()
