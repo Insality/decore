@@ -58,7 +58,8 @@ return {
   exclude = {
     "^test%/.+$",
     "^decore/ecs$",
-    "^test_.+%.lua$"
+    -- Dont include all **/test_NAME files
+    "^%/.+/test%/.+$",
   },
 
   --- Table mapping names of modules to be included to their filenames.
