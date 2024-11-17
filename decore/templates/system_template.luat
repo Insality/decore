@@ -17,7 +17,7 @@ local M = {}
 
 ---@return system.TEMPLATE
 function M.create_system()
-	return decore.system(M, "TEMPLATE", "TEMPLATE")
+	return decore.system(M, "TEMPLATE", { "TEMPLATE" })
 end
 
 
