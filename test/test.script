@@ -1,11 +1,10 @@
 local deftest = require("deftest.deftest")
 
 function init(self)
-	--deftest.add(require("test.test_decore"))
 	deftest.add(require("core.system.health.test_health"))
 	deftest.add(require("core.system.fsm.test_fsm"))
 	deftest.add(require("core.system.transform.test_transform"))
 
-	local is_report = (sys.get_config("test.report") == "1")
+	local is_report = (sys.get_config_int("test.report", 0) == 1)
 	deftest.run({ coverage = { enabled = is_report } })
 end

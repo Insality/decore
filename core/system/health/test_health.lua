@@ -1,11 +1,11 @@
 return function()
 	describe("System Health", function()
-		local decore = require("decore.decore")
-
+		local decore --- @type decore
 		local world ---@type world
 		local system_health ---@type system.health
 
 		before(function()
+			decore = require("decore.decore")
 			system_health = require("core.system.health.system_health")
 
 			world = decore.world()

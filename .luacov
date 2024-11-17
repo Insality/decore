@@ -57,7 +57,8 @@ return {
   -- Overrules `include`.
   exclude = {
     "^test%/.+$",
-	"^decore/ecs$",
+    "^decore/ecs$",
+    "^test_.+%.lua$"
   },
 
   --- Table mapping names of modules to be included to their filenames.

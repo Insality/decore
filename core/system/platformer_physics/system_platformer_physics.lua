@@ -139,7 +139,6 @@ function M:fixed_update(dt)
 		pf.correction.z = 0
 
 		-- update velocity
-
 		self:update_velocity(entity, dt)
 	end
 end
@@ -174,12 +173,19 @@ function M:update_velocity(entity, dt)
 	local gravity_y = (-2 * pf.jump_height) / (pf.time_to_jump_apex * pf.time_to_jump_apex)
 	pf.gravity_scale = (gravity_y / pf.gravity_y) * pf.gravity_multiplier
 
-	if not is_on_ground then
-		pf.velocity_y = pf.velocity_y + pf.gravity_y * dt
-	else
-		if pf.velocity_y < 0 then
-			pf.velocity_y = 0
-		end
+	pf.velocity_y = pf.velocity_y + pf.gravity_y * dt
+
+	if is_on_ground then
+		pf.velocity_y = math.max(pf.velocity_y, 0)
+	end
+	if is_on_ceiling then
+		pf.velocity_y = math.min(pf.velocity_y, 0)
+	end
+	if is_on_left_wall then
+		pf.velocity_x = math.max(pf.velocity_x, 0)
+	end
+	if is_on_right_wall then
+		pf.velocity_x = math.min(pf.velocity_x, 0)
 	end
 
 	local velocity_x = pf.velocity_x
@@ -282,6 +288,10 @@ function M:process_collision_event(collision_event)
 			local c = proj * normal
 			pf.velocity_x = pf.velocity_x - c.x
 			pf.velocity_y = pf.velocity_y - c.y
+		end
+
+		if pf.contact_timers[4] > 0 then
+			pf.velocity_y = math.max(0, pf.velocity_y)
 		end
 	end
 end

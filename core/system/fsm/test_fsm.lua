@@ -1,7 +1,6 @@
 return function()
 	describe("System FSM", function()
-		local decore = require("decore.decore")
-
+		local decore ---@type decore
 		local world ---@type world
 		local system_fsm ---@type system.fsm
 
@@ -23,6 +22,7 @@ return function()
 		end
 
 		before(function()
+			decore = require("decore.decore")
 			system_fsm = require("core.system.fsm.system_fsm")
 
 			world = decore.world()

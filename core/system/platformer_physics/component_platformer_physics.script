@@ -12,7 +12,7 @@ go.property("air_control", 8000)
 go.property("air_brake", 8000)
 
 go.property("time_to_jump_apex", 0.3)
-go.property("jump_height", 210)
+go.property("jump_height", 280)
 go.property("jump_duration", 3)
 go.property("downward_movement_multiplier", 1)
 go.property("is_instant_movement", false)

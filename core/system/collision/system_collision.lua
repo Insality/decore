@@ -39,20 +39,6 @@ function M:onAddToWorld()
 	physics.set_listener(function(_, event_id, event)
 		M.physics_world_listener(self, event_id, event)
 	end)
-
-	--self.world.event_bus:set_merge_policy("collision_event", function(events, new_event)
-	--	for index = #events, 1, -1 do
-	--		local event = events[index]
-	--		local is_match_entities = event.entity == new_event.entity and event.other == new_event.other
-	--		local is_match_type = event.trigger_event and new_event.trigger_event
-	--							or event.collision_event and new_event.collision_event
-	--							or event.contact_point_event and new_event.contact_point_event
-	--		if is_match_entities and is_match_type then
-	--			return true
-	--		end
-	--	end
-	--	return false
-	--end)
 end
 
 

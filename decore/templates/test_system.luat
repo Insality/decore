@@ -1,11 +1,11 @@
 return function()
 	describe("System TEMPLATE", function()
-		local decore = require("decore.decore")
-
+		local decore ---@type decore
 		local world ---@type world
 		local system_TEMPLATE ---@type system.TEMPLATE
 
 		before(function()
+			decore = require("decore.decore")
 			system_TEMPLATE = require("core.system.TEMPLATE.system_TEMPLATE")
 
 			world = decore.world()

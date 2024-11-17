@@ -1,11 +1,11 @@
 return function()
 	describe("System transform", function()
-		local decore = require("decore.decore")
-
+		local decore ---@type decore
 		local world ---@type world
 		local system_transform ---@type system.transform
 
 		before(function()
+			decore = require("decore.decore")
 			system_transform = require("core.system.transform.system_transform")
 
 			world = decore.world()
