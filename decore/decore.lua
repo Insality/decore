@@ -1,6 +1,7 @@
 local event_bus = require("decore.internal.event_bus")
 local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
+local decore_commands = require("decore.internal.decore_commands")
 local system_event_bus = require("decore.internal.system_event_bus")
 
 local events = require("event.events")
@@ -8,7 +9,6 @@ local events = require("event.events")
 
 local EMPTY_HASH = hash("")
 local TYPE_TABLE = "table"
-local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 1) == 1
 
 ---@class world
 ---@field event_bus decore.event_bus
@@ -88,6 +88,11 @@ function M.on_input(world, action_id, action)
 end
 
 
+---Add window event to the world event bus
+---@param world world
+---@param message_id hash
+---@param message table|nil
+---@param sender url|nil
 function M.on_message(world, message_id, message, sender)
 	world.event_bus:trigger("on_message", {
 		message_id = message_id,
@@ -109,21 +114,7 @@ end
 ---@param entity_data table
 ---@param pack_id string|nil default "decore"
 function M.register_entity(entity_id, entity_data, pack_id)
-	pack_id = pack_id or "decore"
-
-	if not decore_data.entities[pack_id] then
-		decore_data.entities[pack_id] = {}
-		table.insert(decore_data.entities_order, pack_id)
-	end
-
-	decore_data.entities[pack_id][entity_id] = entity_data or {}
-	if IS_PREHASH_ENTITIES_ID then
-		local hashed_id = hash(entity_id)
-		decore_data.entities[pack_id][hashed_id] = entity_data or decore_data.entities[pack_id][entity_id]
-	end
-
-	entity_data.prefab_id = entity_id
-	entity_data.pack_id = pack_id
+	decore_data.register_entity(entity_id, entity_data, pack_id)
 end
 
 
@@ -132,15 +123,10 @@ end
 ---If the same id is used in different packs, the last one will be used in M.create_entity
 ---@param pack_id string
 ---@param entities table<string, table>
----@return boolean
 function M.register_entities(pack_id, entities)
-	-- Merge entities, if conflict - throw error
 	for prefab_id, entity_data in pairs(entities) do
-		M.register_entity(prefab_id, entity_data, pack_id)
+		decore_data.register_entity(prefab_id, entity_data, pack_id)
 	end
-
-	decore_internal.logger:debug("Load entities pack id", pack_id)
-	return true
 end
 
 
@@ -154,23 +140,6 @@ function M.unregister_entities(pack_id)
 
 	decore_data.entities[pack_id] = nil
 	decore_internal.remove_by_value(decore_data.entities_order, pack_id)
-
-	decore_internal.logger:debug("Unload entities pack id", pack_id)
-end
-
-
-function M.get_entity(prefab_id, pack_id)
-	for index = #decore_data.entities_order, 1, -1 do
-		local check_pack_id = decore_data.entities_order[index]
-		local entities_pack = decore_data.entities[check_pack_id]
-
-		local entity = entities_pack[prefab_id]
-		if entity and (not pack_id or pack_id == check_pack_id) then
-			return entity
-		end
-	end
-
-	return nil
 end
 
 
@@ -188,8 +157,7 @@ function M.create_entity(prefab_id, pack_id, data)
 		return {}
 	end
 
-	local prefab = prefab_id and M.get_entity(prefab_id, pack_id)
-
+	local prefab = decore_data.get_entity(prefab_id, pack_id)
 	if not prefab then
 		local entity = {}
 		if data then
@@ -223,14 +191,7 @@ end
 ---@param component_data any
 ---@param pack_id string|nil default "decore"
 function M.register_component(component_id, component_data, pack_id)
-	pack_id = pack_id or "decore"
-
-	if not decore_data.components[pack_id] then
-		decore_data.components[pack_id] = {}
-		table.insert(decore_data.components_order, pack_id)
-	end
-
-	decore_data.components[pack_id][component_id] = component_data or {}
+	decore_data.register_component(component_id, component_data, pack_id)
 end
 
 
@@ -251,10 +212,9 @@ function M.register_components(components_data_or_path)
 	end
 
 	for component_id, component_data in pairs(components_pack_data.components) do
-		M.register_component(component_id, component_data, pack_id)
+		decore_data.register_component(component_id, component_data, pack_id)
 	end
 
-	decore_internal.logger:debug("Load components pack id", pack_id)
 	return true
 end
 
@@ -269,37 +229,27 @@ function M.unregister_components(pack_id)
 
 	decore_data.components[pack_id] = nil
 	decore_internal.remove_by_value(decore_data.components_order, pack_id)
-
-	decore_internal.logger:debug("Unload components pack id", pack_id)
 end
 
 
 ---Return new component instance from prefab
 ---@param component_id string
 ---@param component_pack_id string|nil if nil, use first found from latest loaded pack
----@return any|nil return nil if component not found
+---@return any|nil return nil if component not found. False can be returned as a component value (check on nil instead of not)
 function M.create_component(component_id, component_pack_id)
-	for index = #decore_data.components_order, 1, -1 do
-		local pack_id = decore_data.components_order[index]
-		local components_pack = decore_data.components[pack_id]
-		local prefab = components_pack[component_id]
+	local component_instance = decore_data.get_component(component_id, component_pack_id)
 
-		if prefab ~= nil and (not component_pack_id or component_pack_id == pack_id) then
-			if type(prefab) == TYPE_TABLE then
-				return sys.deserialize(sys.serialize(prefab))
-			else
-				return prefab
-			end
-		end
+	if component_instance == nil then
+		decore_internal.logger:error("No component_id in components data", {
+			component_id = component_id,
+			component_pack_id = component_pack_id
+		})
+		decore_internal.logger:debug("Traceback", debug.traceback())
+
+		return nil
 	end
 
-	decore_internal.logger:error("No component_id in components data", {
-		component_id = component_id,
-		component_pack_id = component_pack_id
-	})
-	decore_internal.logger:debug("Traceback", debug.traceback())
-
-	return nil
+	return component_instance
 end
 
 
@@ -349,14 +299,7 @@ end
 ---@param world_data decore.world.instance
 ---@param pack_id string|nil default "decore"
 function M.register_world(world_id, world_data, pack_id)
-	pack_id = pack_id or "decore"
-
-	if not decore_data.worlds[pack_id] then
-		decore_data.worlds[pack_id] = {}
-		table.insert(decore_data.worlds_order, pack_id)
-	end
-
-	decore_data.worlds[pack_id][world_id] = world_data or {}
+	decore_data.register_world(world_id, world_data, pack_id)
 end
 
 
@@ -365,7 +308,7 @@ end
 ---@return boolean, string|nil
 function M.register_worlds(worlds, pack_id)
 	for world_id, world_data in pairs(worlds) do
-		M.register_world(world_id, world_data, pack_id)
+		decore_data.register_world(world_id, world_data, pack_id)
 	end
 
 	decore_internal.logger:debug("Load worlds pack id", pack_id)
@@ -383,23 +326,6 @@ function M.unregister_worlds(pack_id)
 
 	decore_data.worlds[pack_id] = nil
 	decore_internal.remove_by_value(decore_data.worlds_order, pack_id)
-
-	decore_internal.logger:debug("Unload worlds pack id", pack_id)
-end
-
-
-function M.get_world(world_id, pack_id)
-	for index = #decore_data.worlds_order, 1, -1 do
-		local check_pack_id = decore_data.worlds_order[index]
-		local worlds_pack = decore_data.worlds[check_pack_id]
-
-		local world = worlds_pack[world_id]
-		if world and (not pack_id or pack_id == check_pack_id) then
-			return world
-		end
-	end
-
-	return nil
 end
 
 
@@ -408,7 +334,7 @@ end
 ---@param world_pack_id string|nil if nil, use first found from latest loaded pack
 ---@return entity[]|nil
 function M.create_world(world_id, world_pack_id)
-	local world = M.get_world(world_id, world_pack_id)
+	local world = decore_data.get_world(world_id, world_pack_id)
 	if not world then
 		decore_internal.logger:error("No world with id", {
 			world_id = world_id,
@@ -517,88 +443,28 @@ end
 
 
 ---Return if entity is alive in the system
----@param system system
+---@param world_or_system world|system
 ---@param entity entity
-function M.is_alive(system, entity)
-	return system.indices[entity] ~= nil
-end
-
-
----Unload all entities, components and worlds
----Useful for tests
----@return nil
-function M.unload_all()
-	decore_data.entities = {}
-	decore_data.entities_order = {}
-
-	decore_data.components = {}
-	decore_data.components_order = {}
-
-	decore_data.worlds = {}
-	decore_data.worlds_order = {}
+function M.is_alive(world_or_system, entity)
+	local is_system = world_or_system.indices
+	if is_system then
+		return world_or_system.indices[entity] ~= nil
+	else
+		return world_or_system.entities[entity] ~= nil
+	end
 end
 
 
 ---Log all loaded packs for entities, components and worlds
 function M.print_loaded_packs_debug_info()
-	local logger = decore_internal.logger
-
-	logger:debug("Entities packs:")
-	for _, pack_id in ipairs(decore_data.entities_order) do
-		logger:debug(" - " .. pack_id)
-		for prefab_id, _ in pairs(decore_data.entities[pack_id]) do
-			if type(prefab_id) == "string" then
-				logger:debug("   - " .. prefab_id)
-			end
-		end
-	end
-
-	logger:debug("Components packs:")
-	for _, pack_id in ipairs(decore_data.components_order) do
-		logger:debug(" - " .. pack_id)
-		for component_id, _ in pairs(decore_data.components[pack_id]) do
-			logger:debug("   - " .. component_id)
-		end
-	end
-
-	logger:debug("Worlds packs:")
-	for _, pack_id in ipairs(decore_data.worlds_order) do
-		logger:debug(" - " .. pack_id)
-		for world_id, _ in pairs(decore_data.worlds[pack_id]) do
-			logger:debug("   - " .. world_id)
-		end
-	end
+	decore_data.print_loaded_packs_debug_info(decore_internal.logger)
 end
-
 
 
 ---@param command string Example: "system_name.function_name, arg1, arg2". Separators are : " ", "," and "\n" only
 ---@return any[]
 function M.parse_command(command)
-	-- Split the command string into a table. check numbers, remove newlines and spaces
-	local command_table = decore_internal.split_by_several_separators(command, { " ", ",", "\n" })
-
-	-- Trim the command table
-	for i = 1, #command_table do
-		command_table[i] = string.gsub(command_table[i], "%s+", "")
-	end
-
-	-- Checks types
-	for i = 1, #command_table do
-		-- Check number
-		if tonumber(command_table[i]) then
-			command_table[i] = tonumber(command_table[i])
-		end
-		-- Check boolean
-		if command_table[i] == "true" then
-			command_table[i] = true
-		elseif command_table[i] == "false" then
-			command_table[i] = false
-		end
-	end
-
-
-	return command_table
+	return decore_commands.parse_command(command)
 end
 
 
@@ -606,30 +472,7 @@ end
 ---@param world world
 ---@param command any[] Example: [ "command_debug", "toggle_profiler", true ],
 function M.call_command(world, command)
-	if not command then
-		decore_internal.logger:error("Command is nil")
-		print(debug.traceback())
-		return
-	end
-
-	local command_system = world[command[1]]
-	if not command_system then
-		decore_internal.logger:error("System not found", command[1])
-		return
-	end
-
-	local func = command[2]
-	if not command_system[func] then
-		decore_internal.logger:error("Function not found", func)
-		return
-	end
-
-	local args = {}
-	for i = 3, #command do
-		table.insert(args, command[i])
-	end
-
-	command_system[func](command_system, unpack(args))
+	return decore_commands.call_command(world, command)
 end
 
 
