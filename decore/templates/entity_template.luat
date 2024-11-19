@@ -1,0 +1,9 @@
+---@diagnostic disable: missing-fields
+---@class entity.TEMPLATE
+return {
+	transform = {},
+	game_object = {
+		factory_url = "/spawner#TEMPLATE"
+	},
+	TEMPLATE = {}
+}

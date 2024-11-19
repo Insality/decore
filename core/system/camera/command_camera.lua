@@ -15,8 +15,8 @@ end
 ---@param power number
 ---@param time number
 function M:shake(power, time)
-	self.camera.shake_power = power
-	self.camera.shake_time = time
+	self.camera.shake_power = power or 8
+	self.camera.shake_time = time or 0.4
 end
 
 

@@ -85,7 +85,7 @@ end
 
 function M:reset_game()
 	logger:debug("Game reset")
-	saver.delete_game_state()
+--	saver.delete_game_state()
 	sys.reboot()
 end
 
@@ -97,7 +97,7 @@ end
 
 
 function M:save_slot(slot)
-	saver.save_game_state(slot)
+--	saver.save_game_state(slot)
 	logger:debug("Game saved to slot: " .. slot)
 end
 

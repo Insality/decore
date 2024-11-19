@@ -68,10 +68,10 @@ function M:apply_input_event(entity, input_event)
 	local movement_controller = entity.movement_controller
 
 	local side = ACTION_ID_TO_SIDE[action_id]
-	if action.pressed and side then
+	if action.pressed then
 		self.input_keys[side.id] = true
 	end
-	if action.released and side then
+	if action.released then
 		self.input_keys[side.id] = nil
 	end
 

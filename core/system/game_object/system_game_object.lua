@@ -142,7 +142,7 @@ function M:process_transform_event(transform_event)
 	end
 
 	local root = target_entity.game_object.root
-	if root and transform_event.is_position_changed then
+	if root then
 		TEMP_VECTOR.x = target_entity.transform.position_x
 		TEMP_VECTOR.y = target_entity.transform.position_y
 		TEMP_VECTOR.z = target_entity.transform.position_z

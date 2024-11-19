@@ -49,6 +49,10 @@ end
 
 ---@param entity entity.panthera
 function M:onAdd(entity)
+	pprint(entity.panthera.default_animation)
+	pprint(entity.panthera.is_loop)
+	pprint(entity.panthera.play_on_start)
+	pprint(entity.panthera.play_on_remove)
 	local p = entity.panthera
 	p.detached_animations = {}
 

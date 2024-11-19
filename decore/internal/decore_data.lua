@@ -60,7 +60,6 @@ function M.get_component(component_id, component_pack_id)
 		end
 	end
 
-	pprint("return nil", component_id, component_pack_id, M.components)
 	return nil
 end
 

@@ -11,7 +11,7 @@
 ---@field world_prefab_id string|nil The world to spawn on entity creation
 
 ---@class system
----@field id string|number|nil
+---@field id string
 ---@field active boolean
 ---@field filter fun(self: system, entity: entity)|nil
 ---@field world world

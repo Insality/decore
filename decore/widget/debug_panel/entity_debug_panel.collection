@@ -1,0 +1,23 @@
+name: "entity_debug_panel"
+scale_along_z: 0
+embedded_instances {
+  id: "root"
+  data: "components {\n"
+  "  id: \"debug_panel\"\n"
+  "  component: \"/decore/widget/debug_panel/ui_debug_panel.gui\"\n"
+  "}\n"
+  "components {\n"
+  "  id: \"entity\"\n"
+  "  component: \"/decore/entity.script\"\n"
+  "  properties {\n"
+  "    id: \"prefab_id\"\n"
+  "    value: \"debug_panel\"\n"
+  "    type: PROPERTY_TYPE_HASH\n"
+  "  }\n"
+  "}\n"
+  "components {\n"
+  "  id: \"component_debug_panel\"\n"
+  "  component: \"/decore/widget/debug_panel/component_debug_panel.script\"\n"
+  "}\n"
+  ""
+}

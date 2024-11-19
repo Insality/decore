@@ -80,9 +80,10 @@ end
 
 ---@param transform_event event.transform_event
 function M:process_transform_event(transform_event)
-	if not self.camera then
+	if transform_event.entity ~= self.camera then
 		return
 	end
+
 
 	if transform_event.is_position_changed then
 		self:update_camera_position(self.camera, transform_event.animate_time, transform_event.easing)

@@ -50,6 +50,11 @@ function M:process_input_event(input_event)
 		return
 	end
 
+	local key_id = self.hash_to_string[input_event.action_id]
+	if not key_id then
+		return
+	end
+
 	local entities = self.entities
 	for index = 1, #entities do
 		local entity = entities[index]

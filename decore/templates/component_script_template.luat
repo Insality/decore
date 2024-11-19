@@ -1,0 +1,8 @@
+local component = require("decore.component")
+go.property("speed", 1)
+
+function init(self)
+	component.init("TEMPLATE", {
+		speed = self.speed
+	})
+end

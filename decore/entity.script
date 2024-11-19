@@ -42,6 +42,9 @@ function on_message(self, message_id, message)
 			return
 		end
 		self.entity = decore.create_entity(self.prefab_id)
+		if not self.entity.prefab_id then
+			self.entity.prefab_id = self.prefab_id
+		end
 
 		local world_position = go.get_world_position()
 		self.components["transform"] = {
