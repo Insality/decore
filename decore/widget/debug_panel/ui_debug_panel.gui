@@ -343,6 +343,66 @@ nodes {
   template_node_child: true
 }
 nodes {
+  type: TYPE_TEMPLATE
+  id: "properties_panel/property_left_right_selector"
+  parent: "properties_panel/propeties"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "properties_panel/property_left_right_selector/root"
+  parent: "properties_panel/property_left_right_selector"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "properties_panel/property_left_right_selector/text_name"
+  parent: "properties_panel/property_left_right_selector/root"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "properties_panel/property_left_right_selector/E_Anchor"
+  parent: "properties_panel/property_left_right_selector/root"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "properties_panel/property_left_right_selector/button_left"
+  parent: "properties_panel/property_left_right_selector/E_Anchor"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "properties_panel/property_left_right_selector/icon_left"
+  parent: "properties_panel/property_left_right_selector/button_left"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "properties_panel/property_left_right_selector/button_right"
+  parent: "properties_panel/property_left_right_selector/E_Anchor"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "properties_panel/property_left_right_selector/icon_right"
+  parent: "properties_panel/property_left_right_selector/button_right"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "properties_panel/property_left_right_selector/selected"
+  parent: "properties_panel/property_left_right_selector/E_Anchor"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "properties_panel/property_left_right_selector/text_value"
+  parent: "properties_panel/property_left_right_selector/E_Anchor"
+  template_node_child: true
+}
+nodes {
   position {
     x: 200.0
     y: 1020.0
