@@ -61,8 +61,9 @@ function M:onAdd(entity)
 
 	if animation_state then
 		p.animation_state = animation_state
+		p.animation_path = animation_state.animation_path
 
-		-- TODO: This one should be in update
+		-- TODO: This one should be in update?
 		if p.play_on_start then
 			panthera.play(p.animation_state, p.default_animation, {
 				is_loop = p.is_loop or false,

@@ -271,7 +271,7 @@ function M:add_property_component(component_id, component, context)
 		local button_name = component_id
 		-- If it's a number or array, try to get the id/name/prefab_id from the component
 		if type(component) == "table" and type(component_id) == "number" then
-			local extracted_id = component.id or component.name or component.prefab_id or component.node_id
+			local extracted_id = component.name or component.prefab_id or component.node_id or component.id
 			if extracted_id then
 				button_name = component_id .. ". " .. extracted_id
 			end
