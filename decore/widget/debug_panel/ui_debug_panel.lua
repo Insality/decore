@@ -42,8 +42,8 @@ function M:on_button_back()
 		-- Undo
 		local undo = self.undo_stack[#self.undo_stack]
 		if undo then
-			self:select_page(undo[1], undo[2], undo[3], true)
-			table.insert(self.page_stack, { undo[1], undo[2], undo[3] })
+			self:select_page(undo[1], undo[2], undo[3], undo[4], true)
+			table.insert(self.page_stack, { undo[1], undo[2], undo[3], undo[4] })
 			table.remove(self.undo_stack)
 		end
 
@@ -56,10 +56,11 @@ function M:on_button_back()
 	end
 
 	local removed_page = table.remove(self.page_stack)
+	removed_page[4] = self.properties_panel.current_page
 	table.insert(self.undo_stack, removed_page)
 
 	local page = self.page_stack[#self.page_stack]
-	self:select_page(page[1], page[2], page[3], true)
+	self:select_page(page[1], page[2], page[3], page[4], true)
 end
 
 
@@ -107,7 +108,7 @@ end
 ---@param page_name string
 function M:draw_page_entities(context, page_name)
 	local entities = context
-	self.properties_panel.text_header:set_text(page_name .. " (" .. #entities .. ")")
+	self.properties_panel.text_header:set_text("World Entities (" .. #entities .. ")")
 
 	for i = 1, #entities do
 		local entity = entities[i]
@@ -123,10 +124,10 @@ end
 ---@param page_name string
 function M:draw_page_systems(context, page_name)
 	local systems = context
-	self.properties_panel.text_header:set_text(page_name .. "(" .. #systems .. ")")
+	self.properties_panel.text_header:set_text("World systems (" .. #systems .. ")")
 	for i = 1, #systems do
 		local system = systems[i]
-		local system_name = system.id .. " (" .. #system.entities .. ")"
+		local system_name = i .. ". " .. system.id .. " (" .. #system.entities .. ")"
 		self.properties_panel:add_button(system_name, function()
 			self:select_page(PAGES.SYSTEM, system, system.id)
 		end)
@@ -187,7 +188,15 @@ function M:draw_page_table(context, page_name)
 
 	local metatable = getmetatable(entity)
 	if metatable and metatable.__index then
-		for component_id, component in pairs(metatable.__index) do
+		local metatable_order = {}
+		for key in pairs(metatable.__index) do
+			table.insert(metatable_order, key)
+		end
+		table.sort(metatable_order)
+
+		for i = 1, #metatable_order do
+			local component_id = metatable_order[i]
+			local component = metatable.__index[component_id]
 			self:add_property_component("M:" .. component_id, component, context)
 		end
 	end
@@ -198,7 +207,7 @@ end
 ---@param page_name string
 function M:draw_page_entity_prefabs(context, page_name)
 	for _, pack_id in ipairs(decore_data.entities_order) do
-		self.properties_panel:add_text("Pack id: " .. pack_id)
+		self.properties_panel:add_text("Pack id", pack_id)
 
 		-- Sort
 		local entities_ordered = {}
@@ -223,7 +232,16 @@ function M:draw_page_entity_prefabs(context, page_name)
 	end
 end
 
-function M:select_page(page, context, page_name, is_going_back)
+
+---Select page
+---@param page string
+---@param context any
+---@param page_name string
+---@param page_index number|nil
+---@param is_going_back boolean|nil @If true, then it's going back for track history
+function M:select_page(page, context, page_name, page_index, is_going_back)
+	page_index = page_index or 1
+
 	if not is_going_back then
 		self.undo_stack = {} -- This is undo for going back button, confusing a little?
 	end
@@ -231,12 +249,17 @@ function M:select_page(page, context, page_name, is_going_back)
 	self.context = context
 
 	if not is_going_back then
-		table.insert(self.page_stack, { page, context, page_name })
+		table.insert(self.page_stack, { page, context, page_name, page_index })
 	end
 
-	local preb_stack = self.page_stack[#self.page_stack - 1]
-	self.text_prev_page:set_text(preb_stack and preb_stack[3] or "")
+	local prev_stack = self.page_stack[#self.page_stack - 1]
+	if prev_stack then
+		self.text_prev_page:set_text(prev_stack[3] or "")
+		prev_stack[4] = self.properties_panel.current_page
+	end
+
 	self.properties_panel.text_header:set_text(page_name or "")
+	self.properties_panel:set_page(page_index)
 
 	if page == PAGES.MAIN then
 		self:draw_page_main(context, page_name)
