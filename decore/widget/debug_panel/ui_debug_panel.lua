@@ -39,6 +39,9 @@ end
 function M:set_world(world)
 	self.world = world
 	self:select_page(PAGES.MAIN, nil, "Decore Panel")
+
+	-- And systems
+	self:select_page(PAGES.SYSTEMS, self.world.systems, "Systems")
 end
 
 
@@ -121,6 +124,7 @@ function M:draw_page_systems(context, page_name)
 
 		local system_property = self.druid:new_widget(property_system, "property_system", self.prefab_property_system)
 		gui.set_enabled(system_property.root, true)
+		system_property:set_system(system)
 		system_property:set_text(system_name)
 		system_property.button_inspect.on_click:subscribe(function()
 			self:select_page(PAGES.SYSTEM, system, system.id)

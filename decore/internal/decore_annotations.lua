@@ -26,12 +26,12 @@
 ---@field onModify fun(dt:number)|nil
 ---@field onAddToWorld fun(self: system, world:world)|nil
 ---@field onRemoveFromWorld fun(self: system, world:world)|nil
----@field preWrap fun(dt:number)|nil
----@field postWrap fun()|nil
----@field update fun(dt:number)|nil
----@field preProcess fun(dt:number)|nil
----@field process fun(entity:entity, dt:number)|nil
----@field postProcess fun(dt:number)|nil
+---@field preWrap fun(system: system, dt:number)|nil
+---@field postWrap fun(system: system, dt:number)|nil
+---@field update fun(system: system, dt:number)|nil
+---@field preProcess fun(system: system, dt:number)|nil
+---@field process fun(system: system, entity:entity, dt:number)|nil
+---@field postProcess fun(system: system, dt:number)|nil
 ---@field compare fun(e1:entity, e2:entity)|nil
 
 ---@class world

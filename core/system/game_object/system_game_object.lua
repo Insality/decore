@@ -26,7 +26,8 @@ decore.register_component("hidden", false)
 ---@field root_to_entity table<string|hash, entity>
 local M = {}
 
-local TEMP_VECTOR = vmath.vector3()
+local TEMP_VECTOR = vmath.vector3(0, 0, 0)
+local TEMP_QUAT = vmath.quat(0, 0, 0, 1)
 local ROOT_URL = hash("/root")
 local HASH_POSITION = hash("position")
 local HASH_POSITION_X = hash("position.x")
@@ -35,7 +36,9 @@ local HASH_POSITION_Z = hash("position.z")
 local HASH_SIZE = hash("size")
 local HASH_SCALE = hash("scale")
 local HASH_EULER_Z = hash("euler.z")
-
+local sin = math.sin
+local cos = math.cos
+local rad = math.rad
 
 ---@return system.game_object
 function M.create_system()
@@ -159,24 +162,20 @@ function M:process_transform_event(entity)
 			local easing = transform.easing or go.EASING_LINEAR
 			go.animate(root, HASH_POSITION, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
 		else
-			--go.set_position(TEMP_VECTOR, root)
-			go.set(root, HASH_POSITION_X, transform.position_x)
-			go.set(root, HASH_POSITION_Y, transform.position_y)
-			go.set(root, HASH_POSITION_Z, transform.position_z)
+			go.set_position(TEMP_VECTOR, root)
 		end
 	end
 
 	if transform.is_rotation_changed then
-		TEMP_VECTOR.x = 0
-		TEMP_VECTOR.y = 0
-		TEMP_VECTOR.z = transform.rotation
-
 		local animate_time = transform.animate_time
 		if animate_time then
 			local easing = transform.easing or go.EASING_LINEAR
-			go.animate(root, HASH_EULER_Z, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
+			go.animate(root, HASH_EULER_Z, go.PLAYBACK_ONCE_FORWARD, transform.rotation, easing, animate_time)
 		else
-			go.set(root, HASH_EULER_Z, transform.rotation)
+			local deg = transform.rotation
+			TEMP_QUAT.z = sin(rad(deg) * 0.5)
+			TEMP_QUAT.w = cos(rad(deg) * 0.5)
+			go.set_rotation(TEMP_QUAT, root)
 		end
 	end
 

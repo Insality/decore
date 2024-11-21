@@ -514,12 +514,6 @@ nodes {
   template_node_child: true
 }
 nodes {
-  type: TYPE_TEXT
-  id: "property_system/text_memory_update"
-  parent: "property_system/E_Anchor"
-  template_node_child: true
-}
-nodes {
   type: TYPE_BOX
   id: "property_system/button_inspect"
   parent: "property_system/E_Anchor"
@@ -532,9 +526,87 @@ nodes {
   template_node_child: true
 }
 nodes {
+  type: TYPE_BOX
+  id: "property_system/group_memory"
+  parent: "property_system/E_Anchor"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/node_update_back"
+  parent: "property_system/group_memory"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/node_postwrap_back"
+  parent: "property_system/group_memory"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/node_update"
+  parent: "property_system/group_memory"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/node_postwrap"
+  parent: "property_system/group_memory"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "property_system/text_memory_update"
+  parent: "property_system/group_memory"
+  template_node_child: true
+}
+nodes {
   type: TYPE_TEXT
   id: "property_system/text_memory_postwrap"
+  parent: "property_system/group_memory"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/group_fps"
   parent: "property_system/E_Anchor"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/node_update_fps_back"
+  parent: "property_system/group_fps"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/node_postwrap_fps_back"
+  parent: "property_system/group_fps"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/node_update_fps"
+  parent: "property_system/group_fps"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/node_postwrap_fps"
+  parent: "property_system/group_fps"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "property_system/text_memory_update_fps"
+  parent: "property_system/group_fps"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "property_system/text_memory_postwrap_fps"
+  parent: "property_system/group_fps"
   template_node_child: true
 }
 material: "/builtins/materials/gui.material"
