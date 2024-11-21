@@ -5,6 +5,8 @@
 local M = {}
 
 
+local tinsert = table.insert
+
 ---Creates a new event bus.
 ---@return decore.event_bus
 function M.create()
@@ -23,15 +25,16 @@ end
 ---@param data any The data to pass to the event and its associated callbacks.
 function M:trigger(event_name, data)
 	self.stash[event_name] = self.stash[event_name] or {}
+	local stash = self.stash[event_name]
 
 	local merge_callback = self.merge_callbacks[event_name]
 	if merge_callback then
-		local is_merged = merge_callback(self.stash[event_name], data)
+		local is_merged = merge_callback(stash, data)
 		if not is_merged then
-			table.insert(self.stash[event_name], data or true)
+			tinsert(stash, data or true)
 		end
 	else
-		table.insert(self.stash[event_name], data or true)
+		tinsert(stash, data or true)
 	end
 end
 

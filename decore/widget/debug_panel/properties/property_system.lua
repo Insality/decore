@@ -120,12 +120,28 @@ function M:update(dt)
 			postwrap_memory = postwrap_memory + v
 		end
 		-- Update UI
-		self.text_memory_update:set_text( math.ceil(update_memory) .. " KB/s")
-		self.text_memory_postwrap:set_text( math.ceil(postwrap_memory) .. " KB/s")
+		local text_update = math.ceil(update_memory) .. " KB/s"
+		if update_memory > 1024 then
+			text_update = string.format("%.2f", update_memory / 1024) .. " MB/s"
+		end
+
+		local text_postwrap = math.ceil(postwrap_memory) .. " KB/s"
+		if postwrap_memory > 1024 then
+			text_postwrap = string.format("%.2f", postwrap_memory / 1024) .. " MB/s"
+		end
+
+		self.text_memory_update:set_text(text_update)
+		self.text_memory_postwrap:set_text(text_postwrap)
 
 		-- Update graphs
-		local update_perc = vmath.clamp(update_memory / self.update_limit, 0, 1)
-		local postwrap_perc = vmath.clamp(postwrap_memory / self.postwrap_limit, 0, 1)
+		---@diagnostic disable-next-line: undefined-field
+		local update_limit = self.system.DEBUG_PANEL_UPDATE_MEMORY_LIMIT or self.update_limit
+
+		---@diagnostic disable-next-line: undefined-field
+		local postwrap_limit = self.system.DEBUG_PANEL_POSTWRAP_MEMORY_LIMIT or self.postwrap_limit
+
+		local update_perc = vmath.clamp(update_memory / update_limit, 0, 1)
+		local postwrap_perc = vmath.clamp(postwrap_memory / postwrap_limit, 0, 1)
 
 		gui.set(self.node_update, HASH_SIZE_X, update_perc * 80)
 		gui.set(self.node_postwrap, HASH_SIZE_X, postwrap_perc * 80)

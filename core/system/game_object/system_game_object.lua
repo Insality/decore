@@ -26,6 +26,9 @@ decore.register_component("hidden", false)
 ---@field root_to_entity table<string|hash, entity>
 local M = {}
 
+M.DEBUG_PANEL_UPDATE_MEMORY_LIMIT = 2048
+M.DEBUG_PANEL_POSTWRAP_MEMORY_LIMIT = 2048
+
 local TEMP_VECTOR = vmath.vector3(0, 0, 0)
 local TEMP_QUAT = vmath.quat(0, 0, 0, 1)
 local ROOT_URL = hash("/root")

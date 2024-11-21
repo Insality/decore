@@ -17,10 +17,6 @@ components {
     type: PROPERTY_TYPE_NUMBER
   }
 }
-components {
-  id: "boid_sensor"
-  component: "/examples/boids/boid/boid_sensor.gui"
-}
 embedded_components {
   id: "sprite"
   type: "sprite"
