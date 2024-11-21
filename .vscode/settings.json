@@ -34,7 +34,8 @@
 		"after",
 		"it",
 		"editor",
-		"fixed_update"
+		"fixed_update",
+		"event_context_manager"
 	],
 	"Lua.completion.autoRequire": false,
 	"Lua.workspace.library": [

@@ -1,5 +1,6 @@
 local decore_data = require("decore.internal.decore_data")
 local properties_panel = require("druid.widget.properties_panel.properties_panel")
+local property_system = require("decore.widget.debug_panel.properties.property_system")
 
 ---@class decore.widget.debug_panel: druid.widget
 ---@field properties_panel widget.properties_panel
@@ -24,8 +25,13 @@ function M:init()
 	self.text_prev_page = self.druid:new_text("text_prev_page")
 	gui.set_parent(self:get_node("header"), self.properties_panel:get_node("header"), true)
 
+	self.prefab_property_system = self:get_node("property_system/root")
+	gui.set_enabled(self.prefab_property_system, false)
+
 	self.page_stack = {}
 	self.undo_stack = {}
+
+	--self.properties_panel:toggle_hide()
 end
 
 
@@ -85,22 +91,6 @@ function M:draw_page_main(context, page_name)
 	self.properties_panel:add_button("Entity Prefabs" , function()
 		self:select_page(PAGES.ENTITY_PREFABS, nil, "Entity Prefabs")
 	end):set_text_button("Open")
-
-	self.properties_panel:add_left_right_selector("Number", 0, function(value)
-		print("Number", value)
-	end):set_number_type(0, 10, true)
-
-	self.properties_panel:add_left_right_selector("Array", 1, function(value)
-		print("Array", value)
-	end):set_array_type({ 1, 2, 3, 4, 5 }, true)
-
-	self.properties_panel:add_left_right_selector("Number2", 0, function(value)
-		print("Number", value)
-	end):set_number_type(5, 30, false, 4)
-
-	self.properties_panel:add_left_right_selector("Array", "Hi", function(value)
-		print("Array", value)
-	end):set_array_type({ "hehe", "Hi", "My", "Name", "Is", "Decore", "..." }, true, 2)
 end
 
 ---Draw entities page
@@ -128,9 +118,15 @@ function M:draw_page_systems(context, page_name)
 	for i = 1, #systems do
 		local system = systems[i]
 		local system_name = i .. ". " .. system.id .. " (" .. #system.entities .. ")"
-		self.properties_panel:add_button(system_name, function()
+
+		local system_property = self.druid:new_widget(property_system, "property_system", self.prefab_property_system)
+		gui.set_enabled(system_property.root, true)
+		system_property:set_text(system_name)
+		system_property.button_inspect.on_click:subscribe(function()
 			self:select_page(PAGES.SYSTEM, system, system.id)
 		end)
+
+		self.properties_panel:add_widget(system_property)
 	end
 end
 

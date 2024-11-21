@@ -29,6 +29,9 @@ local M = {}
 local TEMP_VECTOR = vmath.vector3()
 local ROOT_URL = hash("/root")
 local HASH_POSITION = hash("position")
+local HASH_POSITION_X = hash("position.x")
+local HASH_POSITION_Y = hash("position.y")
+local HASH_POSITION_Z = hash("position.z")
 local HASH_SIZE = hash("size")
 local HASH_SCALE = hash("scale")
 local HASH_EULER_Z = hash("euler.z")
@@ -133,26 +136,78 @@ function M:remove_entity(entity)
 end
 
 
----@param transform_event event.transform_event
-function M:process_transform_event(transform_event)
-	local target_entity = transform_event.entity
-	local game_object = target_entity.game_object
-	if not game_object or target_entity.physics then
+---@param entity entity.transform
+function M:process_transform_event(entity)
+	local transform = entity.transform
+	local game_object = entity.game_object
+	if not game_object or entity.physics then
 		return
 	end
 
-	local root = target_entity.game_object.root
-	if root then
-		TEMP_VECTOR.x = target_entity.transform.position_x
-		TEMP_VECTOR.y = target_entity.transform.position_y
-		TEMP_VECTOR.z = target_entity.transform.position_z
+	local root = game_object.root
+	if not root then
+		return
+	end
 
-		local animate_time = transform_event.animate_time
+	if transform.is_position_changed then
+		TEMP_VECTOR.x = transform.position_x
+		TEMP_VECTOR.y = transform.position_y
+		TEMP_VECTOR.z = transform.position_z
+
+		local animate_time = transform.animate_time
 		if animate_time then
-			local easing = transform_event.easing or go.EASING_LINEAR
-			go.animate(target_entity.game_object.root, HASH_POSITION, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
+			local easing = transform.easing or go.EASING_LINEAR
+			go.animate(root, HASH_POSITION, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
 		else
-			go.set_position(TEMP_VECTOR, root)
+			--go.set_position(TEMP_VECTOR, root)
+			go.set(root, HASH_POSITION_X, transform.position_x)
+			go.set(root, HASH_POSITION_Y, transform.position_y)
+			go.set(root, HASH_POSITION_Z, transform.position_z)
+		end
+	end
+
+	if transform.is_rotation_changed then
+		TEMP_VECTOR.x = 0
+		TEMP_VECTOR.y = 0
+		TEMP_VECTOR.z = transform.rotation
+
+		local animate_time = transform.animate_time
+		if animate_time then
+			local easing = transform.easing or go.EASING_LINEAR
+			go.animate(root, HASH_EULER_Z, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
+		else
+			go.set(root, HASH_EULER_Z, transform.rotation)
+		end
+	end
+
+	if transform.is_scale_changed then
+		TEMP_VECTOR.x = transform.scale_x
+		TEMP_VECTOR.y = transform.scale_y
+		TEMP_VECTOR.z = transform.scale_x -- X to keep uniform for physics
+
+		local animate_time = transform.animate_time
+		if animate_time then
+			local easing = transform.easing or go.EASING_LINEAR
+			go.animate(root, HASH_SCALE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
+		else
+			go.set_scale(TEMP_VECTOR, root)
+		end
+	end
+
+	if transform.is_size_changed then
+		if game_object.is_slice9 then
+			TEMP_VECTOR.x = transform.size_x
+			TEMP_VECTOR.y = transform.size_y
+			TEMP_VECTOR.z = 0
+			local sprite_url = msg.url(nil, root, "sprite")
+
+			local animate_time = transform.animate_time
+			if animate_time then
+				local easing = transform.easing or go.EASING_LINEAR
+				go.animate(sprite_url, HASH_SIZE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
+			else
+				go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
+			end
 		end
 	end
 end

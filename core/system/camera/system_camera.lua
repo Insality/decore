@@ -78,18 +78,19 @@ function M:process_window_event(window_event)
 end
 
 
----@param transform_event event.transform_event
-function M:process_transform_event(transform_event)
-	if transform_event.entity ~= self.camera then
+---@param entity entity.transform
+function M:process_transform_event(entity)
+	if entity ~= self.camera then
 		return
 	end
 
 
-	if transform_event.is_position_changed then
-		self:update_camera_position(self.camera, transform_event.animate_time, transform_event.easing)
+	local transform = entity.transform
+	if transform.is_position_changed then
+		self:update_camera_position(self.camera, transform.animate_time, transform.easing)
 	end
-	if transform_event.is_size_changed then
-		self:update_camera_zoom(self.camera, transform_event.animate_time, transform_event.easing)
+	if transform.is_size_changed then
+		self:update_camera_zoom(self.camera, transform.animate_time, transform.easing)
 	end
 end
 

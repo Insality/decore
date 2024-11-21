@@ -20,8 +20,8 @@ custom_resources = /resources
 dependencies#0 = https://github.com/britzl/deftest/archive/master.zip
 dependencies#1 = https://github.com/Insality/defold-tweener/archive/refs/tags/4.zip
 dependencies#2 = https://github.com/Insality/panthera/archive/refs/tags/runtime.4.zip
-dependencies#3 = https://github.com/Insality/defold-event/archive/refs/tags/10.zip
-dependencies#4 = https://github.com/subsoap/defos/archive/refs/tags/v2.7.1.zip
+dependencies#3 = https://github.com/subsoap/defos/archive/refs/tags/v2.7.1.zip
+dependencies#4 = https://github.com/Insality/defold-log/archive/refs/tags/4.zip
 
 [library]
 include_dirs = decore,core
@@ -60,3 +60,10 @@ max_count = 512
 [native_extension]
 app_manifest = /examples/manifest.appmanifest
 
+[event]
+use_xpcall = 1
+
+[log]
+level = DEBUG
+level_release = WARN
+info_block_length = 10

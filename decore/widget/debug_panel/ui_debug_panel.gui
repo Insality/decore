@@ -515,7 +515,25 @@ nodes {
 }
 nodes {
   type: TYPE_TEXT
-  id: "property_system/text_memory"
+  id: "property_system/text_memory_update"
+  parent: "property_system/E_Anchor"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/button_inspect"
+  parent: "property_system/E_Anchor"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/icon_right"
+  parent: "property_system/button_inspect"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "property_system/text_memory_postwrap"
   parent: "property_system/E_Anchor"
   template_node_child: true
 }
