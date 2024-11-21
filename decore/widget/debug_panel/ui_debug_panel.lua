@@ -187,7 +187,7 @@ function M:draw_page_table(context, page_name)
 	end
 
 	local metatable = getmetatable(entity)
-	if metatable and metatable.__index then
+	if metatable and metatable.__index and type(metatable.__index) == "table" then
 		local metatable_order = {}
 		for key in pairs(metatable.__index) do
 			table.insert(metatable_order, key)

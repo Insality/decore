@@ -1,11 +1,11 @@
 script: "/decore/widget/debug_panel/ui_debug_panel.gui_script"
 fonts {
   name: "text_regular"
-  font: "/druid/fonts/text_regular.font"
+  font: "/druid/fonts/druid_text_regular.font"
 }
 fonts {
   name: "text_bold"
-  font: "/druid/fonts/text_bold.font"
+  font: "/druid/fonts/druid_text_bold.font"
 }
 textures {
   name: "druid"
@@ -25,7 +25,7 @@ nodes {
 nodes {
   position {
     x: 200.0
-    y: 900.0
+    y: 500.0
   }
   type: TYPE_TEMPLATE
   id: "properties_panel"
@@ -47,35 +47,21 @@ nodes {
 }
 nodes {
   position {
-    y: -8.0
-  }
-  size {
-    x: 430.0
-    y: 50.0
+    y: -20.0
   }
   type: TYPE_TEXT
-  text: "Systems"
   font: "text_bold"
   id: "properties_panel/text_header"
-  pivot: PIVOT_N
   parent: "properties_panel/header"
   overridden_fields: 1
-  overridden_fields: 4
-  overridden_fields: 8
   overridden_fields: 10
   overridden_fields: 14
   template_node_child: true
 }
 nodes {
-  color {
-    x: 0.306
-    y: 0.31
-    z: 0.314
-  }
   type: TYPE_BOX
   id: "properties_panel/icon_drag"
   parent: "properties_panel/header"
-  overridden_fields: 5
   template_node_child: true
 }
 nodes {
@@ -405,7 +391,7 @@ nodes {
 nodes {
   position {
     x: 200.0
-    y: 1020.0
+    y: 620.0
   }
   size {
     x: 400.0
@@ -497,6 +483,41 @@ nodes {
   inherit_alpha: true
   outline_alpha: 0.0
   shadow_alpha: 0.0
+}
+nodes {
+  position {
+    x: 200.0
+    y: 250.0
+  }
+  type: TYPE_TEMPLATE
+  id: "property_system"
+  parent: "root"
+  inherit_alpha: true
+  template: "/decore/widget/debug_panel/properties/property_system.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/root"
+  parent: "property_system"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "property_system/text_name"
+  parent: "property_system/root"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "property_system/E_Anchor"
+  parent: "property_system/root"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "property_system/text_memory"
+  parent: "property_system/E_Anchor"
+  template_node_child: true
 }
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT

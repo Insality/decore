@@ -1,0 +1,96 @@
+platforms:
+  armv7-ios:
+    context:
+      excludeLibs: [record, vpx, gamesys_model, gamesys_rig, rig, physics, LinearMath, BulletDynamics, BulletCollision, sound, tremolo]
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [record_null, gamesys_rig_null, gamesys_model_null, rig_null, physics_2d, sound_null]
+      frameworks: []
+      linkFlags: []
+  arm64-ios:
+    context:
+      excludeLibs: [record, vpx, gamesys_model, gamesys_rig, rig, physics, LinearMath, BulletDynamics, BulletCollision, sound, tremolo]
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [record_null, gamesys_rig_null, gamesys_model_null, rig_null, physics_2d, sound_null]
+      frameworks: []
+      linkFlags: []
+  x86_64-ios:
+    context:
+      excludeLibs: [record, vpx, gamesys_model, gamesys_rig, rig, physics, LinearMath, BulletDynamics, BulletCollision, sound, tremolo]
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [record_null, gamesys_rig_null, gamesys_model_null, rig_null, physics_2d, sound_null]
+      frameworks: []
+      linkFlags: []
+  armv7-android:
+    context:
+      excludeLibs: [record, vpx, gamesys_model, gamesys_rig, rig, physics, LinearMath, BulletDynamics, BulletCollision, sound, tremolo]
+      excludeJars: []
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [record_null, gamesys_rig_null, gamesys_model_null, rig_null, physics_2d, sound_null]
+      linkFlags: []
+      jetifier: true
+  arm64-android:
+    context:
+      excludeLibs: [record, vpx, gamesys_model, gamesys_rig, rig, physics, LinearMath, BulletDynamics, BulletCollision, sound, tremolo]
+      excludeJars: []
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [record_null, gamesys_rig_null, gamesys_model_null, rig_null, physics_2d, sound_null]
+      linkFlags: []
+      jetifier: true
+  arm64-osx:
+    context:
+      excludeLibs: [record, vpx, gamesys_model, gamesys_rig, rig, physics, LinearMath, BulletDynamics, BulletCollision, sound, tremolo]
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [record_null, gamesys_rig_null, gamesys_model_null, rig_null, physics_2d, sound_null]
+      frameworks: []
+      linkFlags: []
+  x86_64-osx:
+    context:
+      excludeLibs: [record, vpx, gamesys_model, gamesys_rig, rig, physics, LinearMath, BulletDynamics, BulletCollision, sound, tremolo]
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [record_null, gamesys_rig_null, gamesys_model_null, rig_null, physics_2d, sound_null]
+      frameworks: []
+      linkFlags: []
+  x86_64-linux:
+    context:
+      excludeLibs: [record, vpx, gamesys_model, gamesys_rig, rig, physics, LinearMath, BulletDynamics, BulletCollision, sound, tremolo]
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [record_null, gamesys_rig_null, gamesys_model_null, rig_null, physics_2d, sound_null]
+      linkFlags: []
+  x86-win32:
+    context:
+      excludeLibs: [librecord, vpx, libgamesys_model, libgamesys_rig, librig, libphysics, libLinearMath, libBulletDynamics, libBulletCollision, libsound, libtremolo]
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [librecord_null.lib, libgamesys_rig_null.lib, libgamesys_model_null.lib, librig_null.lib, libphysics_2d.lib, libsound_null.lib]
+      linkFlags: []
+  x86_64-win32:
+    context:
+      excludeLibs: [librecord, vpx, libgamesys_model, libgamesys_rig, librig, libphysics, libLinearMath, libBulletDynamics, libBulletCollision, libsound, libtremolo]
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [librecord_null.lib, libgamesys_rig_null.lib, libgamesys_model_null.lib, librig_null.lib, libphysics_2d.lib, libsound_null.lib]
+      linkFlags: []
+  js-web:
+    context:
+      excludeLibs: [record, vpx, gamesys_model, gamesys_rig, rig, physics, LinearMath, BulletDynamics, BulletCollision, sound, tremolo]
+      excludeJsLibs: []
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [record_null, gamesys_rig_null, gamesys_model_null, rig_null, physics_2d, sound_null]
+      linkFlags: []
+  wasm-web:
+    context:
+      excludeLibs: [record, vpx, gamesys_model, gamesys_rig, rig, physics, LinearMath, BulletDynamics, BulletCollision, sound, tremolo]
+      excludeJsLibs: []
+      excludeSymbols: [ScriptModelExt, DefaultSoundDevice, AudioDecoderWav, AudioDecoderStbVorbis, AudioDecoderTremolo]
+      symbols: []
+      libs: [record_null, gamesys_rig_null, gamesys_model_null, rig_null, physics_2d, sound_null]
+      linkFlags: []

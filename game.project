@@ -1,5 +1,5 @@
 [bootstrap]
-main_collection = /examples/basic_movement_with_walls/basic_movement_with_walls.collectionc
+main_collection = /examples/boids/boids.collectionc
 
 [script]
 shared_state = 1
@@ -53,4 +53,10 @@ scale = 0.01
 
 [collection]
 max_instances = 2048
+
+[gui]
+max_count = 512
+
+[native_extension]
+app_manifest = /examples/manifest.appmanifest
 

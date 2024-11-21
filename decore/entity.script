@@ -23,15 +23,8 @@ function init(self)
 	self.entity = nil
 	self.components = {}
 
-	local is_inited = decore_data.is_component_registered("transform")
-	if is_inited then
-		msg.post(".", MSG_INIT_ENTITY)
-		msg.post(".", MSG_ADD_ENTITY)
-	else
-		logger:warn("The component 'transform' is not registered. Skip entity creation.", {
-			url = msg.url(),
-		})
-	end
+	msg.post(".", MSG_INIT_ENTITY)
+	msg.post(".", MSG_ADD_ENTITY)
 end
 
 

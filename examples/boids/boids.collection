@@ -1,0 +1,52 @@
+name: "basic_platformer_controller"
+instances {
+  id: "entity_camera"
+  prototype: "/core/system/camera/entity_camera.go"
+  position {
+    z: 10.0
+  }
+  component_properties {
+    id: "entity"
+    properties {
+      id: "size_x"
+      value: "960.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+    properties {
+      id: "size_y"
+      value: "540.0"
+      type: PROPERTY_TYPE_NUMBER
+    }
+  }
+}
+instances {
+  id: "boid"
+  prototype: "/examples/boids/boid/boid.go"
+}
+collection_instances {
+  id: "entity_debug_panel"
+  collection: "/decore/widget/debug_panel/entity_debug_panel.collection"
+}
+scale_along_z: 0
+embedded_instances {
+  id: "system"
+  data: "components {\n"
+  "  id: \"boids\"\n"
+  "  component: \"/examples/boids/boids.script\"\n"
+  "}\n"
+  "components {\n"
+  "  id: \"gui\"\n"
+  "  component: \"/examples/boids/boids.gui\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "spawner"
+  data: "embedded_components {\n"
+  "  id: \"boid\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/examples/boids/boid/boid.go\\\"\\n"
+  "\"\n"
+  "}\n"
+  ""
+}

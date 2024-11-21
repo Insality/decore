@@ -1,0 +1,23 @@
+textures {
+  name: "druid"
+  texture: "/druid/druid.atlas"
+}
+nodes {
+  rotation {
+    z: -45.0
+  }
+  size {
+    x: 100.0
+    y: 100.0
+  }
+  type: TYPE_PIE
+  texture: "druid/pixel"
+  id: "pie"
+  inherit_alpha: true
+  innerRadius: 48.0
+  pieFillAngle: 270.0
+}
+material: "/druid/materials/gui_world/gui_world.material"
+adjust_reference: ADJUST_REFERENCE_DISABLED
+max_nodes: 2
+max_dynamic_textures: 1

@@ -1,0 +1,36 @@
+local decore = require("decore.decore")
+
+function init(self)
+	self.world = decore.world(
+		require("core.system.camera.system_camera").create_system(),
+		require("core.system.game_object.system_game_object").create_system(),
+		require("core.system.transform.system_transform").create_system(),
+		require("core.system.transform_border.system_transform_border").create_system(),
+		require("core.system.velocity.system_velocity").create_system(),
+		require("decore.widget.debug_panel.system_debug_panel").create_system()
+	)
+
+	decore.register_entity("boid", require("examples.boids.boid.boid"))
+
+	for index = 1, 100 do
+		local boid = decore.create_entity("boid")
+		boid.transform.position_x = math.random(-960/2, 960/2)
+		boid.transform.position_y = math.random(-540/2, 540/2)
+		self.world:addEntity(boid)
+	end
+end
+
+
+function update(self, dt)
+	self.world:update(dt)
+end
+
+
+function fixed_update(self, dt)
+	self.world:fixed_update(dt)
+end
+
+
+function on_message(self, message_id, message, sender)
+	decore.on_message(self.world, message_id, message, sender)
+end
