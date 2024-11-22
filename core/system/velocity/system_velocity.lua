@@ -81,13 +81,15 @@ end
 
 function M:set_velocity(entity, x, y)
 	local velocity = entity.velocity
-	velocity.x = x
-	velocity.y = y
 
-	-- Update speed and angle with limits
 	local speed = math.sqrt(x * x + y * y)
-	velocity.speed = speed
+	velocity.speed = decore.clamp(speed, velocity.min_speed, velocity.max_speed)
 	velocity.angle = math.deg(math.atan2(y, x))
+
+	-- Adjust x and y
+	local rad = math.rad(velocity.angle)
+	velocity.x = math.cos(rad) * velocity.speed
+	velocity.y = math.sin(rad) * velocity.speed
 end
 
 
@@ -96,14 +98,7 @@ function M:process(entity, dt)
 
 	-- Apply acceleration
 	velocity.speed = velocity.speed + velocity.acceleration * dt
-
-	-- Clamp speed
-	if velocity.max_speed > 0 then
-		velocity.speed = math.min(velocity.speed, velocity.max_speed)
-	end
-	if velocity.min_speed > 0 then
-		velocity.speed = math.max(velocity.speed, velocity.min_speed)
-	end
+	velocity.speed = decore.clamp(velocity.speed, velocity.min_speed, velocity.max_speed)
 
 	-- Update velocity components
 	local rad = math.rad(velocity.angle)
@@ -112,6 +107,7 @@ function M:process(entity, dt)
 
 	self.world.command_transform:add_position(entity, velocity.x * dt, velocity.y * dt)
 	self.world.command_transform:set_rotation(entity, velocity.angle)
+	--self.world.command_transform:set_animate_time(entity, 0.1, go.EASING_OUTSINE)
 end
 
 

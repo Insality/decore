@@ -63,6 +63,29 @@ function M.split_by_several_separators(s, sep)
 end
 
 
+---@param value number
+---@param v1 number|nil
+---@param v2 number|nil
+function M.clamp(value, v1, v2)
+	if v1 and v2 then
+		if v1 > v2 then
+			v1, v2 = v2, v1
+		end
+	end
+
+	if v1 and value < v1 then
+		return v1
+	end
+
+	if v2 and value > v2 then
+		return v2
+	end
+
+	return value
+end
+
+
+
 ---Create a copy of lua table
 ---@param orig table The table to copy
 ---@return table

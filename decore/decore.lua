@@ -490,4 +490,12 @@ function M.get_logger(name, level)
 end
 
 
+---@param value number
+---@param v1 number|nil
+---@param v2 number|nil
+function M.clamp(value, v1, v2)
+	return decore_internal.clamp(value, v1, v2)
+end
+
+
 return M

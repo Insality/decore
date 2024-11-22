@@ -10,6 +10,8 @@ local HASH_SIZE_X = hash("size.x")
 local COLOR_HUGE = color.hex2vector4("#D59E9E")
 local COLOR_LOW = color.hex2vector4("#8ED59E")
 
+local COLOR_TEXT_LIGHT = color.hex2vector4("#212428")
+local COLOR_TEXT_DARK = color.hex2vector4("#76797D")
 
 function M:init()
 	self.root = self:get_node("root")
@@ -160,6 +162,9 @@ function M:update(dt)
 		gui.set_color(self.node_update, color.lerp(update_perc, COLOR_LOW, COLOR_HUGE))
 		gui.set_color(self.node_postwrap, color.lerp(postwrap_perc, COLOR_LOW, COLOR_HUGE))
 
+		gui.set_color(self.text_memory_update.node, color.lerp(update_perc, COLOR_TEXT_DARK, COLOR_TEXT_LIGHT))
+		gui.set_color(self.text_memory_postwrap.node, color.lerp(postwrap_perc, COLOR_TEXT_DARK, COLOR_TEXT_LIGHT))
+
 		self.system_memory_samples_update = {}
 		self.system_memory_samples_postwrap = {}
 
@@ -170,17 +175,18 @@ function M:update(dt)
 				update_time = update_time + v
 			end
 			update_time = update_time / math.max(#self.system_memory_samples_update_fps, 1)
+			update_time = update_time * 1000
 
 			-- Mediana time for postwrap
 			local postwrap_time = 0
 			for _, v in ipairs(self.system_memory_samples_postwrap_fps) do
 				postwrap_time = postwrap_time + v
 			end
-
 			postwrap_time = postwrap_time / math.max(#self.system_memory_samples_postwrap_fps, 1)
+			postwrap_time = postwrap_time * 1000
 
-			self.text_memory_update_fps:set_text( string.format("%.1f", update_time * 1000) .. " ms")
-			self.text_memory_postwrap_fps:set_text( string.format("%.2f", postwrap_time * 1000) .. " ms")
+			self.text_memory_update_fps:set_text( string.format("%.1f", update_time) .. " ms")
+			self.text_memory_postwrap_fps:set_text( string.format("%.2f", postwrap_time) .. " ms")
 
 			local update_time_perc = vmath.clamp(update_time / self.update_time_limit, 0, 1)
 			local postwrap_time_perc = vmath.clamp(postwrap_time / self.postwrap_time_limit, 0, 1)
@@ -190,6 +196,9 @@ function M:update(dt)
 
 			gui.set_color(self.node_update_fps, color.lerp(update_time_perc, COLOR_LOW, COLOR_HUGE))
 			gui.set_color(self.node_postwrap_fps, color.lerp(postwrap_time_perc, COLOR_LOW, COLOR_HUGE))
+
+			gui.set_color(self.text_memory_update_fps.node, color.lerp(update_time_perc, COLOR_TEXT_DARK, COLOR_TEXT_LIGHT))
+			gui.set_color(self.text_memory_postwrap_fps.node, color.lerp(postwrap_time_perc, COLOR_TEXT_DARK, COLOR_TEXT_LIGHT))
 
 			self.system_memory_samples_update_fps = {}
 			self.system_memory_samples_postwrap_fps = {}

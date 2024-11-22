@@ -20,7 +20,7 @@ function init(self)
 
 	decore.register_entity("boid", require("examples.boids.boid.boid"))
 
-	for index = 1, 100 do
+	for index = 1, 400 do
 		local boid = decore.create_entity("boid")
 		boid.transform.position_x = math.random(-960/2, 960/2)
 		boid.transform.position_y = math.random(-540/2, 540/2)

@@ -41,7 +41,7 @@ function M:set_world(world)
 	self:select_page(PAGES.MAIN, nil, "Decore Panel")
 
 	-- And systems
-	self:select_page(PAGES.SYSTEMS, self.world.systems, "Systems")
+	--self:select_page(PAGES.SYSTEMS, self.world.systems, "Systems")
 end
 
 
@@ -94,6 +94,25 @@ function M:draw_page_main(context, page_name)
 	self.properties_panel:add_button("Entity Prefabs" , function()
 		self:select_page(PAGES.ENTITY_PREFABS, nil, "Entity Prefabs")
 	end):set_text_button("Open")
+
+	self.properties_panel:add_slider("speed", 0, function(value)
+		self.world.command_boid:set_speed(value * 100)
+	end)
+
+	self.properties_panel:add_slider("cohesion", 0, function(value)
+		self.world.command_boid:set_cohesion_radius(value * 30)
+	end)
+
+	self.properties_panel:add_slider("separation", 0, function(value)
+		self.world.command_boid:set_separation_radius(value * 30)
+	end)
+
+	self.properties_panel:add_slider("alignment", 0, function(value)
+		self.world.command_boid:set_alignment_radius(value * 30)
+	end)
+
+
+
 end
 
 ---Draw entities page

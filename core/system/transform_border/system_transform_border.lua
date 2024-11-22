@@ -60,7 +60,6 @@ function M:process_transform_event(entity)
 					y = border.y - size_y_half
 				end
 
-				print("Wrap")
 				self.world.command_transform:set_position(entity, x, y)
 			else
 				local x = vmath.clamp(t.position_x, border.x + t.size_x/2, border.z - t.size_x/2)

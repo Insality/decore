@@ -153,6 +153,8 @@ end
 ---@param animate_time number|nil
 ---@param easing userdata|nil
 function M:set_animate_time(entity, animate_time, easing)
+	entity.transform.animate_time = animate_time
+	entity.transform.easing = easing
 	self.world.event_bus:trigger("transform_event", entity)
 end
 
