@@ -12,6 +12,9 @@ function init(self)
 		require("core.system.transform.system_transform").create_system(),
 		require("core.system.transform_border.system_transform_border").create_system(),
 		require("core.system.velocity.system_velocity").create_system(),
+
+		require("examples.boids.boid.system_boid").create_system(),
+
 		require("decore.widget.debug_panel.system_debug_panel").create_system()
 	)
 

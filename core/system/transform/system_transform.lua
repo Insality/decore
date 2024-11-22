@@ -66,7 +66,7 @@ function M:onAddToWorld()
 end
 
 
-function M:postWrap()
+function M:preWrap()
 	for index = 1, #self.entities do
 		local transform = self.entities[index].transform
 		transform.is_position_changed = nil

@@ -4,6 +4,10 @@ nodes {
     x: 606.0
     y: 558.0
   }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
   type: TYPE_TEMPLATE
   id: "memory_panel"
   inherit_alpha: true
@@ -103,6 +107,10 @@ nodes {
   position {
     x: 848.0
     y: 558.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
   }
   type: TYPE_TEMPLATE
   id: "fps_panel"

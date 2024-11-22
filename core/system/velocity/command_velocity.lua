@@ -14,6 +14,20 @@ function M.create(velocity)
 end
 
 
+function M:set_velocity(entity, x, y)
+	assert(entity.velocity, "Entity does not have a velocity component.")
+	---@cast entity entity.velocity
+	self.velocity:set_velocity(entity, x, y)
+end
+
+
+function M:add_velocity(entity, x, y)
+	assert(entity.velocity, "Entity does not have a velocity component.")
+	---@cast entity entity.velocity
+	self.velocity:set_velocity(entity, entity.velocity.x + x, entity.velocity.y + y)
+end
+
+
 ---Set entity velocity angle
 ---@param entity entity
 ---@param angle number Angle in degrees

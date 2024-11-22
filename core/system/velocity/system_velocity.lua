@@ -48,18 +48,22 @@ end
 function M:set_angle(entity, angle)
 	local velocity = entity.velocity
 	velocity.angle = angle
+
+	-- Update velocity components
+	local rad = math.rad(angle)
+	velocity.x = math.cos(rad) * velocity.speed
+	velocity.y = math.sin(rad) * velocity.speed
 end
 
 
 function M:set_speed(entity, speed)
 	local velocity = entity.velocity
-	if velocity.max_speed > 0 then
-		speed = math.min(speed, velocity.max_speed)
-	end
-	if velocity.min_speed > 0 then
-		speed = math.max(speed, velocity.min_speed)
-	end
 	velocity.speed = speed
+
+	-- Update velocity components
+	local rad = math.rad(velocity.angle)
+	velocity.x = math.cos(rad) * speed
+	velocity.y = math.sin(rad) * speed
 end
 
 
@@ -75,10 +79,21 @@ function M:set_acceleration(entity, acceleration)
 end
 
 
+function M:set_velocity(entity, x, y)
+	local velocity = entity.velocity
+	velocity.x = x
+	velocity.y = y
+
+	-- Update speed and angle with limits
+	local speed = math.sqrt(x * x + y * y)
+	velocity.speed = speed
+	velocity.angle = math.deg(math.atan2(y, x))
+end
+
+
 function M:process(entity, dt)
 	local velocity = entity.velocity
 
-	velocity.angle = velocity.angle + 1
 	-- Apply acceleration
 	velocity.speed = velocity.speed + velocity.acceleration * dt
 

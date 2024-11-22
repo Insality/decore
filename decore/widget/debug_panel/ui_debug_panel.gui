@@ -12,6 +12,14 @@ textures {
   texture: "/druid/druid.atlas"
 }
 nodes {
+  position {
+    x: 153.0
+    y: 544.0
+  }
+  scale {
+    x: 0.75
+    y: 0.75
+  }
   size {
     x: 200.0
     y: 100.0
@@ -23,10 +31,6 @@ nodes {
   visible: false
 }
 nodes {
-  position {
-    x: 200.0
-    y: 500.0
-  }
   type: TYPE_TEMPLATE
   id: "properties_panel"
   parent: "root"
@@ -390,8 +394,7 @@ nodes {
 }
 nodes {
   position {
-    x: 200.0
-    y: 620.0
+    y: 120.0
   }
   size {
     x: 400.0
@@ -486,8 +489,7 @@ nodes {
 }
 nodes {
   position {
-    x: 200.0
-    y: 250.0
+    y: -250.0
   }
   type: TYPE_TEMPLATE
   id: "property_system"

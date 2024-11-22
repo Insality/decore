@@ -41,6 +41,17 @@ function M:init()
 end
 
 
+function M:on_remove()
+	if self.system_old_update then
+		self.system.update = self.system_old_update
+	end
+
+	if self.system_old_postwrap then
+		self.system.postWrap = self.system_old_postwrap
+	end
+end
+
+
 function M:set_text(text)
 	self.text_name:set_text(text)
 	return self
@@ -168,8 +179,8 @@ function M:update(dt)
 
 			postwrap_time = postwrap_time / math.max(#self.system_memory_samples_postwrap_fps, 1)
 
-			self.text_memory_update_fps:set_text( string.format("%.3f", update_time) .. " ms")
-			self.text_memory_postwrap_fps:set_text( string.format("%.3f", postwrap_time) .. " ms")
+			self.text_memory_update_fps:set_text( string.format("%.1f", update_time * 1000) .. " ms")
+			self.text_memory_postwrap_fps:set_text( string.format("%.2f", postwrap_time * 1000) .. " ms")
 
 			local update_time_perc = vmath.clamp(update_time / self.update_time_limit, 0, 1)
 			local postwrap_time_perc = vmath.clamp(postwrap_time / self.postwrap_time_limit, 0, 1)
