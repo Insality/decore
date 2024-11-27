@@ -63,12 +63,16 @@ end
 
 
 function M:animation_on_drag_start()
-	panthera.play(self.animation_state, "on_drag_start")
+	panthera.play(self.animation_state, "on_drag_start", {
+		is_skip_init = true,
+	})
 end
 
 
 function M:animation_on_drag_end()
-	panthera.play(self.animation_state, "on_drag_end")
+	panthera.play(self.animation_state, "on_drag_end", {
+		is_skip_init = true,
+	})
 end
 
 

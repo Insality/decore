@@ -8,11 +8,13 @@ local decore = require("decore.decore")
 
 ---If true, will get collision events.
 ---@class component.collision
+---@field is_remove boolean|nil
+---@field send_event string|nil
 decore.register_component("collision", {})
 
 ---@class event.collision_event
 ---@field entity entity
----@field other entity
+---@field other entity|nil
 ---@field trigger_event physics.collision.trigger_event|nil
 ---@field collision_event physics.collision.collision_event|nil
 ---@field contact_point_event physics.collision.contact_point_event|nil
@@ -94,31 +96,56 @@ function M.physics_world_listener(self, event, data)
 end
 
 
----@param event_data physics.collision.contact_point_event
-function M:handle_contact_point_event(event_data)
-	-- Handle contact point data
-	local entity_source = self.root_to_entity[event_data.a.id]
-	local entity_target = self.root_to_entity[event_data.b.id]
-
+---@param self system.collision
+---@param entity_source entity|nil
+---@param entity_target entity|nil
+---@param event_data physics.collision.contact_point_event|physics.collision.trigger_event|physics.collision.collision_event
+---@param event_type string @"contact_point_event"|"trigger_event"|"collision_event"
+local function handle_collision_event(self, entity_source, entity_target, event_data, event_type)
 	if entity_source and entity_source.collision then
+		if entity_source.collision.is_remove then
+			self.world:removeEntity(entity_source)
+		end
+
+		if entity_source.collision.send_event then
+			self.world.event_bus:trigger(entity_source.collision.send_event)
+		end
+
 		---@type event.collision_event
 		local collision_event = {
 			entity = entity_source,
 			other = entity_target,
-			contact_point_event = event_data
+			[event_type] = event_data
 		}
 		self.world.event_bus:trigger("collision_event", collision_event)
 	end
 
 	if entity_target and entity_target.collision then
+		if entity_target.collision.is_remove then
+			self.world:removeEntity(entity_target)
+		end
+
+		if entity_target.collision.send_event then
+			self.world.event_bus:trigger(entity_target.collision.send_event)
+		end
+
 		---@type event.collision_event
 		local collision_event = {
 			entity = entity_target,
 			other = entity_source,
-			contact_point_event = event_data
+			[event_type] = event_data
 		}
 		self.world.event_bus:trigger("collision_event", collision_event)
 	end
+end
+
+
+---@param event_data physics.collision.contact_point_event
+function M:handle_contact_point_event(event_data)
+	-- Handle contact point data
+	local entity_source = self.root_to_entity[event_data.a.id]
+	local entity_target = self.root_to_entity[event_data.b.id]
+	handle_collision_event(self, entity_source, entity_target, event_data, "contact_point_event")
 end
 
 
@@ -127,26 +154,7 @@ function M:handle_trigger_event(event_data)
 	-- Handle trigger interaction data
 	local entity_source = self.root_to_entity[event_data.a.id]
 	local entity_target = self.root_to_entity[event_data.b.id]
-
-	if entity_source and entity_source.collision then
-		---@type event.collision_event
-		local collision_event = {
-			entity = entity_source,
-			other = entity_target,
-			trigger_event = event_data
-		}
-		self.world.event_bus:trigger("collision_event", collision_event)
-	end
-
-	if entity_target and entity_target.collision then
-		---@type event.collision_event
-		local collision_event = {
-			entity = entity_target,
-			other = entity_source,
-			trigger_event = event_data
-		}
-		self.world.event_bus:trigger("collision_event", collision_event)
-	end
+	handle_collision_event(self, entity_source, entity_target, event_data, "trigger_event")
 end
 
 
@@ -157,13 +165,7 @@ function M:handle_collision_event(event_data)
 
 	local is_source_collided = self.collided_this_frame[entity_source] and self.collided_this_frame[entity_source][entity_target]
 	if entity_source and entity_source.collision and not is_source_collided then
-		---@type event.collision_event
-		local collision_event = {
-			entity = entity_source,
-			other = entity_target,
-			collision_event = event_data
-		}
-		self.world.event_bus:trigger("collision_event", collision_event)
+		handle_collision_event(self, entity_source, entity_target, event_data, "collision_event")
 
 		if entity_target then
 			self.collided_this_frame[entity_source] = self.collided_this_frame[entity_source] or {}
@@ -173,13 +175,7 @@ function M:handle_collision_event(event_data)
 
 	local is_target_collided = self.collided_this_frame[entity_target] and self.collided_this_frame[entity_target][entity_source]
 	if entity_target and entity_target.collision and not is_target_collided then
-		---@type event.collision_event
-		local collision_event = {
-			entity = entity_target,
-			other = entity_source,
-			collision_event = event_data
-		}
-		self.world.event_bus:trigger("collision_event", collision_event)
+		handle_collision_event(self, entity_target, entity_source, event_data, "collision_event")
 
 		if entity_source then
 			self.collided_this_frame[entity_target] = self.collided_this_frame[entity_target] or {}

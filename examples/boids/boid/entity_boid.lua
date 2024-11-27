@@ -29,7 +29,7 @@ return {
 		border = vmath.vector4(-display_width / 2, display_width / 2, display_height / 2, -display_height / 2),
 		is_wrap = false,
 		is_limit = false,
-		random_position = true
+		random_position = false
 	},
 	velocity = {
 		min_speed = 150,

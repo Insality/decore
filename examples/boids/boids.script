@@ -17,6 +17,7 @@ function init(self)
 		require("core.system.panthera.system_panthera").create_system(),
 		require("core.system.transform_border.system_transform_border").create_system(),
 		require("core.system.transform.system_transform").create_system(),
+		require("core.system.collision.system_collision").create_system(),
 		require("core.system.quadtree.system_quadtree").create_system(),
 		require("core.system.velocity.system_velocity").create_system(),
 		require("core.system.color.system_color").create_system(),
@@ -31,7 +32,7 @@ function init(self)
 
 	decore.register_entity("boid", require("examples.boids.boid.entity_boid"))
 	decore.register_entity("camera", require("core.system.camera.entity_camera"))
-	--decore.register_entity("coin", require("examples.basic_collision.entity.coin"))
+	decore.register_entity("coin", require("examples.basic_collision.entity.entity_coin"))
 
 	--for index = 1, 4000 do
 	for index = 1, 1 do

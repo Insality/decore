@@ -124,6 +124,7 @@ end
 function M:remove_entity(entity)
 	if entity.game_object.root then
 		self.root_to_entity[entity.game_object.root] = nil
+		pprint("Remove root", entity.game_object.root)
 		go.delete(entity.game_object.root, false)
 	end
 

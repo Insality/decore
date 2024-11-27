@@ -63,5 +63,11 @@ embedded_instances {
   "  data: \"prototype: \\\"/examples/boids/boid/boid.go\\\"\\n"
   "\"\n"
   "}\n"
+  "embedded_components {\n"
+  "  id: \"coin\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/examples/basic_collision/entity/coin.go\\\"\\n"
+  "\"\n"
+  "}\n"
   ""
 }

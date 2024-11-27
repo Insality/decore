@@ -140,17 +140,29 @@ function M:draw_page_entities(context, page_name)
 	self.properties_panel.text_header:set_text("World Entities (" .. #entities .. ")")
 
 	for i = 1, #entities do
-		local entity = entities[i]
+		self.properties_panel:add_widget(function()
+			local entity = entities[i]
+			local entity_prefab_id = entity.prefab_id or "No Prefab"
+			local entity_name = entity.id .. ". " .. entity_prefab_id
 
-		local entity_prefab_id = entity.prefab_id or "No Prefab"
-		local entity_name = entity.id .. ". " .. entity_prefab_id
-
-		self.properties_panel:add_button(function(button)
-			button:set_text_property(entity_name)
-			button:set_text_button("Inspect")
-			button.button.on_click:subscribe(function()
+			local widget = self.druid:new_widget(property_prefab, "property_prefab", self.prefab_property_prefab)
+			widget:set_text_property(entity_name)
+			widget:set_text_button("Inspect")
+			widget.button.on_click:subscribe(function()
 				self:select_page(PAGES.TABLE, entity, entity.prefab_id or "No Prefab")
 			end)
+
+			widget.on_drag_start:subscribe(function()
+				entity.follow_cursor = true
+				self.world:addEntity(entity)
+			end)
+
+			widget.on_drag_end:subscribe(function()
+				entity.follow_cursor = nil
+				self.world:addEntity(entity)
+			end)
+
+			return widget
 		end)
 	end
 end
@@ -318,12 +330,8 @@ function M:draw_page_entity_prefabs(context, page_name)
 
 						end
 						entity_to_create.transform = drag_n_drop_entity.transform
-						if entity_to_create.transform_border then
-							entity_to_create.transform_border.random_position = false
-						end
 
 						self.world:removeEntity(drag_n_drop_entity)
-
 						self.world:addEntity(entity_to_create)
 
 						entity_to_create = nil
