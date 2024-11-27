@@ -1,7 +1,6 @@
 local M = {}
 
 local TYPE_TABLE = "table"
-local IS_PREHASH_ENTITIES_ID = sys.get_config_int("decore.is_prehash", 1) == 1
 
 function M.clear()
 	---@type table<string, table<string, entity>> @Key: pack_id, Value: <prefab_id, entity>
@@ -96,10 +95,7 @@ function M.register_entity(entity_id, entity_data, pack_id)
 	end
 
 	M.entities[pack_id][entity_id] = entity_data or {}
-	if IS_PREHASH_ENTITIES_ID then
-		local hashed_id = hash(entity_id)
-		M.entities[pack_id][hashed_id] = entity_data or M.entities[pack_id][entity_id]
-	end
+	M.entities[pack_id][hash(entity_id)] = M.entities[pack_id][entity_id]
 
 	entity_data.prefab_id = entity_id
 	entity_data.pack_id = pack_id

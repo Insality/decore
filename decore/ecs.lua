@@ -738,6 +738,12 @@ function tiny.update(world, dt, filter)
 	tiny_manageSystems(world)
 	tiny_manageEntities(world)
 
+	local speed = world.speed or 1
+	if speed <= 0 then
+		return
+	end
+	dt = dt * speed
+
 	local systems = world.systems
 
 	-- Iterate through Systems IN REVERSE ORDER

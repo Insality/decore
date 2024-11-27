@@ -35,7 +35,11 @@
 		"it",
 		"editor",
 		"fixed_update",
-		"event_context_manager"
+		"event_context_manager",
+		"c_system_boid",
+		"drawpixels",
+		"graphics",
+		"go_position_setter"
 	],
 	"Lua.completion.autoRequire": false,
 	"Lua.workspace.library": [

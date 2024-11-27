@@ -1,5 +1,6 @@
 local decore_data = require("decore.internal.decore_data")
 local properties_panel = require("druid.widget.properties_panel.properties_panel")
+
 local property_system = require("decore.widget.debug_panel.properties.property_system")
 
 ---@class decore.widget.debug_panel: druid.widget
@@ -17,6 +18,9 @@ local PAGES = {
 
 function M:init()
 	self.properties_panel = self.druid:new_widget(properties_panel, "properties_panel")
+	self.properties_panel.paginator.button_left:set_key_trigger("key_minus")
+	self.properties_panel.paginator.button_right:set_key_trigger("key_equals")
+
 	self.button_back = self.druid:new_button("button_back", self.on_button_back)
 		:set_key_trigger("key_backspace")
 
@@ -77,46 +81,54 @@ end
 ---@param context any
 ---@param page_name string
 function M:draw_page_main(context, page_name)
-	self.properties_panel:add_input("World Name", "Dreams", function(value)
-		print("World", value)
+	self.properties_panel:add_input(function(input)
+		input:set_text_property("World Name")
+		input:set_text_value("Dreams")
+		input:on_change(function(_, value)
+			print("World", value)
+		end)
 	end)
 
-	self.properties_panel:add_button("Entities", function()
-		self:select_page(PAGES.ENTITIES, self.world.entities, "Entities")
-	end):set_text_button("Inspect")
-		:set_color("#A1D7F5")
-
-	self.properties_panel:add_button("Systems" , function()
-		self:select_page(PAGES.SYSTEMS, self.world.systems, "Systems")
-	end):set_text_button("Inspect")
-		:set_color("#E6DF9F")
-
-	self.properties_panel:add_button("Entity Prefabs" , function()
-		self:select_page(PAGES.ENTITY_PREFABS, nil, "Entity Prefabs")
-	end):set_text_button("Open")
-
-	self.properties_panel:add_slider("speed", 0, function(value)
-		self.world.command_boid:set_speed(value * 100)
+	self.properties_panel:add_button(function(button)
+		button.text_name:set_text("Entities")
+		button.text_button:set_text(string.format("Inspect (%d)", #self.world.entities))
+		button:set_color("#A1D7F5")
+		button.button.on_click:subscribe(function()
+			self:select_page(PAGES.ENTITIES, self.world.entities, "Entities")
+		end)
 	end)
 
-	self.properties_panel:add_slider("cohesion", 0, function(value)
-		self.world.command_boid:set_cohesion_radius(value * 30)
+	self.properties_panel:add_button(function(button)
+		button:set_text_property("Systems")
+		button:set_text_button(string.format("Inspect (%d)", #self.world.systems))
+		button:set_color("#E6DF9F")
+		button.button.on_click:subscribe(function()
+			self:select_page(PAGES.SYSTEMS, self.world.systems, "Systems")
+		end)
 	end)
 
-	self.properties_panel:add_slider("separation", 0, function(value)
-		self.world.command_boid:set_separation_radius(value * 30)
+	self.properties_panel:add_button(function(button)
+		button:set_text_property("Entity Prefabs")
+		button:set_text_button("Open")
+		button.button.on_click:subscribe(function()
+			self:select_page(PAGES.ENTITY_PREFABS, nil, "Entity Prefabs")
+		end)
 	end)
 
-	self.properties_panel:add_slider("alignment", 0, function(value)
-		self.world.command_boid:set_alignment_radius(value * 30)
+	-- Add system interval slider
+	self.properties_panel:add_slider(function(slider)
+		slider:set_number_type(0.05, 2, 0.01)
+		slider:set_text_property("World Speed")
+		slider:set_value(self.world.speed or 1)
+		slider:on_change(function(value)
+			print("Speed", value)
+			self.world.speed = value
+		end)
 	end)
-
-
-
 end
 
 ---Draw entities page
----@param context table
+---@param context entity[]
 ---@param page_name string
 function M:draw_page_entities(context, page_name)
 	local entities = context
@@ -124,10 +136,17 @@ function M:draw_page_entities(context, page_name)
 
 	for i = 1, #entities do
 		local entity = entities[i]
-		local entity_name = entity.id .. ". " .. (entity.prefab_id or "No Prefab")
-		self.properties_panel:add_button(entity_name, function()
-			self:select_page(PAGES.TABLE, entity, entity.prefab_id or "No Prefab")
-		end):set_text_button("Inspect")
+
+		local entity_prefab_id = entity.prefab_id or "No Prefab"
+		local entity_name = entity.id .. ". " .. entity_prefab_id
+
+		self.properties_panel:add_button(function(button)
+			button:set_text_property(entity_name)
+			button:set_text_button("Inspect")
+			button.button.on_click:subscribe(function()
+				self:select_page(PAGES.TABLE, entity, entity.prefab_id or "No Prefab")
+			end)
+		end)
 	end
 end
 
@@ -141,15 +160,16 @@ function M:draw_page_systems(context, page_name)
 		local system = systems[i]
 		local system_name = i .. ". " .. system.id .. " (" .. #system.entities .. ")"
 
-		local system_property = self.druid:new_widget(property_system, "property_system", self.prefab_property_system)
-		gui.set_enabled(system_property.root, true)
-		system_property:set_system(system)
-		system_property:set_text(system_name)
-		system_property.button_inspect.on_click:subscribe(function()
-			self:select_page(PAGES.SYSTEM, system, system.id)
-		end)
+		self.properties_panel:add_widget(function()
+			local widget = self.druid:new_widget(property_system, "property_system", self.prefab_property_system)
+			widget:set_system(system)
+			widget:set_text(system_name)
+			widget.button_inspect.on_click:subscribe(function()
+				self:select_page(PAGES.SYSTEM, system, system.id)
+			end)
 
-		self.properties_panel:add_widget(system_property)
+			return widget
+		end)
 	end
 end
 
@@ -160,20 +180,33 @@ function M:draw_page_system(context, page_name)
 	local system = context
 	self.properties_panel.text_header:set_text("System " .. page_name)
 
-	local entities = system.entities
-	for i = 1, #entities do
-		local entity = entities[i]
-		local entity_name = entity.id .. ". " .. (entity.prefab_id or "No Prefab")
-		self.properties_panel:add_button(entity_name, function()
-			self:select_page(PAGES.TABLE, entity, entity.prefab_id or "No Prefab")
-		end):set_text_button("Inspect")
-	end
+	-- Add system interval slider
+	self.properties_panel:add_slider(function(slider)
+		slider:set_text_property("System Interval")
+		slider:set_value(system.interval or 0)
+		slider:set_number_type(0, 1, 0.01)
+		slider:on_change(function(value)
+			system.interval = value
+			if system.interval == 0 then
+				system.interval = nil
+			end
+			system.bufferedTime = 0
+		end)
+	end)
 
+	-- Draw system properties
+	self:draw_page_table(context, page_name)
+
+	-- If system has command, add button to inspect it
 	local command_system_id = "command_" .. system.id
 	if self.world[command_system_id] then
-		self.properties_panel:add_button("Command", function()
-			self:select_page(PAGES.TABLE, self.world[command_system_id], command_system_id)
-		end):set_text_button("Inspect")
+		self.properties_panel:add_button(function(button)
+			button:set_text_property("Command")
+			button:set_text_button("Inspect")
+			button.button.on_click:subscribe(function()
+				self:select_page(PAGES.TABLE, self.world[command_system_id], command_system_id)
+			end)
+		end)
 	end
 end
 
@@ -181,15 +214,20 @@ end
 ---@param context table
 ---@param page_name string
 function M:draw_page_table(context, page_name)
-	local entity = context
+	local data = context
+
+	if data.debug_panel_draw and type(data.debug_panel_draw) == "function" then
+		data:debug_panel_draw(self.properties_panel)
+		return
+	end
 
 	local component_order = {}
-	for component_id in pairs(entity) do
+	for component_id in pairs(data) do
 		table.insert(component_order, component_id)
 	end
 	table.sort(component_order, function(a, b)
-		local a_type = type(entity[a])
-		local b_type = type(entity[b])
+		local a_type = type(data[a])
+		local b_type = type(data[b])
 		if a_type ~= b_type then
 			return a_type < b_type
 		end
@@ -201,11 +239,11 @@ function M:draw_page_table(context, page_name)
 
 	for i = 1, #component_order do
 		local component_id = component_order[i]
-		local component = entity[component_id]
+		local component = data[component_id]
 		self:add_property_component(component_id, component, context)
 	end
 
-	local metatable = getmetatable(entity)
+	local metatable = getmetatable(data)
 	if metatable and metatable.__index and type(metatable.__index) == "table" then
 		local metatable_order = {}
 		for key in pairs(metatable.__index) do
@@ -226,7 +264,10 @@ end
 ---@param page_name string
 function M:draw_page_entity_prefabs(context, page_name)
 	for _, pack_id in ipairs(decore_data.entities_order) do
-		self.properties_panel:add_text("Pack id", pack_id)
+		self.properties_panel:add_text(function(text)
+			text:set_text_property("Pack id")
+			text:set_text_value(pack_id)
+		end)
 
 		-- Sort
 		local entities_ordered = {}
@@ -243,8 +284,12 @@ function M:draw_page_entity_prefabs(context, page_name)
 		for i = 1, #entities_ordered do
 			local prefab_id = entities_ordered[i]
 			if type(prefab_id) == "string" then
-				self.properties_panel:add_button(prefab_id, function()
-					self:select_page(PAGES.TABLE, decore_data.entities[pack_id][prefab_id], prefab_id)
+				self.properties_panel:add_button(function(button)
+					button:set_text_property(prefab_id)
+					button:set_text_button("Inspect")
+					button.button.on_click:subscribe(function()
+						self:select_page(PAGES.TABLE, decore_data.entities[pack_id][prefab_id], prefab_id)
+					end)
 				end)
 			end
 		end
@@ -319,37 +364,60 @@ function M:add_property_component(component_id, component, context)
 			end
 		end
 
-		self.properties_panel:add_button(button_name, function()
-			self:select_page(PAGES.TABLE, component, component_id)
-		end):set_text_button(name)
+		self.properties_panel:add_button(function(button)
+			button:set_text_property(button_name)
+			button:set_text_button(name)
+			button.button.on_click:subscribe(function()
+				self:select_page(PAGES.TABLE, component, component_id)
+			end)
+		end)
 	end
 
 	if component_type == "string" then
-		self.properties_panel:add_input(component_id, component, function(value)
-			context[component_id] = value
+		self.properties_panel:add_input(function(input)
+			input:set_text_property(tostring(component_id))
+			input:set_text_value(tostring(component))
+			input:on_change(function(_, value)
+				context[component_id] = value
+			end)
 		end)
 	end
 
 	if component_type == "number" then
-		self.properties_panel:add_input(component_id, component, function(value)
-			context[component_id] = tonumber(value)
+		self.properties_panel:add_input(function(input)
+			input:set_text_property(tostring(component_id))
+			input:set_text_value(tostring(component))
+			input:on_change(function(_, value)
+				context[component_id] = tonumber(value)
+			end)
 		end)
 	end
 
 	if component_type == "boolean" then
-		self.properties_panel:add_checkbox(component_id, component, function(value)
-			context[component_id] = value
+		self.properties_panel:add_checkbox(function(checkbox)
+			checkbox:set_text_property(tostring(component_id))
+			checkbox:set_value(component)
+			checkbox:on_change(function(value)
+				context[component_id] = value
+			end)
 		end)
 	end
 
 	if component_type == "userdata" then
-		self.properties_panel:add_text(tostring(component_id), tostring(component))
+		self.properties_panel:add_text(function(text)
+			text:set_text_property(tostring(component_id))
+			text:set_text_value(tostring(component))
+		end)
 	end
 
 	if component_type == "function" then
-		self.properties_panel:add_button(tostring(component_id), function()
-			component(context)
-		end):set_text_button("Call")
+		self.properties_panel:add_button(function(button)
+			button:set_text_property(tostring(component_id))
+			button:set_text_button("Call")
+			button.button.on_click:subscribe(function()
+				component(context)
+			end)
+		end)
 	end
 end
 

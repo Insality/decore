@@ -37,6 +37,7 @@
 ---@class world
 ---@field entities entity[]
 ---@field systems system[]
+---@field speed number|nil Koef for delta time
 ---@field add fun(self: world, ...): ...
 ---@field addEntity fun(self: world, entity: entity): entity
 ---@field addSystem fun(self: world, system: system): system

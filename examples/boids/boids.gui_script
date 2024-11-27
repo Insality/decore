@@ -1,11 +1,87 @@
+local decore = require("decore.decore")
+
+local properties_panel = require("druid.widget.properties_panel.properties_panel")
 local memory_panel = require("druid.widget.memory_panel.memory_panel")
 local fps_panel = require("druid.widget.fps_panel.fps_panel")
 local druid = require("druid.druid")
+
+local boid = require("examples.boids.boid.entity_boid")
 
 function init(self)
 	self.druid = druid.new(self)
 	self.druid:new_widget(memory_panel, "memory_panel")
 	self.druid:new_widget(fps_panel, "fps_panel")
+	self.properties_panel = self.druid:new_widget(properties_panel, "properties_panel")
+
+	local b = boid.boid
+	self.properties_panel:add_slider(function(slider)
+		slider.text_name:set_text("Visual Range")
+		slider:set_value(b.visual_range, true)
+		slider:set_number_type(10, 5000, 10)
+		slider.on_change_value:subscribe(function(value)
+			decore.last_world.command_boid:set_visual_range(value)
+		end)
+	end)
+
+	self.properties_panel:add_slider(function(slider)
+		slider.text_name:set_text("Protected Range")
+		slider:set_value(b.protected_range, true)
+		slider:set_number_type(10, 500, 10)
+		slider.on_change_value:subscribe(function(value)
+			decore.last_world.command_boid:set_protected_range(value)
+		end)
+	end)
+
+	self.properties_panel:add_slider(function(slider)
+		slider.text_name:set_text("Centering Factor")
+		slider:set_value(b.centering_factor, true)
+		slider:set_number_type(0, 1, 0.1)
+		slider.on_change_value:subscribe(function(value)
+			decore.last_world.command_boid:set_centering_factor(value)
+		end)
+	end)
+
+	self.properties_panel:add_slider(function(slider)
+		slider.text_name:set_text("Avoid Factor")
+		slider:set_value(b.avoid_factor, true)
+		slider:set_number_type(0, 1, 0.1)
+		slider.on_change_value:subscribe(function(value)
+			decore.last_world.command_boid:set_avoid_factor(value)
+		end)
+	end)
+
+	self.properties_panel:add_slider(function(slider)
+		slider.text_name:set_text("Matching Factor")
+		slider:set_value(b.matching_factor, true)
+		slider:set_number_type(0, 1, 0.1)
+		slider.on_change_value:subscribe(function(value)
+			decore.last_world.command_boid:set_matching_factor(value)
+		end)
+	end)
+
+	self.properties_panel:add_slider(function(slider)
+		slider.text_name:set_text("Min Speed")
+		slider:set_value(boid.velocity.min_speed, true)
+		slider:set_number_type(0, 500, 10)
+		slider.on_change_value:subscribe(function(value)
+			local entities = decore.last_world.command_velocity.velocity.entities
+			for i = 1, #entities do
+				decore.last_world.command_velocity:set_min_speed(entities[i], value)
+			end
+		end)
+	end)
+
+	self.properties_panel:add_slider(function(slider)
+		slider.text_name:set_text("Max Speed")
+		slider:set_value(boid.velocity.max_speed, true)
+		slider:set_number_type(0, 500, 10)
+		slider.on_change_value:subscribe(function(value)
+			local entities = decore.last_world.command_velocity.velocity.entities
+			for i = 1, #entities do
+				decore.last_world.command_velocity:set_max_speed(entities[i], value)
+			end
+		end)
+	end)
 end
 
 function final(self)

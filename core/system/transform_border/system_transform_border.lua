@@ -1,7 +1,7 @@
 local decore = require("decore.decore")
 
 ---@class entity
----@field transform_border component.transform_border
+---@field transform_border component.transform_border|nil
 
 ---@class entity.transform_border: entity
 ---@field transform_border component.transform_border
@@ -10,8 +10,12 @@ local decore = require("decore.decore")
 ---@class component.transform_border
 ---@field border vector4
 ---@field is_wrap boolean
+---@field is_limit boolean
+---@field random_position boolean If true, the entity will be placed randomly within the border
 decore.register_component("transform_border", {
 	is_wrap = false,
+	is_limit = true,
+	random_position = false,
 })
 
 ---@class system.transform_border: system
@@ -22,6 +26,17 @@ local M = {}
 ---@return system.transform_border
 function M.create_system()
 	return decore.system(M, "transform_border", { "transform_border", "transform" })
+end
+
+
+---@param entity entity.transform_border
+function M:onAdd(entity)
+	if entity.transform_border.random_position then
+		local border = entity.transform_border.border
+		local x = math.random(border.x, border.z)
+		local y = math.random(border.w, border.y)
+		self.world.command_transform:set_position(entity, x, y)
+	end
 end
 
 
@@ -61,9 +76,9 @@ function M:process_transform_event(entity)
 				end
 
 				self.world.command_transform:set_position(entity, x, y)
-			else
-				local x = vmath.clamp(t.position_x, border.x + t.size_x/2, border.z - t.size_x/2)
-				local y = vmath.clamp(t.position_y, border.w + t.size_y/2, border.y - t.size_y/2)
+			elseif transform_border.is_limit then
+				local x = decore.clamp(t.position_x, border.x + t.size_x/2, border.z - t.size_x/2)
+				local y = decore.clamp(t.position_y, border.w + t.size_y/2, border.y - t.size_y/2)
 				self.world.command_transform:set_position(entity, x, y)
 			end
 		end

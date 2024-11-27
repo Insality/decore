@@ -62,7 +62,7 @@ end
 
 function M:onAddToWorld()
 	self.world.command_transform = command_transform.create(self)
-	self.world.event_bus:set_merge_policy("transform_event", self.event_merge_policy)
+	--self.world.event_bus:set_merge_policy("transform_event", self.event_merge_policy)
 end
 
 

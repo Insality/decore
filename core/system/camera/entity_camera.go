@@ -26,7 +26,7 @@ embedded_components {
   type: "camera"
   data: "aspect_ratio: 1.0\n"
   "fov: 0.7854\n"
-  "near_z: 0.1\n"
+  "near_z: 0.01\n"
   "far_z: 1000.0\n"
   "orthographic_projection: 1\n"
   ""
@@ -34,19 +34,20 @@ embedded_components {
 embedded_components {
   id: "sprite"
   type: "sprite"
-  data: "default_animation: \"empty\"\n"
+  data: "default_animation: \"camera\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
+  "blend_mode: BLEND_MODE_ADD\n"
   "size {\n"
-  "  x: 960.0\n"
-  "  y: 640.0\n"
+  "  x: 1920.0\n"
+  "  y: 1080.0\n"
   "}\n"
   "size_mode: SIZE_MODE_MANUAL\n"
   "textures {\n"
   "  sampler: \"texture_sampler\"\n"
-  "  texture: \"/core/atlas/core.atlas\"\n"
+  "  texture: \"/core/system/camera/camera.atlas\"\n"
   "}\n"
   ""
   position {
-    z: -1.0
+    z: -10.0
   }
 }

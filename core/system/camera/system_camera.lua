@@ -21,6 +21,7 @@ local TEMP_VECTOR = vmath.vector3()
 ---@field offset_x number|nil
 ---@field offset_y number|nil
 ---@field offset_size number|nil
+---@field zoom number|nil
 decore.register_component("camera", {
 	camera_url = "",
 })
@@ -89,7 +90,7 @@ function M:process_transform_event(entity)
 	if transform.is_position_changed then
 		self:update_camera_position(self.camera, transform.animate_time, transform.easing)
 	end
-	if transform.is_size_changed then
+	if transform.is_size_changed or transform.is_scale_changed then
 		self:update_camera_zoom(self.camera, transform.animate_time, transform.easing)
 	end
 end
@@ -178,12 +179,13 @@ end
 ---@param easing userdata|nil
 function M:update_camera_zoom(entity, animate_time, easing)
 	local _, _, width, height = defos.get_view_size()
-	local camera_size_x = entity.transform.size_x
-	local camera_size_y = entity.transform.size_y
+	local camera_size_x = entity.transform.size_x * entity.transform.scale_x
+	local camera_size_y = entity.transform.size_y * entity.transform.scale_y
 
 	local scale_x = width / camera_size_x
 	local scale_y = height / camera_size_y
 	self.zoom = math.min(scale_x, scale_y)
+	entity.camera.zoom = self.zoom
 
 	if animate_time then
 		easing = easing or go.EASING_OUTSINE

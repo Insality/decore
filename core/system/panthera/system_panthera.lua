@@ -20,7 +20,9 @@ local command_panthera = require("core.system.panthera.command_panthera")
 ---@field play_on_start boolean|nil
 ---@field detached_animations panthera.animation.state[]
 ---@field play_on_remove string|nil Play animation on entity remove
-decore.register_component("panthera")
+decore.register_component("panthera", {
+	default_animation = "default",
+})
 
 ---@class system.panthera: system
 ---@field entities entity.panthera[]
@@ -56,7 +58,7 @@ function M:onAdd(entity)
 	if entity.game_object.object then
 		animation_state = panthera.create_go(p.animation_path, nil, entity.game_object.object)
 	else
-		animation_state = panthera.create_go(p.animation_path, nil, { [hash("/")]  = entity.game_object.root })
+		animation_state = panthera.create_go(p.animation_path, nil, { ["/"]  = entity.game_object.root })
 	end
 
 	if animation_state then

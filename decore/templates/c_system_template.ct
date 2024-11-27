@@ -1,0 +1,30 @@
+#include <dmsdk/sdk.h>
+
+// Log message that system is created
+static int is_created(lua_State* L) {
+	dmLogInfo("System is created");
+	return 0;
+};
+
+// Functions exposed to Lua
+static const luaL_reg Module_methods[] = {
+	{"is_created", is_created},
+	{0, 0}
+};
+
+static void LuaInit(lua_State* L) {
+	int top = lua_gettop(L);
+
+	luaL_register(L, "TEMPLATE", Module_methods);
+	lua_pop(L, 1);
+
+	assert(top == lua_gettop(L));
+}
+
+static dmExtension::Result Initialize(dmExtension::Params* params) {
+	LuaInit(params->m_L);
+	return dmExtension::RESULT_OK;
+}
+
+DM_DECLARE_EXTENSION(TEMPLATE, "TEMPLATE", 0, 0, Initialize, 0, 0, 0)
+

@@ -1,10 +1,22 @@
+script: "/examples/boids/boid/boid_sensor.gui_script"
 textures {
   name: "druid"
   texture: "/druid/druid.atlas"
 }
 nodes {
+  size {
+    x: 100.0
+    y: 100.0
+  }
+  type: TYPE_BOX
+  id: "root"
+  inherit_alpha: true
+  size_mode: SIZE_MODE_AUTO
+  visible: false
+}
+nodes {
   rotation {
-    z: -45.0
+    z: -135.0
   }
   size {
     x: 100.0
@@ -13,6 +25,7 @@ nodes {
   type: TYPE_PIE
   texture: "druid/pixel"
   id: "pie"
+  parent: "root"
   inherit_alpha: true
   innerRadius: 48.0
   pieFillAngle: 270.0

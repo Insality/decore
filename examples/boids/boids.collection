@@ -3,25 +3,40 @@ instances {
   id: "entity_camera"
   prototype: "/core/system/camera/entity_camera.go"
   position {
-    z: 10.0
-  }
-  component_properties {
-    id: "entity"
-    properties {
-      id: "size_x"
-      value: "960.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
-    properties {
-      id: "size_y"
-      value: "540.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
+    z: 15.0
   }
 }
 instances {
-  id: "boid"
-  prototype: "/examples/boids/boid/boid.go"
+  id: "coin"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 931.0
+    y: 504.0
+  }
+}
+instances {
+  id: "coin1"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: -938.0
+    y: 504.0
+  }
+}
+instances {
+  id: "coin2"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: -938.0
+    y: -514.0
+  }
+}
+instances {
+  id: "coin3"
+  prototype: "/examples/basic_collision/entity/coin.go"
+  position {
+    x: 931.0
+    y: -518.0
+  }
 }
 collection_instances {
   id: "entity_debug_panel"

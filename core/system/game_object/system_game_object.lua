@@ -33,6 +33,9 @@ local TEMP_VECTOR = vmath.vector3(0, 0, 0)
 local TEMP_QUAT = vmath.quat(0, 0, 0, 1)
 local ROOT_URL = hash("/root")
 local HASH_POSITION = hash("position")
+local HASH_ROTATION = hash("rotation")
+local HASH_QUAT_Z = hash("rotation.z")
+local HASH_QUAT_W = hash("rotation.w")
 local HASH_POSITION_X = hash("position.x")
 local HASH_POSITION_Y = hash("position.y")
 local HASH_POSITION_Z = hash("position.z")
@@ -178,7 +181,14 @@ function M:process_transform_event(entity)
 			local deg = transform.rotation
 			TEMP_QUAT.z = sin(rad(deg) * 0.5)
 			TEMP_QUAT.w = cos(rad(deg) * 0.5)
-			go.set_rotation(TEMP_QUAT, root)
+			go.set_rotation(TEMP_QUAT, root) -- The most performance way
+
+			--go.set(root, HASH_ROTATION, TEMP_QUAT)
+
+			--go.set(root, HASH_EULER_Z, deg)
+
+			--go.set(root, HASH_QUAT_Z, sin(rad(deg) * 0.5))
+			--go.set(root, HASH_QUAT_W, cos(rad(deg) * 0.5))
 		end
 	end
 
@@ -215,6 +225,14 @@ function M:process_transform_event(entity)
 end
 
 
+function M:update(dt)
+	--for index = 1, #self.entities do
+	--	local entity = self.entities[index]
+	--	self:refresh_transform(entity)
+	--end
+end
+
+
 function M:refresh_transform(entity)
 	local root = entity.game_object.root
 	if not root then
@@ -230,6 +248,10 @@ function M:refresh_transform(entity)
 	TEMP_VECTOR.y = entity.transform.scale_y
 	TEMP_VECTOR.z = entity.transform.scale_x -- X to keep uniform for physics
 	go.set_scale(TEMP_VECTOR, root)
+
+	TEMP_QUAT.z = sin(rad(entity.transform.rotation) * 0.5)
+	TEMP_QUAT.w = cos(rad(entity.transform.rotation) * 0.5)
+	go.set_rotation(TEMP_QUAT, root)
 end
 
 

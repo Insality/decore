@@ -34,7 +34,9 @@ function on_message(self, message_id, message)
 			print(msg.url(), debug.traceback("The entity_id is empty"))
 			return
 		end
+
 		self.entity = decore.create_entity(self.prefab_id)
+		-- If entity is not registered, use the hashed prefab id
 		if not self.entity.prefab_id then
 			self.entity.prefab_id = self.prefab_id
 		end

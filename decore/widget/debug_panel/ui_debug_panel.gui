@@ -13,12 +13,8 @@ textures {
 }
 nodes {
   position {
-    x: 153.0
-    y: 544.0
-  }
-  scale {
-    x: 0.75
-    y: 0.75
+    x: 208.0
+    y: 356.0
   }
   size {
     x: 200.0
@@ -31,6 +27,10 @@ nodes {
   visible: false
 }
 nodes {
+  position {
+    x: 4.0
+    y: 585.3333
+  }
   type: TYPE_TEMPLATE
   id: "properties_panel"
   parent: "root"
@@ -394,7 +394,8 @@ nodes {
 }
 nodes {
   position {
-    y: 120.0
+    x: 4.0
+    y: 705.3333
   }
   size {
     x: 400.0
@@ -489,7 +490,8 @@ nodes {
 }
 nodes {
   position {
-    y: -250.0
+    x: 4.0
+    y: 335.33334
   }
   type: TYPE_TEMPLATE
   id: "property_system"

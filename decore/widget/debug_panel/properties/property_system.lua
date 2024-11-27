@@ -17,7 +17,7 @@ function M:init()
 	self.root = self:get_node("root")
 
 	self.text_name = self.druid:new_text("text_name")
-		:set_text_adjust("scale_then_trim_left", 0.3)
+		:set_text_adjust("scale_then_trim", 0.3)
 
 	self.text_memory_update = self.druid:new_text("text_memory_update")
 	self.text_memory_update_fps = self.druid:new_text("text_memory_update_fps")
@@ -111,6 +111,8 @@ function M:set_system(system)
 			table.insert(self.system_memory_samples_postwrap_fps, diff_time)
 		end
 	end
+
+	self:update(0)
 end
 
 
@@ -153,8 +155,8 @@ function M:update(dt)
 		---@diagnostic disable-next-line: undefined-field
 		local postwrap_limit = self.system.DEBUG_PANEL_POSTWRAP_MEMORY_LIMIT or self.postwrap_limit
 
-		local update_perc = vmath.clamp(update_memory / update_limit, 0, 1)
-		local postwrap_perc = vmath.clamp(postwrap_memory / postwrap_limit, 0, 1)
+		local update_perc = helper.clamp(update_memory / update_limit, 0, 1)
+		local postwrap_perc = helper.clamp(postwrap_memory / postwrap_limit, 0, 1)
 
 		gui.set(self.node_update, HASH_SIZE_X, update_perc * 80)
 		gui.set(self.node_postwrap, HASH_SIZE_X, postwrap_perc * 80)
@@ -188,8 +190,8 @@ function M:update(dt)
 			self.text_memory_update_fps:set_text( string.format("%.1f", update_time) .. " ms")
 			self.text_memory_postwrap_fps:set_text( string.format("%.2f", postwrap_time) .. " ms")
 
-			local update_time_perc = vmath.clamp(update_time / self.update_time_limit, 0, 1)
-			local postwrap_time_perc = vmath.clamp(postwrap_time / self.postwrap_time_limit, 0, 1)
+			local update_time_perc = helper.clamp(update_time / self.update_time_limit, 0, 1)
+			local postwrap_time_perc = helper.clamp(postwrap_time / self.postwrap_time_limit, 0, 1)
 
 			gui.set(self.node_update_fps, HASH_SIZE_X, update_time_perc * 80)
 			gui.set(self.node_postwrap_fps, HASH_SIZE_X, postwrap_time_perc * 80)

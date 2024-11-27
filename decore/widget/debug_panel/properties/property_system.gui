@@ -207,15 +207,14 @@ nodes {
 }
 nodes {
   position {
-    x: -40.0
     y: 10.0
   }
   scale {
-    x: 0.4
-    y: 0.4
+    x: 0.3
+    y: 0.3
   }
   size {
-    x: 200.0
+    x: 250.0
     y: 40.0
   }
   color {
@@ -227,6 +226,7 @@ nodes {
   text: "100 kb/s"
   font: "druid_text_bold"
   id: "text_memory_update"
+  pivot: PIVOT_E
   outline {
     x: 1.0
     y: 1.0
@@ -244,15 +244,14 @@ nodes {
 }
 nodes {
   position {
-    x: -40.0
     y: -10.0
   }
   scale {
-    x: 0.4
-    y: 0.4
+    x: 0.3
+    y: 0.3
   }
   size {
-    x: 200.0
+    x: 250.0
     y: 40.0
   }
   color {
@@ -264,6 +263,7 @@ nodes {
   text: "100 kb/s"
   font: "druid_text_bold"
   id: "text_memory_postwrap"
+  pivot: PIVOT_E
   outline {
     x: 1.0
     y: 1.0
@@ -380,11 +380,11 @@ nodes {
     y: 10.0
   }
   scale {
-    x: 0.4
-    y: 0.4
+    x: 0.3
+    y: 0.3
   }
   size {
-    x: 200.0
+    x: 250.0
     y: 40.0
   }
   color {
@@ -417,11 +417,11 @@ nodes {
     y: -10.0
   }
   scale {
-    x: 0.4
-    y: 0.4
+    x: 0.3
+    y: 0.3
   }
   size {
-    x: 200.0
+    x: 250.0
     y: 40.0
   }
   color {

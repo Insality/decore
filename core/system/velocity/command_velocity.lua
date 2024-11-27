@@ -48,23 +48,17 @@ function M:set_speed(entity, speed)
 end
 
 
----Set entity acceleration
----@param entity entity
----@param acceleration number
-function M:set_acceleration(entity, acceleration)
+function M:set_min_speed(entity, min_speed)
 	assert(entity.velocity, "Entity does not have a velocity component.")
 	---@cast entity entity.velocity
-	self.velocity:set_acceleration(entity, acceleration)
+	self.velocity:set_min_speed(entity, min_speed)
 end
 
 
----Stop entity movement
----@param entity entity
-function M:stop(entity)
+function M:set_max_speed(entity, max_speed)
 	assert(entity.velocity, "Entity does not have a velocity component.")
 	---@cast entity entity.velocity
-	self.velocity:set_speed(entity, 0)
-	self.velocity:set_acceleration(entity, 0)
+	self.velocity:set_max_speed(entity, max_speed)
 end
 
 

@@ -29,9 +29,9 @@ end
 ---@param y number|nil
 ---@param z number|nil
 function M:add_position(entity, x, y, z)
-	assert(entity.transform, "Entity does not have a transform component.")
-	---@cast entity entity.transform
 	local t = entity.transform
+	assert(t, "Entity does not have a transform component.")
+	---@cast entity entity.transform
 	x = x or 0
 	y = y or 0
 	z = z or 0

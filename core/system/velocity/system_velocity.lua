@@ -10,28 +10,25 @@ local command_velocity = require("core.system.velocity.command_velocity")
 ---@class component.velocity
 ---@field angle number
 ---@field speed number
----@field acceleration number
 ---@field max_speed number
 ---@field min_speed number
----@field max_acceleration number
----@field min_acceleration number
 ---@field x number
 ---@field y number
 decore.register_component("velocity", {
 	speed = 0,
 	angle = 0,
-	acceleration = 0,
 	max_speed = 0,
 	min_speed = 0,
-	max_acceleration = 0,
-	min_acceleration = 0,
 	x = 0,
-	y = 0,
+	y = 0
 })
 
 ---@class system.velocity: system
 ---@field entities entity.velocity[]
-local M = {}
+---@field debug_draw boolean
+local M = {
+	--interval = 0.1
+}
 
 
 ---@return system.velocity
@@ -41,6 +38,7 @@ end
 
 
 function M:onAddToWorld()
+	self.debug_draw = false
 	self.world.command_velocity = command_velocity.create(self)
 end
 
@@ -67,18 +65,6 @@ function M:set_speed(entity, speed)
 end
 
 
-function M:set_acceleration(entity, acceleration)
-	local velocity = entity.velocity
-	if velocity.max_acceleration > 0 then
-		acceleration = math.min(acceleration, velocity.max_acceleration)
-	end
-	if velocity.min_acceleration > 0 then
-		acceleration = math.max(acceleration, velocity.min_acceleration)
-	end
-	velocity.acceleration = acceleration
-end
-
-
 function M:set_velocity(entity, x, y)
 	local velocity = entity.velocity
 
@@ -93,21 +79,35 @@ function M:set_velocity(entity, x, y)
 end
 
 
+---@param entity entity.velocity
 function M:process(entity, dt)
 	local velocity = entity.velocity
 
-	-- Apply acceleration
-	velocity.speed = velocity.speed + velocity.acceleration * dt
-	velocity.speed = decore.clamp(velocity.speed, velocity.min_speed, velocity.max_speed)
-
-	-- Update velocity components
-	local rad = math.rad(velocity.angle)
-	velocity.x = math.cos(rad) * velocity.speed
-	velocity.y = math.sin(rad) * velocity.speed
-
 	self.world.command_transform:add_position(entity, velocity.x * dt, velocity.y * dt)
 	self.world.command_transform:set_rotation(entity, velocity.angle)
-	--self.world.command_transform:set_animate_time(entity, 0.1, go.EASING_OUTSINE)
+
+	--if self.interval then
+	--	self.world.command_transform:set_animate_time(entity, self.interval, go.EASING_LINEAR)
+	--end
+
+	if self.debug_draw and self.world.command_debug_draw then
+		self.world.command_debug_draw:draw_line(
+			entity.transform.position_x,
+			entity.transform.position_y,
+			entity.transform.position_x + velocity.x,
+			entity.transform.position_y + velocity.y
+		)
+	end
+end
+
+
+function M:set_min_speed(entity, min_speed)
+	entity.velocity.min_speed = min_speed
+end
+
+
+function M:set_max_speed(entity, max_speed)
+	entity.velocity.max_speed = max_speed
 end
 
 

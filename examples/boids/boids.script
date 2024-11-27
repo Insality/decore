@@ -7,23 +7,35 @@ function init(self)
 	decore.set_logger(log.get_logger("boids"))
 
 	self.world = decore.world(
+		require("core.system.window_event.system_window_event").create_system(),
+		require("core.system.camera_debug_control.camera_debug_control").create_system(),
+		require("core.system.input.system_input").create_system(),
+
 		require("core.system.camera.system_camera").create_system(),
 		require("core.system.game_object.system_game_object").create_system(),
-		require("core.system.transform.system_transform").create_system(),
+		require("core.system.panthera.system_panthera").create_system(),
 		require("core.system.transform_border.system_transform_border").create_system(),
+		require("core.system.transform.system_transform").create_system(),
+		require("core.system.quadtree.system_quadtree").create_system(),
 		require("core.system.velocity.system_velocity").create_system(),
+		require("core.system.color.system_color").create_system(),
 
-		require("examples.boids.boid.system_boid").create_system(),
+		require("examples.boids.system_boid.system_boid").create_system(),
 
-		require("decore.widget.debug_panel.system_debug_panel").create_system()
+		require("decore.widget.debug_panel.system_debug_panel").create_system(),
+		require("core.system.debug_draw_transform.system_debug_draw_transform").create_system(),
+
+		require("core.system.debug_draw.system_debug_draw").create_system()
 	)
 
-	decore.register_entity("boid", require("examples.boids.boid.boid"))
+	decore.register_entity("boid", require("examples.boids.boid.entity_boid"))
+	decore.register_entity("camera", require("core.system.camera.entity_camera"))
+	--decore.register_entity("coin", require("examples.basic_collision.entity.coin"))
 
-	for index = 1, 400 do
+	--for index = 1, 4000 do
+	for index = 1, 100 do
 		local boid = decore.create_entity("boid")
-		boid.transform.position_x = math.random(-960/2, 960/2)
-		boid.transform.position_y = math.random(-540/2, 540/2)
+		boid.transform_border.random_position = true
 		self.world:addEntity(boid)
 	end
 end
@@ -41,4 +53,9 @@ end
 
 function on_message(self, message_id, message, sender)
 	decore.on_message(self.world, message_id, message, sender)
+end
+
+
+function on_input(self, action_id, action)
+	return decore.on_input(self.world, action_id, action)
 end

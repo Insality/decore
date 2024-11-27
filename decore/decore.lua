@@ -16,6 +16,7 @@ local TYPE_TABLE = "table"
 ---@class decore
 local M = {}
 M.ecs = require("decore.ecs")
+M.last_world = nil
 
 
 ---Create a new world instance
@@ -33,6 +34,9 @@ function M.world(...)
 
 	-- Add systems passed to world constructor
 	world:add(...)
+
+	-- Set Last World. Should be used to ease debug from different places?
+	M.last_world = world
 
 	return world
 end
@@ -240,13 +244,12 @@ function M.create_component(component_id, component_pack_id)
 	local component_instance = decore_data.get_component(component_id, component_pack_id)
 
 	if component_instance == nil then
-		decore_internal.logger:error("No component_id in components data", {
+		decore_internal.logger:warn("No component_id in components data", {
 			component_id = component_id,
 			component_pack_id = component_pack_id
 		})
-		decore_internal.logger:debug("Traceback", debug.traceback())
 
-		return nil
+		return {}
 	end
 
 	return component_instance
@@ -303,10 +306,10 @@ function M.register_world(world_id, world_data, pack_id)
 end
 
 
----@param worlds table<string, decore.world.instance>
 ---@param pack_id string
+---@param worlds table<string, decore.world.instance>
 ---@return boolean, string|nil
-function M.register_worlds(worlds, pack_id)
+function M.register_worlds(pack_id, worlds)
 	for world_id, world_data in pairs(worlds) do
 		decore_data.register_world(world_id, world_data, pack_id)
 	end
@@ -479,6 +482,7 @@ end
 ---@param logger_instance decore.logger|table|nil
 function M.set_logger(logger_instance)
 	decore_internal.logger = logger_instance or decore_internal.empty_logger
+	M.logger = decore_internal.logger
 end
 
 

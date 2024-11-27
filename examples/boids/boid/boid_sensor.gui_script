@@ -1,0 +1,9 @@
+local druid = require("druid.druid")
+local bindings = require("druid.bindings")
+local boid_sensor = require("examples.boids.boid.boid_sensor")
+
+function init(self)
+	self.druid = druid.new(self)
+	self.boid_sensor = self.druid:new_widget(boid_sensor)
+	bindings.set_widget(self.boid_sensor)
+end

@@ -30,4 +30,10 @@ function M:screen_to_world(x, y)
 end
 
 
+---@return entity.camera
+function M:get_current_camera()
+	return self.camera.camera
+end
+
+
 return M

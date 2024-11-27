@@ -8,12 +8,12 @@ components {
   }
   properties {
     id: "size_x"
-    value: "32.0"
+    value: "50.0"
     type: PROPERTY_TYPE_NUMBER
   }
   properties {
     id: "size_y"
-    value: "49.0"
+    value: "50.0"
     type: PROPERTY_TYPE_NUMBER
   }
 }
@@ -21,7 +21,12 @@ embedded_components {
   id: "sprite"
   type: "sprite"
   data: "default_animation: \"boid\"\n"
-  "material: \"/builtins/materials/sprite.material\"\n"
+  "material: \"/panthera/materials/sprite.material\"\n"
+  "size {\n"
+  "  x: 129.0\n"
+  "  y: 196.0\n"
+  "}\n"
+  "size_mode: SIZE_MODE_MANUAL\n"
   "textures {\n"
   "  sampler: \"texture_sampler\"\n"
   "  texture: \"/examples/boids/boids.atlas\"\n"
