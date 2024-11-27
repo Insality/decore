@@ -149,6 +149,11 @@ end
 function M:process_transform_event(entity)
 	local transform = entity.transform
 	local game_object = entity.game_object
+
+	if not decore.is_alive(self, entity) then
+		return
+	end
+
 	if not game_object or entity.physics then
 		return
 	end

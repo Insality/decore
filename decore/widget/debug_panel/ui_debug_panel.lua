@@ -1,6 +1,8 @@
+local decore = require("decore.decore")
 local decore_data = require("decore.internal.decore_data")
 local properties_panel = require("druid.widget.properties_panel.properties_panel")
 
+local property_prefab = require("decore.widget.debug_panel.properties.property_prefab")
 local property_system = require("decore.widget.debug_panel.properties.property_system")
 
 ---@class decore.widget.debug_panel: druid.widget
@@ -28,6 +30,9 @@ function M:init()
 
 	self.text_prev_page = self.druid:new_text("text_prev_page")
 	gui.set_parent(self:get_node("header"), self.properties_panel:get_node("header"), true)
+
+	self.prefab_property_prefab = self:get_node("property_prefab/root")
+	gui.set_enabled(self.prefab_property_prefab, false)
 
 	self.prefab_property_system = self:get_node("property_system/root")
 	gui.set_enabled(self.prefab_property_system, false)
@@ -284,12 +289,48 @@ function M:draw_page_entity_prefabs(context, page_name)
 		for i = 1, #entities_ordered do
 			local prefab_id = entities_ordered[i]
 			if type(prefab_id) == "string" then
-				self.properties_panel:add_button(function(button)
-					button:set_text_property(prefab_id)
-					button:set_text_button("Inspect")
-					button.button.on_click:subscribe(function()
+				self.properties_panel:add_widget(function()
+					local widget = self.druid:new_widget(property_prefab, "property_prefab", self.prefab_property_prefab)
+					widget:set_text_property(prefab_id)
+					widget:set_text_button("Inspect")
+					widget.button.on_click:subscribe(function()
 						self:select_page(PAGES.TABLE, decore_data.entities[pack_id][prefab_id], prefab_id)
 					end)
+
+					---@type entity
+					local entity_to_create = nil
+					local drag_n_drop_entity = nil
+
+					widget.on_drag_start:subscribe(function()
+						entity_to_create = decore.create_entity(prefab_id, pack_id)
+						drag_n_drop_entity = decore.create_entity(nil, nil, {
+							game_object = entity_to_create.game_object,
+							transform = entity_to_create.transform,
+							color = entity_to_create.color,
+							follow_cursor = true,
+						})
+						self.world:addEntity(drag_n_drop_entity)
+					end)
+
+					widget.on_drag_end:subscribe(function()
+						if not entity_to_create or not drag_n_drop_entity then
+							return
+
+						end
+						entity_to_create.transform = drag_n_drop_entity.transform
+						if entity_to_create.transform_border then
+							entity_to_create.transform_border.random_position = false
+						end
+
+						self.world:removeEntity(drag_n_drop_entity)
+
+						self.world:addEntity(entity_to_create)
+
+						entity_to_create = nil
+						drag_n_drop_entity = nil
+					end)
+
+					return widget
 				end)
 			end
 		end

@@ -56,6 +56,10 @@
 ---@field systemsToChange system[]
 ---@field systemsToAdd system[]
 ---@field systemsToRemove system[]
+---@field add_entity fun(self: world, entity: entity): entity
+---@field remove_entity fun(self: world, entity: entity): entity
+---@field add_system fun(self: world, system: system): system
+---@field remove_system fun(self: world, system: system): system
 
 ---@class tiny_ecs Tiny ECS module
 ---@field requireAll fun(...) Returns a filter function that requires all of the specified components
