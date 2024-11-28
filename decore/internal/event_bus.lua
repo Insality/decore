@@ -4,6 +4,9 @@
 ---@field merge_callbacks table<string, fun(events: any[], new_event: any):boolean> The merge policy for events. If the merge policy returns true, the events are merged and not will be added as new event
 local M = {}
 
+---@type table<hash, string>
+local REVERSE_HASH = {}
+
 
 local tinsert = table.insert
 
@@ -24,6 +27,10 @@ end
 ---@param event_name string The name of the event to push onto the queue.
 ---@param data any The data to pass to the event and its associated callbacks.
 function M:trigger(event_name, data)
+	if type(event_name) == "string" then
+		REVERSE_HASH[hash(event_name)] = event_name
+	end
+
 	self.stash[event_name] = self.stash[event_name] or {}
 	local stash = self.stash[event_name]
 
@@ -46,6 +53,10 @@ end
 ---@param callback fun(...) The callback function to execute.
 ---@param context any|nil The context in which to execute the callback.
 function M:process(event_name, callback, context)
+	if type(event_name) == "userdata" then
+		event_name = REVERSE_HASH[event_name] or event_name
+	end
+
 	local event_data = self.events[event_name]
 	if not event_data then
 		return

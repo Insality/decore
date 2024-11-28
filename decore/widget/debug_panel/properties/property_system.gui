@@ -207,6 +207,7 @@ nodes {
 }
 nodes {
   position {
+    x: -3.0
     y: 10.0
   }
   scale {
@@ -244,6 +245,7 @@ nodes {
 }
 nodes {
   position {
+    x: -3.0
     y: -10.0
   }
   scale {
@@ -377,6 +379,7 @@ nodes {
 }
 nodes {
   position {
+    x: 3.0
     y: 10.0
   }
   scale {
@@ -414,6 +417,7 @@ nodes {
 }
 nodes {
   position {
+    x: 3.0
     y: -10.0
   }
   scale {

@@ -62,11 +62,12 @@ end
 
 function M:onAddToWorld()
 	self.world.command_transform = command_transform.create(self)
-	--self.world.event_bus:set_merge_policy("transform_event", self.event_merge_policy)
+	self.world.event_bus:set_merge_policy("transform_event", self.event_merge_policy)
 end
 
 
 function M:preWrap()
+	print("Prewrap reset")
 	for index = 1, #self.entities do
 		local transform = self.entities[index].transform
 		transform.is_position_changed = nil
@@ -93,6 +94,7 @@ function M:set_position(entity, x, y, z)
 	t.position_y = y or t.position_y
 	t.position_z = z or t.position_z
 	t.is_position_changed = true
+	print("Position changed")
 
 	self.world.event_bus:trigger("transform_event", entity)
 end

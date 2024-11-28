@@ -21,6 +21,11 @@ local M = {
 	--interval = 0.2
 }
 
+local HASH_DRAW_TEXT = hash("draw_text")
+local MSG_DRAW_TEXT = {
+	text = "",
+	position = vmath.vector3(),
+}
 local DEFAULT_COLOR = palette.hex2vector4("#4F5152")
 local SIZE = 1024
 
@@ -77,6 +82,12 @@ end
 
 function M:draw_text(x, y, text, color)
 	self.is_dirty = true
+
+	local x1, y1 = self.world.command_camera:world_to_screen(x, y)
+	MSG_DRAW_TEXT.position.x = x1
+	MSG_DRAW_TEXT.position.y = y1
+	MSG_DRAW_TEXT.text = text
+	msg.post("@render:", HASH_DRAW_TEXT, MSG_DRAW_TEXT)
 end
 
 
@@ -91,32 +102,40 @@ end
 
 function M:update()
 	if not self.is_dirty then
-		return
+		if not self.is_cleared then
+			self.is_cleared = true
+		else
+			return
+		end
 	end
+
 	local camera = self.world.command_camera:get_current_camera()
 	local sprite_url = msg.url(nil, camera.game_object.root, "sprite")
 	local texture = go.get(sprite_url, "texture0")
 
 	resource.set_texture(texture, self.header, self.buffer.buffer)
 	drawpixels.fill(self.buffer, 0, 0, 0, 0)
+
+	if self.is_dirty then
+		self.is_cleared = false
+	end
 	self.is_dirty = false
 end
 
 function M:convert_to_texture(x, y)
 	local camera = self.world.command_camera:get_current_camera()
-	local scale = camera.transform.scale_x
-	local dx = camera.transform.position_x
-	local dy = camera.transform.position_y
+	local transform = camera.transform
+	local scale = transform.scale_x
+	local dx = transform.position_x
+	local dy = transform.position_y
 
 	-- Adjust zoom and move camera
-	x = (x / scale) - (dx / scale) + 1920 / 2
-	y = (y / scale) - (dy / scale) + 1080 / 2
+	x = (x - dx) / scale + 960
+	y = (y - dy) / scale + 540
 
 	-- World to texture
-	local x_koef = 1920 / SIZE
-	local y_koef = 1080 / SIZE
-	x = x / x_koef
-	y = y / y_koef
+	x = x * SIZE / 1920
+	y = y * SIZE / 1080
 
 	return x, y
 end

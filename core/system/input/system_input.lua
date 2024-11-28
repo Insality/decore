@@ -1,6 +1,8 @@
 local decore = require("decore.decore")
 local command_input = require("core.system.input.command_input")
 
+local HASH_TOUCH = hash("touch")
+
 ---@class event.input_event: action
 
 ---@class system.input: system
@@ -31,6 +33,10 @@ end
 function M:on_input(action_id, action)
 	action.action_id = action_id
 	self.world.event_bus:trigger("input_event", action)
+
+	if action.action_id == HASH_TOUCH and action.pressed then
+		self.world.event_bus:trigger("input_event.click", action)
+	end
 
 	return false
 end

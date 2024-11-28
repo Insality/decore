@@ -7,7 +7,7 @@ local display_height = sys.get_config_int("display.height")
 ---@class entity.boid: entity
 return {
 	quadtree = true,
-	debug_draw_transform = true,
+	debug_draw_transform = false,
 	boid = {
 		neighbors = {},
 		visual_range = 140,

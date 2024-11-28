@@ -23,7 +23,7 @@ end
 
 
 function M:onAddToWorld()
-	self.is_draw_rectangle = false
+	self.is_draw_rectangle = true
 end
 
 
@@ -34,13 +34,22 @@ function M:update(dt)
 	end
 
 	for index = 1, #self.entities do
-	local t = self.entities[index].transform
-		self.world.command_debug_draw:draw_rectangle(
-			t.position_x,
-			t.position_y,
-			t.size_x * t.scale_x,
-			t.size_y * t.scale_y
-		)
+		local entity = self.entities[index]
+		if entity.debug_draw_transform then
+			local t = entity.transform
+			self.world.command_debug_draw:draw_rectangle(
+				t.position_x,
+				t.position_y,
+				t.size_x * t.scale_x,
+				t.size_y * t.scale_y
+			)
+
+			--self.world.command_debug_draw:draw_text(
+			--	t.position_x,
+			--	t.position_y + t.size_y,
+			--	self.entities[index].prefab_id
+			--)
+		end
 	end
 end
 
