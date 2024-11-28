@@ -9,7 +9,7 @@ local decore = require("decore.decore")
 ---If true, will get collision events.
 ---@class component.collision
 ---@field is_remove boolean|nil
----@field send_event hash|string|nil
+---@field trigger_event hash|string|nil
 decore.register_component("collision", {})
 
 ---@class event.collision_event
@@ -107,8 +107,8 @@ local function handle_collision_event(self, entity_source, entity_target, event_
 			self.world:removeEntity(entity_source)
 		end
 
-		if entity_source.collision.send_event then
-			self.world.event_bus:trigger(entity_source.collision.send_event, entity_source)
+		if entity_source.collision.trigger_event and event_type == "trigger_event" then
+			self.world.event_bus:trigger(entity_source.collision.trigger_event, entity_source)
 		end
 
 		---@type event.collision_event
@@ -125,8 +125,8 @@ local function handle_collision_event(self, entity_source, entity_target, event_
 			self.world:removeEntity(entity_target)
 		end
 
-		if entity_target.collision.send_event then
-			self.world.event_bus:trigger(entity_target.collision.send_event, entity_target)
+		if entity_target.collision.trigger_event and event_type == "trigger_event" then
+			self.world.event_bus:trigger(entity_target.collision.trigger_event, entity_target)
 		end
 
 		---@type event.collision_event

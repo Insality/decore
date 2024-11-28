@@ -5,6 +5,8 @@ local properties_panel = require("druid.widget.properties_panel.properties_panel
 
 local property_prefab = require("decore.widget.debug_panel.properties.property_prefab")
 local property_system = require("decore.widget.debug_panel.properties.property_system")
+local memory_panel = require("druid.widget.memory_panel.memory_panel")
+local fps_panel = require("druid.widget.fps_panel.fps_panel")
 
 ---@class decore.widget.debug_panel: druid.widget
 ---@field properties_panel widget.properties_panel
@@ -17,6 +19,7 @@ local PAGES = {
 	SYSTEM = "system", -- View system
 	TABLE = "table", -- View entity/table/module
 	ENTITY_PREFABS = "entity_prefabs", -- View entity prefabs
+	PROFILE = "profile", -- Profile
 }
 
 function M:init()
@@ -37,6 +40,12 @@ function M:init()
 
 	self.prefab_property_system = self:get_node("property_system/root")
 	gui.set_enabled(self.prefab_property_system, false)
+
+	self.node_memory_panel = self:get_node("memory_panel/root")
+	gui.set_enabled(self.node_memory_panel, false)
+
+	self.node_fps_panel = self:get_node("fps_panel/root")
+	gui.set_enabled(self.node_fps_panel, false)
 
 	self.page_stack = {}
 	self.undo_stack = {}
@@ -118,6 +127,14 @@ function M:draw_page_main(context, page_name)
 		button:set_text_button("Open")
 		button.button.on_click:subscribe(function()
 			self:select_page(PAGES.ENTITY_PREFABS, nil, "Entity Prefabs")
+		end)
+	end)
+
+	self.properties_panel:add_button(function(button)
+		button:set_text_property("Profile")
+		button:set_text_button("Open")
+		button.button.on_click:subscribe(function()
+			self:select_page(PAGES.PROFILE, nil, "Profile")
 		end)
 	end)
 
@@ -346,6 +363,39 @@ function M:draw_page_entity_prefabs(context, page_name)
 end
 
 
+function M:draw_page_profile(context, page_name)
+	self.properties_panel.text_header:set_text("Profile")
+	local profiler_mode = nil
+
+	self.properties_panel:add_button(function(button)
+		button:set_text_property("Profiler")
+		button:set_text_button("Toggle")
+		button.button.on_click:subscribe(function()
+			if not profiler_mode then
+				profiler_mode = profiler.VIEW_MODE_MINIMIZED
+				profiler.enable_ui(true)
+				profiler.set_ui_view_mode(profiler_mode)
+			elseif profiler_mode == profiler.VIEW_MODE_MINIMIZED then
+				profiler_mode = profiler.VIEW_MODE_FULL
+				profiler.enable_ui(true)
+				profiler.set_ui_view_mode(profiler_mode)
+			else
+				profiler.enable_ui(false)
+				profiler_mode = nil
+			end
+		end)
+	end)
+
+	self.properties_panel:add_widget(function()
+		return self.druid:new_widget(memory_panel, "memory_panel")
+	end)
+
+	self.properties_panel:add_widget(function()
+		return self.druid:new_widget(fps_panel, "fps_panel")
+	end)
+end
+
+
 ---Select page
 ---@param page string
 ---@param context any
@@ -386,6 +436,8 @@ function M:select_page(page, context, page_name, page_index, is_going_back)
 		self:draw_page_table(context, page_name)
 	elseif page == PAGES.ENTITY_PREFABS then
 		self:draw_page_entity_prefabs(context, page_name)
+	elseif page == PAGES.PROFILE then
+		self:draw_page_profile(context, page_name)
 	end
 end
 
@@ -461,7 +513,6 @@ function M:add_property_component(component_id, component, context)
 					component.x = value.x
 					component.y = value.y
 					component.z = value.z
-					print("Vector3", component)
 				end)
 			end)
 		else

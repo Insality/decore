@@ -49,7 +49,7 @@ end
 
 
 ---Processes a specified event, executing the callback function with the provided context.
----@param event_name string The name of the event to process.
+---@param event_name hash|string The name of the event to process.
 ---@param callback fun(...) The callback function to execute.
 ---@param context any|nil The context in which to execute the callback.
 function M:process(event_name, callback, context)

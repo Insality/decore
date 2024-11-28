@@ -55,7 +55,6 @@ end
 
 
 function M:onAddToWorld()
-	msg.post("@render:", "use_camera_projection")
 	self.world.command_camera = command_camera.create(self)
 end
 
@@ -97,6 +96,7 @@ end
 
 ---@param entity entity.camera
 function M:onAdd(entity)
+	msg.post("@render:", "use_camera_projection")
 	self.camera = entity
 
 	local camera_url = msg.url(entity.game_object.root)
@@ -184,6 +184,7 @@ function M:update_camera_zoom(entity, animate_time, easing)
 	local scale_x = width / camera_size_x
 	local scale_y = height / camera_size_y
 	self.zoom = math.min(scale_x, scale_y)
+	--self.zoom = math.max(scale_x, scale_y)
 	entity.camera.zoom = self.zoom
 
 	if animate_time then

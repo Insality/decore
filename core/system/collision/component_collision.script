@@ -3,11 +3,11 @@ local component = require("decore.component")
 local HASH_EMPTY = hash("")
 
 go.property("is_remove", false)
-go.property("send_event", hash(""))
+go.property("trigger_event", hash(""))
 
 function init(self)
 	component.init("collision", {
 		is_remove = self.is_remove,
-		send_event = self.send_event ~= HASH_EMPTY and self.send_event or nil
+		trigger_event = self.trigger_event ~= HASH_EMPTY and self.trigger_event or nil
 	})
 end
