@@ -145,8 +145,9 @@ function M:remove_entity(entity)
 end
 
 
----@param entity entity.transform
-function M:process_transform_event(entity)
+---@param event event.transform_event
+function M:process_transform_event(event)
+	local entity = event.entity
 	local transform = entity.transform
 	local game_object = entity.game_object
 
@@ -163,25 +164,24 @@ function M:process_transform_event(entity)
 		return
 	end
 
-	print("is changed", transform.is_position_changed)
-	if transform.is_position_changed then
+	if event.is_position_changed then
 		TEMP_VECTOR.x = transform.position_x
 		TEMP_VECTOR.y = transform.position_y
 		TEMP_VECTOR.z = transform.position_z
 
-		local animate_time = transform.animate_time
+		local animate_time = event.animate_time
 		if animate_time then
-			local easing = transform.easing or go.EASING_LINEAR
+			local easing = event.easing or go.EASING_LINEAR
 			go.animate(root, HASH_POSITION, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
 		else
 			go.set_position(TEMP_VECTOR, root)
 		end
 	end
 
-	if transform.is_rotation_changed then
-		local animate_time = transform.animate_time
+	if event.is_rotation_changed then
+		local animate_time = event.animate_time
 		if animate_time then
-			local easing = transform.easing or go.EASING_LINEAR
+			local easing = event.easing or go.EASING_LINEAR
 			go.animate(root, HASH_EULER_Z, go.PLAYBACK_ONCE_FORWARD, transform.rotation, easing, animate_time)
 		else
 			local deg = transform.rotation
@@ -191,30 +191,30 @@ function M:process_transform_event(entity)
 		end
 	end
 
-	if transform.is_scale_changed then
+	if event.is_scale_changed then
 		TEMP_VECTOR.x = transform.scale_x
 		TEMP_VECTOR.y = transform.scale_y
 		TEMP_VECTOR.z = transform.scale_x -- X to keep uniform for physics
 
-		local animate_time = transform.animate_time
+		local animate_time = event.animate_time
 		if animate_time then
-			local easing = transform.easing or go.EASING_LINEAR
+			local easing = event.easing or go.EASING_LINEAR
 			go.animate(root, HASH_SCALE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
 		else
 			go.set_scale(TEMP_VECTOR, root)
 		end
 	end
 
-	if transform.is_size_changed then
+	if event.is_size_changed then
 		if game_object.is_slice9 then
 			TEMP_VECTOR.x = transform.size_x
 			TEMP_VECTOR.y = transform.size_y
 			TEMP_VECTOR.z = 0
 			local sprite_url = msg.url(nil, root, "sprite")
 
-			local animate_time = transform.animate_time
+			local animate_time = event.animate_time
 			if animate_time then
-				local easing = transform.easing or go.EASING_LINEAR
+				local easing = event.easing or go.EASING_LINEAR
 				go.animate(sprite_url, HASH_SIZE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
 			else
 				go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)

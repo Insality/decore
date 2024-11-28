@@ -24,7 +24,7 @@ end
 
 
 ---Pushes an event onto the queue, triggering it and processing the queue of callbacks.
----@param event_name string The name of the event to push onto the queue.
+---@param event_name string|hash The name of the event to push onto the queue.
 ---@param data any The data to pass to the event and its associated callbacks.
 function M:trigger(event_name, data)
 	if type(event_name) == "string" then

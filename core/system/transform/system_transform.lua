@@ -21,12 +21,6 @@ local command_transform = require("core.system.transform.command_transform")
 ---@field scale_y number
 ---@field scale_z number
 ---@field rotation number
----@field is_position_changed boolean|nil
----@field is_scale_changed boolean|nil
----@field is_rotation_changed boolean|nil
----@field is_size_changed boolean|nil
----@field animate_time number|nil
----@field easing userdata|nil
 decore.register_component("transform", {
 	position_x = 0,
 	position_y = 0,
@@ -66,20 +60,6 @@ function M:onAddToWorld()
 end
 
 
-function M:preWrap()
-	print("Prewrap reset")
-	for index = 1, #self.entities do
-		local transform = self.entities[index].transform
-		transform.is_position_changed = nil
-		transform.is_scale_changed = nil
-		transform.is_rotation_changed = nil
-		transform.is_size_changed = nil
-		transform.animate_time = nil
-		transform.easing = nil
-	end
-end
-
-
 ---@param entity entity.transform
 ---@param x number|nil
 ---@param y number|nil
@@ -93,10 +73,8 @@ function M:set_position(entity, x, y, z)
 	t.position_x = x or t.position_x
 	t.position_y = y or t.position_y
 	t.position_z = z or t.position_z
-	t.is_position_changed = true
-	print("Position changed")
 
-	self.world.event_bus:trigger("transform_event", entity)
+	self.world.event_bus:trigger("transform_event", { entity = entity, is_position_changed = true })
 end
 
 
@@ -113,9 +91,8 @@ function M:set_scale(entity, x, y, z)
 	t.scale_x = x or t.scale_x
 	t.scale_y = y or t.scale_y
 	t.scale_z = z or t.scale_z
-	t.is_scale_changed = true
 
-	self.world.event_bus:trigger("transform_event", entity)
+	self.world.event_bus:trigger("transform_event", { entity = entity, is_scale_changed = true })
 end
 
 
@@ -132,9 +109,8 @@ function M:set_size(entity, x, y, z)
 	t.size_x = x or t.size_x
 	t.size_y = y or t.size_y
 	t.size_z = z or t.size_z
-	t.is_size_changed = true
 
-	self.world.event_bus:trigger("transform_event", entity)
+	self.world.event_bus:trigger("transform_event", { entity = entity, is_size_changed = true })
 end
 
 
@@ -145,9 +121,8 @@ function M:set_rotation(entity, rotation)
 	end
 
 	t.rotation = rotation
-	t.is_rotation_changed = true
 
-	self.world.event_bus:trigger("transform_event", entity)
+	self.world.event_bus:trigger("transform_event", { entity = entity, is_rotation_changed = true })
 end
 
 
@@ -155,32 +130,26 @@ end
 ---@param animate_time number|nil
 ---@param easing userdata|nil
 function M:set_animate_time(entity, animate_time, easing)
-	entity.transform.animate_time = animate_time
-	entity.transform.easing = easing
-	self.world.event_bus:trigger("transform_event", entity)
+	self.world.event_bus:trigger("transform_event", { entity = entity, animate_time = animate_time, easing = easing })
 end
 
 
----@param entities entity.transform[]
----@param entity entity.transform
-function M.event_merge_policy(entities, entity)
-	for index = #entities, 1, -1 do
-		local compare_entity = entities[index]
-		if compare_entity == entity then
-			local ct = compare_entity.transform
-			local t = entity.transform
-			ct.is_position_changed = ct.is_position_changed or t.is_position_changed
-			ct.is_scale_changed = ct.is_scale_changed or t.is_scale_changed
-			ct.is_rotation_changed = ct.is_rotation_changed or t.is_rotation_changed
-			ct.is_size_changed = ct.is_size_changed or t.is_size_changed
-			ct.animate_time = t.animate_time or ct.animate_time
-			ct.easing = t.easing or ct.easing
+---@param events event.transform_event[]
+---@param event event.transform_event
+function M.event_merge_policy(events, event)
+	for index = #events, 1, -1 do
+		local compare_event = events[index]
+		if compare_event.entity == event.entity then
+			compare_event.is_position_changed = compare_event.is_position_changed or event.is_position_changed
+			compare_event.is_scale_changed = compare_event.is_scale_changed or event.is_scale_changed
+			compare_event.is_rotation_changed = compare_event.is_rotation_changed or event.is_rotation_changed
+			compare_event.is_size_changed = compare_event.is_size_changed or event.is_size_changed
+			compare_event.animate_time = event.animate_time or compare_event.animate_time
+			compare_event.easing = event.easing or compare_event.easing
 
 			return true
 		end
 	end
-
-	return false
 end
 
 

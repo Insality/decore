@@ -1,3 +1,4 @@
+local helper = require("druid.helper")
 local decore = require("decore.decore")
 local decore_data = require("decore.internal.decore_data")
 local properties_panel = require("druid.widget.properties_panel.properties_panel")
@@ -126,7 +127,6 @@ function M:draw_page_main(context, page_name)
 		slider:set_text_property("World Speed")
 		slider:set_value(self.world.speed or 1)
 		slider:on_change(function(value)
-			print("Speed", value)
 			self.world.speed = value
 		end)
 	end)
@@ -435,7 +435,7 @@ function M:add_property_component(component_id, component, context)
 	if component_type == "number" then
 		self.properties_panel:add_input(function(input)
 			input:set_text_property(tostring(component_id))
-			input:set_text_value(tostring(component))
+			input:set_text_value(tostring(helper.round(component, 3)))
 			input:on_change(function(_, value)
 				context[component_id] = tonumber(value)
 			end)
@@ -453,10 +453,23 @@ function M:add_property_component(component_id, component, context)
 	end
 
 	if component_type == "userdata" then
-		self.properties_panel:add_text(function(text)
-			text:set_text_property(tostring(component_id))
-			text:set_text_value(tostring(component))
-		end)
+		if types.is_vector3(component) then
+			self.properties_panel:add_vector3(function(vector3)
+				vector3:set_text_property(tostring(component_id))
+				vector3:set_value(component.x, component.y, component.z)
+				vector3.on_change:subscribe(function(value)
+					component.x = value.x
+					component.y = value.y
+					component.z = value.z
+					print("Vector3", component)
+				end)
+			end)
+		else
+			self.properties_panel:add_text(function(text)
+				text:set_text_property(tostring(component_id))
+				text:set_text_value(tostring(component))
+			end)
+		end
 	end
 
 	if component_type == "function" then

@@ -104,15 +104,16 @@ function M:debug_draw_quadtree(quadtree)
 end
 
 
----@param entity entity.transform
-function M:process_transform_event(entity)
+---@param event event.transform_event
+function M:process_transform_event(event)
+	local entity = event.entity
 	local quadtree_state = self.entity_to_state[entity]
 	if not quadtree_state then
 		return
 	end
 
 	local t = entity.transform
-	if t.is_position_changed or t.is_size_changed then
+	if event.is_position_changed or event.is_size_changed then
 		self.entity_to_update[entity] = quadtree_state
 		--self.quadtree:update(quadtree_state, t.position_x, t.position_y, t.size_x, t.size_y)
 	end
