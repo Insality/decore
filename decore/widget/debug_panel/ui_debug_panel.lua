@@ -1,5 +1,6 @@
 local helper = require("druid.helper")
 local decore = require("decore.decore")
+local panthera = require("panthera.panthera")
 local decore_data = require("decore.internal.decore_data")
 local properties_panel = require("druid.widget.properties_panel.properties_panel")
 
@@ -145,6 +146,7 @@ function M:draw_page_main(context, page_name)
 		slider:set_value(self.world.speed or 1)
 		slider:on_change(function(value)
 			self.world.speed = value
+			panthera.SPEED = value
 		end)
 	end)
 end

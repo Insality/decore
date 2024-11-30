@@ -1,0 +1,6 @@
+go.property("image_id", hash(""))
+go.property("sprite_url", msg.url("#sprite"))
+
+function init(self)
+	sprite.play_flipbook(self.sprite_url, self.image_id)
+end
