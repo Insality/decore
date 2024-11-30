@@ -79,9 +79,7 @@ end
 ---@param entity entity.panthera
 function M:onRemove(entity)
 	local p = entity.panthera
-	if panthera.is_playing(p.animation_state) then
-		panthera.stop(p.animation_state)
-	end
+	panthera.stop(p.animation_state)
 
 	for index = 1, #p.detached_animations do
 		local state = p.detached_animations[index]

@@ -10,6 +10,7 @@ local decore = require("decore.decore")
 ---@class component.collision
 ---@field is_remove boolean|nil
 ---@field trigger_event hash|string|nil
+---@field is_trigger_once boolean|nil
 decore.register_component("collision", {})
 
 ---@class event.collision_event
@@ -103,12 +104,17 @@ end
 ---@param event_type string @"contact_point_event"|"trigger_event"|"collision_event"
 local function handle_collision_event(self, entity_source, entity_target, event_data, event_type)
 	if entity_source and entity_source.collision then
-		if entity_source.collision.is_remove then
+		local collision = entity_source.collision ---@type component.collision
+
+		if collision.is_remove then
 			self.world:removeEntity(entity_source)
 		end
 
-		if entity_source.collision.trigger_event and event_type == "trigger_event" then
-			self.world.event_bus:trigger(entity_source.collision.trigger_event, entity_source)
+		if collision.trigger_event and event_type == "trigger_event" then
+			self.world.event_bus:trigger(collision.trigger_event, entity_source)
+			if collision.is_trigger_once then
+				collision.trigger_event = nil
+			end
 		end
 
 		---@type event.collision_event
@@ -121,12 +127,17 @@ local function handle_collision_event(self, entity_source, entity_target, event_
 	end
 
 	if entity_target and entity_target.collision then
-		if entity_target.collision.is_remove then
+		local collision = entity_target.collision ---@type component.collision
+
+		if collision.is_remove then
 			self.world:removeEntity(entity_target)
 		end
 
-		if entity_target.collision.trigger_event and event_type == "trigger_event" then
-			self.world.event_bus:trigger(entity_target.collision.trigger_event, entity_target)
+		if collision.trigger_event and event_type == "trigger_event" then
+			self.world.event_bus:trigger(collision.trigger_event, entity_target)
+			if collision.is_trigger_once then
+				collision.trigger_event = nil
+			end
 		end
 
 		---@type event.collision_event

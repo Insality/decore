@@ -51,7 +51,7 @@ function M:init()
 	self.page_stack = {}
 	self.undo_stack = {}
 
-	--self.properties_panel:toggle_hide()
+	self.properties_panel:toggle_hide()
 end
 
 
