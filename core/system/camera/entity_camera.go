@@ -36,7 +36,6 @@ embedded_components {
   type: "sprite"
   data: "default_animation: \"camera\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
-  "blend_mode: BLEND_MODE_ADD\n"
   "size {\n"
   "  x: 1920.0\n"
   "  y: 1080.0\n"

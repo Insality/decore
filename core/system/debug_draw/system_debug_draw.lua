@@ -26,7 +26,7 @@ local MSG_DRAW_TEXT = {
 	text = "",
 	position = vmath.vector3(),
 }
-local DEFAULT_COLOR = palette.hex2vector4("#4F5152")
+local DEFAULT_COLOR = palette.hex2vector4("#FF6430")
 local SIZE = 1024
 
 ---@return system.debug_draw
@@ -42,7 +42,7 @@ function M.create_system()
 		width = SIZE,
 		height = SIZE,
 		channels = 4,
-		premultiply_alpha = true
+		premultiply_alpha = false
 	}
 
 	system.header = {
@@ -75,7 +75,16 @@ function M:draw_rectangle(x, y, width, height, color)
 	width = (x2 - x1)
 	height = (y2 - y1)
 
-	drawpixels.rect(self.buffer, x1, y1, width, height, color.x * 255, color.y * 255, color.z * 255, color.w * 255)
+	--drawpixels.rect(self.buffer, x1, y1, width, height, color.x * 255, color.y * 255, color.z * 255, color.w * 255)
+
+	x1 = x1 - width / 2
+	y1 = y1 - height / 2
+
+	drawpixels.line(self.buffer, x1, y1, x1 + width, y1, color.x * 255, color.y * 255, color.z * 255, color.w * 255, false, 2)
+	drawpixels.line(self.buffer, x1 + width, y1, x1 + width, y1 + height, color.x * 255, color.y * 255, color.z * 255, color.w * 255, false, 2)
+	drawpixels.line(self.buffer, x1 + width, y1 + height, x1, y1 + height, color.x * 255, color.y * 255, color.z * 255, color.w * 255, false, 2)
+	drawpixels.line(self.buffer, x1, y1 + height, x1, y1, color.x * 255, color.y * 255, color.z * 255, color.w * 255, false, 2)
+
 	self.is_dirty = true
 end
 
@@ -87,6 +96,9 @@ function M:draw_text(x, y, text, color)
 	MSG_DRAW_TEXT.position.x = x1
 	MSG_DRAW_TEXT.position.y = y1
 	MSG_DRAW_TEXT.text = text
+
+	-- Still are best way to draw text? I can't find any other way, somehow with label factories? or gui?
+	-- Probably GUI also can replace draw pixels to use just nodes? sounds good
 	msg.post("@render:", HASH_DRAW_TEXT, MSG_DRAW_TEXT)
 end
 
@@ -110,10 +122,16 @@ function M:update()
 	end
 
 	local camera = self.world.command_camera:get_current_camera()
+	if not camera then
+		return
+	end
+
 	local sprite_url = msg.url(nil, camera.game_object.root, "sprite")
 	local texture = go.get(sprite_url, "texture0")
 
 	resource.set_texture(texture, self.header, self.buffer.buffer)
+
+	-- Too slow! how update and clear faster?
 	drawpixels.fill(self.buffer, 0, 0, 0, 0)
 
 	if self.is_dirty then

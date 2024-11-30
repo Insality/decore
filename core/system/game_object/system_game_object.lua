@@ -122,9 +122,12 @@ end
 
 ---@param entity entity.game_object
 function M:remove_entity(entity)
-	if entity.game_object.root then
-		self.root_to_entity[entity.game_object.root] = nil
-		go.delete(entity.game_object.root, false)
+	local root = entity.game_object.root
+	if root then
+		self.root_to_entity[root] = nil
+		if go.exists(root) then
+			go.delete(root, false)
+		end
 	end
 
 	if entity.game_object.object then

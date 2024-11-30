@@ -171,12 +171,25 @@ function M:draw_page_entities(context, page_name)
 
 			widget.on_drag_start:subscribe(function()
 				entity.follow_cursor = true
+				entity.debug_draw_transform = true
 				self.world:addEntity(entity)
 			end)
 
 			widget.on_drag_end:subscribe(function()
 				entity.follow_cursor = nil
+				entity.debug_draw_transform = nil
 				self.world:addEntity(entity)
+			end)
+
+			widget.on_drag_hover:subscribe(function(_, is_hover)
+				if is_hover then
+					entity.debug_draw_transform = true
+					self.world:addEntity(entity)
+				end
+				if not is_hover and not entity.follow_cursor then
+					entity.debug_draw_transform = nil
+					self.world:addEntity(entity)
+				end
 			end)
 
 			return widget

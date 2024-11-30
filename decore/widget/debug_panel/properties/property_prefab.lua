@@ -30,7 +30,7 @@ function M:init()
 
 	self.drag = self.druid:new_drag("drag")
 	self.drag.style.DRAG_DEADZONE = 0
-	self.drag.hover.on_mouse_hover:subscribe(self.on_drag_hover, self)
+	self.drag.hover.on_mouse_hover:subscribe(self._on_drag_hover, self)
 	self.drag.on_drag_start:subscribe(self.animation_on_drag_start, self)
 	self.drag.on_drag_end:subscribe(self.animation_on_drag_end, self)
 
@@ -42,6 +42,7 @@ function M:init()
 
 	self.on_drag_start = self.drag.on_drag_start
 	self.on_drag_end = self.drag.on_drag_end
+	self.on_drag_hover = self.drag.hover.on_mouse_hover
 end
 
 
@@ -51,7 +52,7 @@ function M:on_click()
 end
 
 
-function M:on_drag_hover(_, is_hover)
+function M:_on_drag_hover(_, is_hover)
 	if is_hover then
 		panthera.play(self.animation, "on_hover", {
 			is_loop = true,

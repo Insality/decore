@@ -1,10 +1,10 @@
 local decore = require("decore.decore")
 
 ---@class entity
----@field debug_draw_transform component.debug_draw_transform|nil
+---@field debug_draw_transform boolean|nil
 
 ---@class entity.debug_draw_transform: entity
----@field debug_draw_transform component.debug_draw_transform
+---@field debug_draw_transform boolean
 ---@field transform component.transform
 
 ---@class component.debug_draw_transform: boolean
