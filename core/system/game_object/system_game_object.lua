@@ -127,20 +127,23 @@ function M:remove_entity(entity)
 		self.root_to_entity[root] = nil
 		if go.exists(root) then
 			go.delete(root, false)
+			entity.game_object.root = nil
 		end
 	end
 
-	if entity.game_object.object then
-		for _, object in pairs(entity.game_object.object) do
-			local related_entity = self.root_to_entity[object]
+	local object = entity.game_object.object
+	if object then
+		for key, node in pairs(object) do
+			local related_entity = self.root_to_entity[node]
 			if related_entity then
 				self.world:removeEntity(related_entity)
 			else
 				-- TODO: it removes also a childs of the related entity
 				-- And I can get errors like panthera trying to play on deleted object
 				-- Right before it will be deleted with upper removeEntity
-				if go.exists(object) then
-					go.delete(object, false)
+				if go.exists(node) then
+					go.delete(node, false)
+					object[key] = nil
 				end
 			end
 		end
