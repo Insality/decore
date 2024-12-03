@@ -26,9 +26,7 @@ decore.register_component("velocity", {
 ---@class system.velocity: system
 ---@field entities entity.velocity[]
 ---@field debug_draw boolean
-local M = {
-	--interval = 0.1
-}
+local M = {}
 
 
 ---@return system.velocity
@@ -40,6 +38,14 @@ end
 function M:onAddToWorld()
 	self.debug_draw = false
 	self.world.command_velocity = command_velocity.create(self)
+end
+
+
+function M:onAdd(entity)
+	local velocity = entity.velocity
+	if velocity.speed > 0 then
+		self:set_angle(entity, velocity.angle)
+	end
 end
 
 

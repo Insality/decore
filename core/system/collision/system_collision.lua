@@ -107,6 +107,7 @@ local function handle_collision_event(self, entity_source, entity_target, event_
 		local collision = entity_source.collision ---@type component.collision
 
 		if collision.is_remove then
+			pprint("Remove entity", entity_source)
 			self.world:removeEntity(entity_source)
 		end
 
