@@ -20,7 +20,7 @@ decore.register_component("velocity", {
 	max_speed = 0,
 	min_speed = 0,
 	x = 0,
-	y = 0
+	y = 0,
 })
 
 ---@class system.velocity: system

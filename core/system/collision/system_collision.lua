@@ -103,11 +103,16 @@ end
 ---@param event_data physics.collision.contact_point_event|physics.collision.trigger_event|physics.collision.collision_event
 ---@param event_type string @"contact_point_event"|"trigger_event"|"collision_event"
 local function handle_collision_event(self, entity_source, entity_target, event_data, event_type)
+	--pprint("======Handle Collision Event")
+	--pprint("Entity Source: ", entity_source)
+	--pprint("Entity Target: ", entity_target)
+	--pprint("Event Data: ", event_data)
+	--pprint("Event Type: ", event_type)
+
 	if entity_source and entity_source.collision then
 		local collision = entity_source.collision ---@type component.collision
 
 		if collision.is_remove then
-			pprint("Remove entity", entity_source)
 			self.world:removeEntity(entity_source)
 		end
 
@@ -182,6 +187,9 @@ function M:handle_collision_event(event_data)
 		if entity_target then
 			self.collided_this_frame[entity_source] = self.collided_this_frame[entity_source] or {}
 			self.collided_this_frame[entity_source][entity_target] = true
+
+			self.collided_this_frame[entity_target] = self.collided_this_frame[entity_target] or {}
+			self.collided_this_frame[entity_target][entity_source] = true
 		end
 	end
 
@@ -192,6 +200,9 @@ function M:handle_collision_event(event_data)
 		if entity_source then
 			self.collided_this_frame[entity_target] = self.collided_this_frame[entity_target] or {}
 			self.collided_this_frame[entity_target][entity_source] = true
+
+			self.collided_this_frame[entity_source] = self.collided_this_frame[entity_source] or {}
+			self.collided_this_frame[entity_source][entity_target] = true
 		end
 	end
 end
