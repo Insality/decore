@@ -15,6 +15,7 @@ local TYPE_TABLE = "table"
 
 ---@class decore
 local M = {}
+M.clamp = decore_internal.clamp
 M.ecs = require("decore.ecs")
 M.last_world = nil
 
@@ -22,7 +23,6 @@ M.last_world = nil
 ---Create a new world instance
 ---@return world
 function M.world(...)
-	---@type world
 	local world = M.ecs.world()
 	world.event_bus = event_bus.create()
 
@@ -491,14 +491,6 @@ end
 ---@return decore.logger
 function M.get_logger(name, level)
 	return setmetatable({ name = name, level = level }, { __index = decore_internal.logger })
-end
-
-
----@param value number
----@param v1 number|nil
----@param v2 number|nil
-function M.clamp(value, v1, v2)
-	return decore_internal.clamp(value, v1, v2)
 end
 
 

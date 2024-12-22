@@ -39,11 +39,9 @@ function M:trigger(event_name, data)
 		local is_merged = merge_callback(stash, data)
 		if not is_merged then
 			tinsert(stash, data or true)
-			--stash[data] = data or true
 		end
 	else
 		tinsert(stash, data or true)
-		--stash[data] = data or true
 	end
 end
 

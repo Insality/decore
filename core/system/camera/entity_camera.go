@@ -21,6 +21,15 @@ components {
   id: "component_camera"
   component: "/core/system/camera/component_camera.script"
 }
+components {
+  id: "component_on_event_animate_transform"
+  component: "/game/system/on_event_animate_transform/component_on_event_animate_transform.script"
+  properties {
+    id: "component_enabled"
+    value: "false"
+    type: PROPERTY_TYPE_BOOLEAN
+  }
+}
 embedded_components {
   id: "camera"
   type: "camera"

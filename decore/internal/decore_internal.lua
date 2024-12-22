@@ -63,6 +63,7 @@ function M.split_by_several_separators(s, sep)
 end
 
 
+---Clamp value, can be in any order and with one or two limits
 ---@param value number
 ---@param v1 number|nil
 ---@param v2 number|nil
