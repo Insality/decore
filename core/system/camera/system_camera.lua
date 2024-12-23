@@ -3,6 +3,9 @@ local decore = require("decore.decore")
 local command_camera = require("core.system.camera.command_camera")
 
 local TEMP_VECTOR = vmath.vector3()
+local HASH_SIZE_X = hash("size.x")
+local HASH_SIZE_Y = hash("size.y")
+local HASH_SPRITE = hash("sprite")
 
 ---@class entity
 ---@field camera component.camera|nil
@@ -130,6 +133,18 @@ function M:update(dt)
 		else
 			local power = self.shake_power * (self.shake_time / self.shake_max_time)
 			self:shake(power)
+		end
+	end
+
+	-- Read size of sprite to apply as transform
+	local camera = self.camera
+	local root = camera and camera.game_object.root
+	if camera and root then
+		local sprite_url = msg.url(nil, root, HASH_SPRITE)
+		local size_x = go.get(sprite_url, HASH_SIZE_X)
+		local size_y = go.get(sprite_url, HASH_SIZE_Y)
+		if size_x ~= camera.transform.size_x or size_y ~= camera.transform.size_y then
+			self.world.command_transform:set_size(camera, size_x, size_y)
 		end
 	end
 end

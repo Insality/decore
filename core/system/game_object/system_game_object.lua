@@ -11,8 +11,8 @@ local command_game_object = require("core.system.game_object.command_game_object
 ---@field hidden boolean|nil
 
 ---@class component.game_object
----@field root string|hash|url
----@field object table<string|hash, string|hash|url>
+---@field root string|hash
+---@field object table<string|hash, string|hash>
 ---@field factory_url string|nil
 ---@field is_slice9 boolean|nil
 ---@field remove_delay number|nil
