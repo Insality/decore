@@ -5,7 +5,6 @@ local logger = decore.get_logger("system.level_loader")
 local command_level_loader = require("core.system.level_loader.command_level_loader")
 
 ---@class system.level_loader: system
----@field loaded_world_list table<string, entity[]> @slot_id -> entity[]
 ---@field entity_by_slot table<string, entity> @slot_id -> entity
 local M = {}
 
@@ -15,7 +14,6 @@ local M = {}
 function M.create_system()
 	local system = decore.system(M, "level_loader")
 
-	system.loaded_world_list = {}
 	system.entity_by_slot = {}
 
 	return system
@@ -42,11 +40,8 @@ end
 
 
 function M:unload_level(slot_id)
-	if slot_id then
-		if self.entity_by_slot[slot_id] then
-			self.world:removeEntity(self.entity_by_slot[slot_id])
-		end
-
+	if slot_id and self.entity_by_slot[slot_id] then
+		self.world:removeEntity(self.entity_by_slot[slot_id])
 		self.entity_by_slot[slot_id] = nil
 	end
 end
@@ -72,18 +67,6 @@ function M:load_world(world_id, pack_id, offset_x, offset_y, slot_id)
 	if not entities then
 		logger:error("Failed to load world", world_id)
 		return
-	end
-
-	-- Remove old world
-	if slot_id then
-		if self.loaded_world_list[slot_id] then
-			local world_entities = self.loaded_world_list[slot_id]
-			for index = 1, #world_entities do
-				self.world:removeEntity(world_entities[index])
-			end
-		end
-
-		self.loaded_world_list[slot_id] = entities
 	end
 
 	-- Spawn new world

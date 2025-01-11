@@ -116,6 +116,7 @@ end
 ---@param entity entity.camera
 function M:onRemove(entity)
 	if self.camera == entity then
+		camera.release_focus(entity.camera.camera_url)
 		self.camera = nil
 	end
 end
