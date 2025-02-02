@@ -6,8 +6,6 @@ go.property("is_spawn_by_entity", false) -- Autofilled by game_object system to 
 
 local events = require("event.events")
 local decore = require("decore.decore")
-local decore_data = require("decore.internal.decore_data")
-local logger = decore.get_logger("entity")
 
 local MSG_SET_COMPONENT = hash("set_component")
 local MSG_INIT_ENTITY = hash("init_entity")
