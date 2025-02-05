@@ -1,13 +1,13 @@
 ---@class world
----@field command_level_loader command.level_loader
+---@field command_level_loader system.level_loader.command
 
----@class command.level_loader
+---@class system.level_loader.command
 ---@field level_loader system.level_loader
 local M = {}
 
 
 ---@param level_loader system.level_loader
----@return command.level_loader
+---@return system.level_loader.command
 function M.create(level_loader)
 	return setmetatable({ level_loader = level_loader }, { __index = M })
 end

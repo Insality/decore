@@ -45,7 +45,7 @@ function M:postWrap()
 end
 
 
----@param input_event event.input_event
+---@param input_event system.input.event
 function M:process_input_event(input_event)
 	local action_id = input_event.action_id
 	local side = ACTION_ID_TO_SIDE[action_id]
@@ -58,7 +58,7 @@ end
 
 
 ---@param entity entity.platformer_controller
----@param input_event event.input_event
+---@param input_event system.input.event
 function M:apply_input_event(entity, input_event)
 	local action_id = input_event.action_id
 	if not action_id then

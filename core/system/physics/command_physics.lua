@@ -1,13 +1,13 @@
 ---@class world
----@field command_physics command.physics
+---@field command_physics system.physics.command
 
----@class command.physics
+---@class system.physics.command
 ---@field physics system.physics
 local M = {}
 
 
 ---@param physics system.physics
----@return command.physics
+---@return system.physics.command
 function M.create(physics)
 	return setmetatable({ physics = physics }, { __index = M })
 end

@@ -248,7 +248,7 @@ function M:step(current, target, step)
 end
 
 
----@param collision_event event.collision_event
+---@param collision_event system.collision.event
 function M:process_collision_event(collision_event)
 	local contact_point_event = collision_event.contact_point_event
 

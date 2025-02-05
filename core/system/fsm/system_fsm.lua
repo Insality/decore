@@ -12,7 +12,7 @@ local command_fsm = require("core.system.fsm.command_fsm")
 ---@field events table<string, table<string, string>>|nil
 decore.register_component("fsm")
 
----@class event.fsm_event
+---@class system.fsm.event
 ---@field entity entity
 ---@field event string
 

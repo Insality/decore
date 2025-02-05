@@ -2,7 +2,7 @@ local event_bus = require("decore.internal.event_bus")
 local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
 local decore_commands = require("decore.internal.decore_commands")
-local system_event_bus = require("decore.internal.system_event_bus")
+local system.bus.event = require("decore.internal.system.bus.event")
 
 local events = require("event.events")
 
@@ -30,7 +30,7 @@ function M.world(...)
 	events.subscribe("decore.create_entity", world.addEntity, world)
 
 	-- Always included systems
-	world:addSystem(system_event_bus.create_system())
+	world:addSystem(system.bus.event.create_system())
 
 	-- Add systems passed to world constructor
 	world:add(...)

@@ -1,12 +1,12 @@
 ---@class world
----@field command_game_object command.game_object
+---@field command_game_object system.game_object.command
 
----@class command.game_object
+---@class system.game_object.command
 ---@field game_object system.game_object
 local M = {}
 
 
----@return command.game_object
+---@return system.game_object.command
 function M.create(game_object)
 	return setmetatable({ game_object = game_object }, { __index = M })
 end

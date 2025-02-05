@@ -1,13 +1,13 @@
 ---@class world
----@field command_platformer_physics command.platformer_physics
+---@field command_platformer_physics system.platformer_physics.command
 
----@class command.platformer_physics
+---@class system.platformer_physics.command
 ---@field platformer_physics system.platformer_physics
 local M = {}
 
 
 ---@static
----@return command.platformer_physics
+---@return system.platformer_physics.command
 function M.create(platformer_physics)
 	return setmetatable({ platformer_physics = platformer_physics }, { __index = M })
 end

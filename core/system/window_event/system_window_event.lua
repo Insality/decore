@@ -2,7 +2,7 @@ local events = require("event.events")
 local decore = require("decore.decore")
 
 ---window.WINDOW_EVENT_FOCUS_GAINED | window.WINDOW_EVENT_FOCUS_LOST | window.WINDOW_EVENT_RESIZED
----@class event.window_event
+---@class system.window.event
 
 ---@class system.window_event: system
 local M = {}

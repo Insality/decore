@@ -1,12 +1,12 @@
 ---@class world
----@field command_quadtree command.quadtree
+---@field command_quadtree system.quadtree.command
 
----@class command.quadtree
+---@class system.quadtree.command
 ---@field quadtree system.quadtree
 local M = {}
 
 
----@return command.quadtree
+---@return system.quadtree.command
 function M.create(quadtree)
 	return setmetatable({ quadtree = quadtree }, { __index = M })
 end

@@ -104,7 +104,7 @@ function M:debug_draw_quadtree(quadtree)
 end
 
 
----@param event event.transform_event
+---@param event system.transform.event
 function M:process_transform_event(event)
 	local entity = event.entity
 	local quadtree_state = self.entity_to_state[entity]

@@ -32,7 +32,7 @@ local bindings = require("druid.bindings")
 ---@field visual_range number
 ---@field protected_range number
 ---@field centering_factor number
----@field avoid_factor number
+---@field avoid_factor number The force to avoid other boids
 ---@field matching_factor number
 ---@field max_bias number
 ---@field bias_increment number

@@ -1,7 +1,7 @@
 local decore = require("decore.decore")
 local command_input = require("core.system.input.command_input")
 
----@class event.input_event: action
+---@class system.input.event: action
 
 ---@class system.input: system
 ---@field entities entity[]

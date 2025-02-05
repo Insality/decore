@@ -1,12 +1,12 @@
 ---@class world
----@field command_camera command.camera
+---@field command_camera system.camera.command
 
----@class command.camera
+---@class system.camera.command
 ---@field camera system.camera @Current camera system
 local M = {}
 
 
----@return command.camera
+---@return system.camera.command
 function M.create(camera_system)
 	return setmetatable({ camera = camera_system }, { __index = M })
 end

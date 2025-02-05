@@ -44,7 +44,7 @@ function M:onAdd(entity)
 end
 
 
----@param input_event event.input_event
+---@param input_event system.input.event
 function M:process_input_event(input_event)
 	if not input_event.released then
 		return

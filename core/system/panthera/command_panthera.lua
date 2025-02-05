@@ -2,14 +2,14 @@ local decore = require("decore.decore")
 local panthera = require("panthera.panthera")
 
 ---@class world
----@field command_panthera command.panthera
+---@field command_panthera system.panthera.command
 
----@class command.panthera
+---@class system.panthera.command
 ---@field panthera system.panthera
 local M = {}
 
 
----@return command.panthera
+---@return system.panthera.command
 function M.create(panthera_decore)
 	return setmetatable({ panthera = panthera_decore }, { __index = M })
 end

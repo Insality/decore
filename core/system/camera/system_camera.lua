@@ -68,7 +68,7 @@ function M:postWrap()
 end
 
 
----@param window_event event.window_event
+---@param window_event system.window.event
 function M:process_window_event(window_event)
 	if not self.camera then
 		return
@@ -81,7 +81,7 @@ function M:process_window_event(window_event)
 end
 
 
----@param event event.transform_event
+---@param event system.transform.event
 function M:process_transform_event(event)
 	local entity = event.entity
 	if entity ~= self.camera then

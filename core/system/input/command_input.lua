@@ -1,12 +1,12 @@
 ---@class world
----@field command_input command.input
+---@field command_input system.input.command
 
----@class command.input
+---@class system.input.command
 ---@field input system.input
 local M = {}
 
 
----@return command.input
+---@return system.input.command
 function M.create(input)
 	return setmetatable({ input = input }, { __index = M })
 end

@@ -1,13 +1,13 @@
 ---@class world
----@field command_debug command.debug
+---@field command_debug system.debug.command
 
----@class command.debug
+---@class system.debug.command
 ---@field debug system.debug
 local M = {}
 
 
 ---@param debug system.debug
----@return command.debug
+---@return system.debug.command
 function M.create(debug)
 	return setmetatable({ debug = debug }, { __index = M })
 end

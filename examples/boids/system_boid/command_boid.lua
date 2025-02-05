@@ -1,12 +1,12 @@
 ---@class world
----@field command_boid command.boid
+---@field command_boid system.boid.command
 
----@class command.boid
+---@class system.boid.command
 ---@field boid system.boid
 local M = {}
 
 
----@return command.boid
+---@return system.boid.command
 function M.create(boid)
 	return setmetatable({ boid = boid }, { __index = M })
 end

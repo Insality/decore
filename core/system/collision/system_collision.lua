@@ -13,7 +13,7 @@ local decore = require("decore.decore")
 ---@field is_trigger_once boolean|nil
 decore.register_component("collision", {})
 
----@class event.collision_event
+---@class system.collision.event
 ---@field entity entity
 ---@field other entity|nil
 ---@field trigger_event physics.collision.trigger_event|nil
@@ -123,7 +123,7 @@ local function handle_collision_event(self, entity_source, entity_target, event_
 			end
 		end
 
-		---@type event.collision_event
+		---@type system.collision.event
 		local collision_event = {
 			entity = entity_source,
 			other = entity_target,
@@ -146,7 +146,7 @@ local function handle_collision_event(self, entity_source, entity_target, event_
 			end
 		end
 
-		---@type event.collision_event
+		---@type system.collision.event
 		local collision_event = {
 			entity = entity_target,
 			other = entity_source,

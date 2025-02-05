@@ -10,6 +10,9 @@
 ---@field pack_id string|nil The entity id from decore collections, autofilled by decore.create_entity
 ---@field world_prefab_id string|nil The world to spawn on entity creation
 
+---Definition to group all components
+---@class component
+
 ---@class system
 ---@field id string
 ---@field active boolean
@@ -33,6 +36,12 @@
 ---@field process fun(system: system, entity:entity, dt:number)|nil
 ---@field postProcess fun(system: system, dt:number)|nil
 ---@field compare fun(e1:entity, e2:entity)|nil
+
+---Definition to group all system..command
+---@class system.command
+
+---Definition to group all system..event
+---@class system.event
 
 ---@class world
 ---@field entities entity[]

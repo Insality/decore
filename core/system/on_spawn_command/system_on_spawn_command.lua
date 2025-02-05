@@ -25,11 +25,11 @@ end
 
 ---@param entity entity.on_spawn_command
 function M:onAdd(entity)
-	if entity.on_spawn_command.command then
-		decore.call_command(self.world, entity.on_spawn_command.command)
+	if entity.on_spawn_system.command.command then
+		decore.call_command(self.world, entity.on_spawn_system.command.command)
 	end
 
-	if entity.on_spawn_command.command_label and entity.game_object then
+	if entity.on_spawn_system.command_label.command and entity.game_object then
 		local root = entity.game_object.root
 		local label_url = msg.url(nil, root, "command")
 		local command = decore.parse_command(label.get_text(label_url))

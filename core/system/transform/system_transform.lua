@@ -11,7 +11,7 @@ local command_transform = require("core.system.transform.command_transform")
 ---@field transform component.transform
 
 ---@class component.transform
----@field position_x number
+---@field position_x number The X position
 ---@field position_y number
 ---@field position_z number
 ---@field size_x number
@@ -34,7 +34,7 @@ decore.register_component("transform", {
 	rotation = 0,
 })
 
----@class event.transform_event
+---@class system.transform.event
 ---@field entity entity.transform The entity that was changed.
 ---@field is_position_changed boolean|nil If true, the position was changed.
 ---@field is_scale_changed boolean|nil If true, the scale was changed.
@@ -134,8 +134,8 @@ function M:set_animate_time(entity, animate_time, easing)
 end
 
 
----@param events event.transform_event[]
----@param event event.transform_event
+---@param events system.transform.event[]
+---@param event system.transform.event
 function M.event_merge_policy(events, event)
 	for index = #events, 1, -1 do
 		local compare_event = events[index]

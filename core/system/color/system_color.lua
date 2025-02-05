@@ -17,7 +17,7 @@ decore.register_component("color", {
 	color = vmath.vector4(1),
 })
 
----@class event.color_event
+---@class system.color.event
 ---@field entity entity
 ---@field color vector4
 

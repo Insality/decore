@@ -1,13 +1,13 @@
 ---@class world
----@field command_transform command.transform
+---@field command_transform system.transform.command
 
----@class command.transform
+---@class system.transform.command
 ---@field transform system.transform
 local M = {}
 
 
 ---@param transform system.transform
----@return command.transform
+---@return system.transform.command
 function M.create(transform)
 	return setmetatable({ transform = transform }, { __index = M })
 end

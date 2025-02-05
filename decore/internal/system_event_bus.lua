@@ -1,10 +1,10 @@
 local ecs = require("decore.ecs")
 
----@class system.event_bus: system
+---@class system.bus.event: system
 local M = {}
 
 
----@return system.event_bus
+---@return system.bus.event
 function M.create_system()
 	local system = setmetatable(ecs.system(), { __index = M })
 	system.id = "event_bus"

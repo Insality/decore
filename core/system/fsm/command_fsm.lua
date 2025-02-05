@@ -1,12 +1,12 @@
 ---@class world
----@field command_fsm command.fsm
+---@field command_fsm system.fsm.command
 
----@class command.fsm
+---@class system.fsm.command
 ---@field fsm system.fsm
 local M = {}
 
 
----@return command.fsm
+---@return system.fsm.command
 function M.create(fsm)
 	return setmetatable({ fsm = fsm }, { __index = M })
 end

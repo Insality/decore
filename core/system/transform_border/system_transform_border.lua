@@ -45,7 +45,7 @@ function M:postWrap()
 end
 
 
----@param event event.transform_event
+---@param event system.transform.event
 function M:process_transform_event(event)
 	local entity = event.entity
 	local transform_border = entity.transform_border

@@ -11,7 +11,7 @@
 
 ### Add new system
 - Create a folder with system name in yout systems folder
-- Copy a one of the system type ("template_system", "template_system_command" or "template_system_event") to your folder
+- Copy a one of the system type ("template_system", "template_system..command or "template_system_event") to your folder
 - Replace all TEMPLATE with your system name
 - Register your system in game.script
 

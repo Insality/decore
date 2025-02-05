@@ -1,12 +1,12 @@
 ---@class world
----@field command_debug_draw command.debug_draw
+---@field command_debug_draw system.debug_draw.command
 
----@class command.debug_draw
+---@class system.debug_draw.command
 ---@field debug_draw system.debug_draw
 local M = {}
 
 
----@return command.debug_draw
+---@return system.debug_draw.command
 function M.create(debug_draw)
 	return setmetatable({ debug_draw = debug_draw }, { __index = M })
 end

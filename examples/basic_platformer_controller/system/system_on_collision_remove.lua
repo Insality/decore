@@ -19,7 +19,7 @@ function M:postWrap()
 end
 
 
----@param collision_event event.collision_event
+---@param collision_event system.collision.event
 function M:process_collision_event(collision_event)
 	local entity = collision_event.entity
 	local on_collision_remove = entity.on_collision_remove

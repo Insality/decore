@@ -1,14 +1,14 @@
 -- command_velocity.lua
 ---@class world
----@field command_velocity command.velocity
+---@field command_velocity system.velocity.command
 
----@class command.velocity
+---@class system.velocity.command
 ---@field velocity system.velocity
 local M = {}
 
 
 ---@param velocity system.velocity
----@return command.velocity
+---@return system.velocity.command
 function M.create(velocity)
 	return setmetatable({ velocity = velocity }, { __index = M })
 end

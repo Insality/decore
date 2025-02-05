@@ -15,7 +15,7 @@ decore.register_component("health", {
 	health = 0,
 })
 
----@class event.health_event
+---@class system.health.event
 ---@field entity entity
 ---@field damage number
 
@@ -33,8 +33,8 @@ end
 function M:onAddToWorld()
 	self.world.command_health = command_health.create(self)
 	self.world.event_bus:set_merge_policy("health_event", function(events, event)
-		---@cast events event.health_event[]
-		---@cast event event.health_event
+		---@cast events system.health.event[]
+		---@cast event system.health.event
 
 		for index = #events, 1, -1 do
 			local compare_event = events[index]

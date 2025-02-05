@@ -37,7 +37,7 @@ function M:postWrap()
 end
 
 
----@param input_event event.input_event
+---@param input_event system.input.event
 function M:process_input_event(input_event)
 	-- Process mod key
 	local action_id = input_event.action_id
@@ -55,8 +55,7 @@ function M:process_input_event(input_event)
 end
 
 
----@param input_event event.input_event
----@return boolean
+---@param input_event system.input.event
 function M:process_drag_camera(input_event)
 	local action_id = input_event.action_id
 	if action_id == hash("touch") then

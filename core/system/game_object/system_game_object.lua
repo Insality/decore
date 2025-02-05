@@ -151,7 +151,7 @@ function M:remove_entity(entity)
 end
 
 
----@param event event.transform_event
+---@param event system.transform.event
 function M:process_transform_event(event)
 	local entity = event.entity
 	local transform = entity.transform

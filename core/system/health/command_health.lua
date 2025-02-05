@@ -1,12 +1,12 @@
 ---@class world
----@field command_health command.health
+---@field command_health system.health.command
 
----@class command.health
+---@class system.health.command
 ---@field health system.health
 local M = {}
 
 
----@return command.health
+---@return system.health.command
 function M.create(health)
 	return setmetatable({ health = health }, { __index = M })
 end
