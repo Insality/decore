@@ -15,7 +15,7 @@ local command_debug = require("core.system.debug.command_debug")
 ---@class component.debug
 ---@field is_profiler_active boolean
 ---@field profiler_mode userdata|nil
----@field timer_memory_record hash|nil
+---@field timer_memory_record number|nil
 decore.register_component("debug", {
 	is_profiler_active = false,
 	profiler_mode = nil,

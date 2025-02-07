@@ -5,6 +5,7 @@ local command_velocity = require("core.system.velocity.command_velocity")
 ---@field velocity component.velocity|nil
 
 ---@class entity.velocity: entity
+---@field transform component.transform
 ---@field velocity component.velocity
 
 ---@class component.velocity
@@ -97,11 +98,12 @@ function M:process(entity, dt)
 	--end
 
 	if self.debug_draw and self.world.command_debug_draw then
+		local t = entity.transform
 		self.world.command_debug_draw:draw_line(
-			entity.transform.position_x,
-			entity.transform.position_y,
-			entity.transform.position_x + velocity.x,
-			entity.transform.position_y + velocity.y
+			t.position.x,
+			t.position.y,
+			t.position.x + velocity.x,
+			t.position.y + velocity.y
 		)
 	end
 end

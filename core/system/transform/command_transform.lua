@@ -35,7 +35,7 @@ function M:add_position(entity, x, y, z)
 	x = x or 0
 	y = y or 0
 	z = z or 0
-	self.transform:set_position(entity, t.position_x + x, t.position_y + y, t.position_z + z)
+	self.transform:set_position(entity, t.position.x + x, t.position.y + y, t.position.z + z)
 end
 
 
@@ -84,10 +84,10 @@ end
 function M:get_transform_borders(entity)
 	local t = entity.transform --[[@as component.transform]]
 
-	local left = t.position_x - t.size_x * 0.5
-	local top = t.position_y + t.size_y * 0.5
-	local right = t.position_x + t.size_x * 0.5
-	local bottom = t.position_y - t.size_y * 0.5
+	local left = t.position.x - t.size.x * 0.5
+	local top = t.position.y + t.size.y * 0.5
+	local right = t.position.x + t.size.x * 0.5
+	local bottom = t.position.y - t.size.y * 0.5
 
 	return left, top, right, bottom
 end
