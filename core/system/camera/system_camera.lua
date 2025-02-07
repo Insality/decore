@@ -106,7 +106,7 @@ function M:onAdd(entity)
 	camera_url.fragment = hash("camera")
 	entity.camera.camera_url = camera_url
 
-	camera.acquire_focus(entity.camera.camera_url)
+	--camera.acquire_focus(entity.camera.camera_url)
 
 	self:update_camera_position(self.camera)
 	self:update_camera_zoom(self.camera)
@@ -116,7 +116,7 @@ end
 ---@param entity entity.camera
 function M:onRemove(entity)
 	if self.camera == entity then
-		camera.release_focus(entity.camera.camera_url)
+		--camera.release_focus(entity.camera.camera_url)
 		self.camera = nil
 	end
 end
