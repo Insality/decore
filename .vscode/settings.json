@@ -41,9 +41,20 @@
 		"graphics",
 		"go_position_setter"
 	],
-	"Lua.completion.autoRequire": false,
+	"Lua.diagnostics.neededFileStatus": {
+		"undefined-field": "Any",
+		"assign-type-mismatch": "Any",
+		"missing-return": "Any",
+		"missing-fields": "Any",
+		"return-type-mismatch": "Any",
+		"lowercase-global": "Any"
+	},
+	"Lua.runtime.version": "Lua 5.1",
+	"Lua.runtime.pathStrict": true,
 	"Lua.workspace.library": [
 		"~/Library/Application Support/Code/User/globalStorage/astronachos.defold",
-		"~/Library/Application Support/Code/User/workspaceStorage/d5f9bf017bc262ec86a14da3c3f3032d/astronachos.defold"
+		"~/Library/Application Support/Code/User/workspaceStorage/d5f9bf017bc262ec86a14da3c3f3032d/astronachos.defold",
+		"~/Library/Application Support/Cursor/User/globalStorage/astronachos.defold",
+		"~/Library/Application Support/Cursor/User/workspaceStorage/d5f9bf017bc262ec86a14da3c3f3032d/astronachos.defold"
 	]
 }

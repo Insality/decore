@@ -20,24 +20,29 @@ return function()
 
 			local entity = {
 				transform = {
-					position_x = 10,
-					position_y = 20,
-					size_x = 10,
-					size_y = 10,
+					position = {
+						x = 10,
+						y = 20,
+					},
+					size = {
+						x = 10,
+						y = 10,
+					},
 				}
 			}
-			q:insert(entity)
+			local t = entity.transform
+			q:insert(entity, t.position.x, t.position.y, t.size.x, t.size.y)
 
-			local entities = q:get_in_rect(0, 0, 0, 0)
+			local entities = q:get_in_rect(0, 0, 0, 0, function() end)
 			assert(#entities == 0)
 
-			local entities = q:get_in_rect(0, 0, 10, 10)
+			local entities = q:get_in_rect(0, 0, 10, 10, function() end)
 			assert(#entities == 0)
 
-			local entities = q:get_in_rect(0, 0, 20, 20)
+			local entities = q:get_in_rect(0, 0, 20, 20, function() end)
 			assert(#entities == 1)
 
-			local entities = q:get_in_rect(0, 0, 30, 30)
+			local entities = q:get_in_rect(0, 0, 30, 30, function() end)
 			assert(#entities == 1)
 		end)
 	end)

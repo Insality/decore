@@ -82,8 +82,8 @@ function M:onAdd(entity)
 
 	if root then
 		if entity.game_object.is_slice9 then
-			TEMP_VECTOR.x = entity.transform.size_x
-			TEMP_VECTOR.y = entity.transform.size_y
+			TEMP_VECTOR.x = entity.transform.size.x
+			TEMP_VECTOR.y = entity.transform.size.y
 			TEMP_VECTOR.z = 0
 			local sprite_url = msg.url(nil, root, "sprite")
 			go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
@@ -94,9 +94,9 @@ function M:onAdd(entity)
 			TEMP_VECTOR.z = 1
 			go.set(root, HASH_SCALE, TEMP_VECTOR)
 		else
-			TEMP_VECTOR.x = entity.transform.scale_x
-			TEMP_VECTOR.y = entity.transform.scale_y
-			TEMP_VECTOR.z = entity.transform.scale_x -- X to keep uniform for physics
+			TEMP_VECTOR.x = entity.transform.scale.x
+			TEMP_VECTOR.y = entity.transform.scale.y
+			TEMP_VECTOR.z = entity.transform.scale.x -- X to keep uniform for physics
 			go.set(root, HASH_SCALE, TEMP_VECTOR)
 		end
 
@@ -171,9 +171,9 @@ function M:process_transform_event(event)
 	end
 
 	if event.is_position_changed then
-		TEMP_VECTOR.x = transform.position_x
-		TEMP_VECTOR.y = transform.position_y
-		TEMP_VECTOR.z = transform.position_z
+		TEMP_VECTOR.x = transform.position.x
+		TEMP_VECTOR.y = transform.position.y
+		TEMP_VECTOR.z = transform.position.z
 
 		local animate_time = event.animate_time
 		if animate_time then
@@ -198,9 +198,9 @@ function M:process_transform_event(event)
 	end
 
 	if event.is_scale_changed then
-		TEMP_VECTOR.x = transform.scale_x
-		TEMP_VECTOR.y = transform.scale_y
-		TEMP_VECTOR.z = transform.scale_x -- X to keep uniform for physics
+		TEMP_VECTOR.x = transform.scale.x
+		TEMP_VECTOR.y = transform.scale.y
+		TEMP_VECTOR.z = transform.scale.x -- X to keep uniform for physics
 
 		local animate_time = event.animate_time
 		if animate_time then
@@ -213,8 +213,8 @@ function M:process_transform_event(event)
 
 	if event.is_size_changed then
 		if game_object.is_slice9 then
-			TEMP_VECTOR.x = transform.size_x
-			TEMP_VECTOR.y = transform.size_y
+			TEMP_VECTOR.x = transform.size.x
+			TEMP_VECTOR.y = transform.size.y
 			TEMP_VECTOR.z = 0
 			local sprite_url = msg.url(nil, root, "sprite")
 
@@ -261,15 +261,15 @@ local PROPERTIES = {
 ---@param entity entity.game_object
 ---@return table<string|hash, string|hash>
 function M:create_object(entity)
-	TEMP_VECTOR.x = entity.transform.position_x
-	TEMP_VECTOR.y = entity.transform.position_y
+	TEMP_VECTOR.x = entity.transform.position.x
+	TEMP_VECTOR.y = entity.transform.position.y
 	TEMP_VECTOR.z = self:get_position_z(entity.transform)
 
 	if entity.game_object.is_factory then
-		local object = factory.create(entity.game_object.factory_url, TEMP_VECTOR, nil, PROPERTIES[ROOT_URL], entity.transform.scale_x)
+		local object = factory.create(entity.game_object.factory_url, TEMP_VECTOR, nil, PROPERTIES[ROOT_URL], entity.transform.scale.x)
 		return { [ROOT_URL] = object }
 	else
-		return collectionfactory.create(entity.game_object.factory_url, TEMP_VECTOR, nil, PROPERTIES, entity.transform.scale_x)
+		return collectionfactory.create(entity.game_object.factory_url, TEMP_VECTOR, nil, PROPERTIES, entity.transform.scale.x)
 	end
 end
 
@@ -277,7 +277,7 @@ end
 ---@param t component.transform
 ---@return number
 function M:get_position_z(t)
-	return -t.position_y / 10000 + t.position_x / 100000 + t.position_z / 10
+	return -t.position.y / 10000 + t.position.x / 100000 + t.position.z / 10
 end
 
 

@@ -11,26 +11,14 @@ local command_transform = require("core.system.transform.command_transform")
 ---@field transform component.transform
 
 ---@class component.transform
----@field position_x number The X position
----@field position_y number
----@field position_z number
----@field size_x number
----@field size_y number
----@field size_z number
----@field scale_x number
----@field scale_y number
----@field scale_z number
+---@field position vector3 The position vector
+---@field size vector3 The size vector
+---@field scale vector3 The scale vector
 ---@field rotation number
 decore.register_component("transform", {
-	position_x = 0,
-	position_y = 0,
-	position_z = 0,
-	size_x = 1,
-	size_y = 1,
-	size_z = 1,
-	scale_x = 1,
-	scale_y = 1,
-	scale_z = 1,
+	position = vmath.vector3(0),
+	size = vmath.vector3(1),
+	scale = vmath.vector3(1),
 	rotation = 0,
 })
 
@@ -66,13 +54,13 @@ end
 ---@param z number|nil
 function M:set_position(entity, x, y, z)
 	local t = entity.transform
-	if t.position_x == x and t.position_y == y and t.position_z == z then
+	if t.position.x == x and t.position.y == y and t.position.z == z then
 		return
 	end
 
-	t.position_x = x or t.position_x
-	t.position_y = y or t.position_y
-	t.position_z = z or t.position_z
+	t.position.x = x or t.position.x
+	t.position.y = y or t.position.y
+	t.position.z = z or t.position.z
 
 	self.world.event_bus:trigger("transform_event", { entity = entity, is_position_changed = true })
 end
@@ -84,13 +72,13 @@ end
 ---@param z number|nil
 function M:set_scale(entity, x, y, z)
 	local t = entity.transform
-	if t.scale_x == x and t.scale_y == y and t.scale_z == z then
+	if t.scale.x == x and t.scale.y == y and t.scale.z == z then
 		return
 	end
 
-	t.scale_x = x or t.scale_x
-	t.scale_y = y or t.scale_y
-	t.scale_z = z or t.scale_z
+	t.scale.x = x or t.scale.x
+	t.scale.y = y or t.scale.y
+	t.scale.z = z or t.scale.z
 
 	self.world.event_bus:trigger("transform_event", { entity = entity, is_scale_changed = true })
 end
@@ -102,13 +90,13 @@ end
 ---@param z number|nil
 function M:set_size(entity, x, y, z)
 	local t = entity.transform
-	if t.size_x == x and t.size_y == y and t.size_z == z then
+	if t.size.x == x and t.size.y == y and t.size.z == z then
 		return
 	end
 
-	t.size_x = x or t.size_x
-	t.size_y = y or t.size_y
-	t.size_z = z or t.size_z
+	t.size.x = x or t.size.x
+	t.size.y = y or t.size.y
+	t.size.z = z or t.size.z
 
 	self.world.event_bus:trigger("transform_event", { entity = entity, is_size_changed = true })
 end

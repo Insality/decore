@@ -83,8 +83,8 @@ function M:process_drag_camera(input_event)
 			--local new_size_y = entity.transform.size_y * 1.1
 			--self.world.command_transform:set_size(entity, new_size_x, new_size_y)
 
-			local new_scale_x = entity.transform.scale_x * 1.1
-			local new_scale_y = entity.transform.scale_y * 1.1
+			local new_scale_x = entity.transform.scale.x * 1.1
+			local new_scale_y = entity.transform.scale.y * 1.1
 			self.world.command_transform:set_scale(entity, new_scale_x, new_scale_y)
 			self.world.command_transform:set_animate_time(entity, 0.2, go.EASING_OUTSINE)
 		end
@@ -93,8 +93,8 @@ function M:process_drag_camera(input_event)
 			--local new_size_x = entity.transform.size_x * 0.9
 			--local new_size_y = entity.transform.size_y * 0.9
 			--self.world.command_transform:set_size(entity, new_size_x, new_size_y)
-			local new_scale_x = entity.transform.scale_x * 0.9
-			local new_scale_y = entity.transform.scale_y * 0.9
+			local new_scale_x = entity.transform.scale.x * 0.9
+			local new_scale_y = entity.transform.scale.y * 0.9
 			self.world.command_transform:set_scale(entity, new_scale_x, new_scale_y)
 			self.world.command_transform:set_animate_time(entity, 0.2, go.EASING_OUTSINE)
 		end

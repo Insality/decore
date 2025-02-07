@@ -317,7 +317,6 @@ end
 ---@param x number X position
 ---@param y number Y position
 ---@param radius number Circle radius
----@return quadtree_state[]
 function M:get_in_radius(x, y, radius, callback)
 	local x_area = x - radius
 	local y_area = y - radius

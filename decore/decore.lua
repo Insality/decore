@@ -2,7 +2,7 @@ local event_bus = require("decore.internal.event_bus")
 local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
 local decore_commands = require("decore.internal.decore_commands")
-local system.bus.event = require("decore.internal.system.bus.event")
+local system_event_bus = require("decore.internal.system_event_bus")
 
 local events = require("event.events")
 
@@ -30,7 +30,7 @@ function M.world(...)
 	events.subscribe("decore.create_entity", world.addEntity, world)
 
 	-- Always included systems
-	world:addSystem(system.bus.event.create_system())
+	world:addSystem(system_event_bus.create_system())
 
 	-- Add systems passed to world constructor
 	world:add(...)
@@ -391,9 +391,11 @@ function M.create_world(world_id, world_pack_id)
 				local child_entities = M.create_world(world_prefab_id)
 				if child_entities then
 					for _, child_entity in ipairs(child_entities) do
-						child_entity.tiled_id = entity.tiled_id .. ":" .. child_entity.tiled_id
-						child_entity.transform.position_x = child_entity.transform.position_x + entity.transform.position_x - entity.transform.size_x/2
-						child_entity.transform.position_y = child_entity.transform.position_y + entity.transform.position_y - entity.transform.size_y/2
+						local t = child_entity.transform
+						if t then
+							t.position.x = t.position.x + entity.transform.position.x - entity.transform.size.x/2
+							t.position.y = t.position.y + entity.transform.position.y - entity.transform.size.y/2
+						end
 
 						table.insert(entities, child_entity)
 					end

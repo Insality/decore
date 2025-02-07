@@ -9,7 +9,7 @@ function init(self)
 		require("core.system.movement_controller.system_movement_controller").create_system(),
 		require("core.system.collision.system_collision").create_system(),
 
-		require("examples.basic_collision.system.system_score_counter").create_system()
+		require("examples.basic_platformer_controller.system.system_score_counter").create_system()
 	)
 
 	decore.register_entity("player", require("examples.basic_collision.entity.player"))
