@@ -3,7 +3,6 @@ local gui_bindings = require("druid.bindings")
 
 local debug_panel = require("decore.widget.debug_panel.ui_debug_panel")
 
-
 function init(self)
 	self.druid = druid.new(self)
 	self.debug_panel = self.druid:new_widget(debug_panel)

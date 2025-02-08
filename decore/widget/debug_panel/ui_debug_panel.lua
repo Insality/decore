@@ -341,7 +341,7 @@ function M:draw_page_entity_prefabs(context, page_name)
 						self:select_page(PAGES.TABLE, decore_data.entities[pack_id][prefab_id], prefab_id)
 					end)
 
-					---@type entity
+					---@type entity?
 					local entity_to_create = nil
 					local drag_n_drop_entity = nil
 

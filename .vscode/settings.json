@@ -47,7 +47,9 @@
 		"missing-return": "Any",
 		"missing-fields": "Any",
 		"return-type-mismatch": "Any",
-		"lowercase-global": "Any"
+		"lowercase-global": "Any",
+		"unused-local": "Any",
+		"unused-function": "Any"
 	},
 	"Lua.runtime.version": "Lua 5.1",
 	"Lua.runtime.pathStrict": true,
@@ -56,5 +58,8 @@
 		"~/Library/Application Support/Code/User/workspaceStorage/d5f9bf017bc262ec86a14da3c3f3032d/astronachos.defold",
 		"~/Library/Application Support/Cursor/User/globalStorage/astronachos.defold",
 		"~/Library/Application Support/Cursor/User/workspaceStorage/d5f9bf017bc262ec86a14da3c3f3032d/astronachos.defold"
+	],
+	"Lua.workspace.ignorePatterns": [
+		"**/*.md"
 	]
 }
