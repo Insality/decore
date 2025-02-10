@@ -17,10 +17,6 @@ function M.clear()
 		}
 	}
 	M.components_order = { "decore" }
-
-	---@type table<string, table<string, decore.world.instance>> @Key: pack_id, Value: <world_id, world>
-	M.worlds = {}
-	M.worlds_order = {}
 end
 M.clear()
 
@@ -124,39 +120,6 @@ function M.get_entity(prefab_id, pack_id)
 end
 
 
----@param world_id string
----@param world_data decore.world.instance
----@param pack_id string|nil default "decore"
-function M.register_world(world_id, world_data, pack_id)
-	pack_id = pack_id or "decore"
-
-	if not M.worlds[pack_id] then
-		M.worlds[pack_id] = {}
-		table.insert(M.worlds_order, pack_id)
-	end
-
-	M.worlds[pack_id][world_id] = world_data or {}
-end
-
-
----@param world_id string|hash
----@param pack_id string|nil
----@return decore.world.instance|nil
-function M.get_world(world_id, pack_id)
-	for index = #M.worlds_order, 1, -1 do
-		local check_pack_id = M.worlds_order[index]
-		local worlds_pack = M.worlds[check_pack_id]
-
-		local world = worlds_pack[world_id]
-		if world and (not pack_id or pack_id == check_pack_id) then
-			return world
-		end
-	end
-
-	return nil
-end
-
-
 ---Log all loaded packs for entities, components and worlds
 ---@param logger decore.logger
 function M.print_loaded_packs_debug_info(logger)
@@ -175,14 +138,6 @@ function M.print_loaded_packs_debug_info(logger)
 		logger:debug(" - " .. pack_id)
 		for component_id, _ in pairs(M.components[pack_id]) do
 			logger:debug("   - " .. component_id)
-		end
-	end
-
-	logger:debug("Worlds packs:")
-	for _, pack_id in ipairs(M.worlds_order) do
-		logger:debug(" - " .. pack_id)
-		for world_id, _ in pairs(M.worlds[pack_id]) do
-			logger:debug("   - " .. world_id)
 		end
 	end
 end

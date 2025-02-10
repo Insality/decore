@@ -124,7 +124,8 @@ end
 ---@param radius number
 ---@param callback fun(entity: entity)
 function M:get_neighbors(entity, radius, callback)
-	self.quadtree:get_in_radius(entity.transform.position.x, entity.transform.position.y, radius, callback)
+	local position = entity.transform.position
+	self.quadtree:get_in_radius(position.x, position.y, radius, callback)
 end
 
 

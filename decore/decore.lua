@@ -186,6 +186,18 @@ function M.create_entity(prefab_id, pack_id, data)
 		M.apply_components(entity, data)
 	end
 
+	-- TODO: this is should be instead worlds
+	local child_entities = entity.child_instancies
+	if child_entities then
+		for index = 1, #child_entities do
+			local child_entity = child_entities[index]
+			local child_entity_instance = M.create_entity(child_entity.prefab_id, child_entity.pack_id, child_entity.components)
+			if child_entity_instance then
+				-- TODO: Add parent-child relations
+			end
+		end
+	end
+
 	return entity
 end
 
@@ -298,120 +310,6 @@ function M.apply_components(entity, components)
 end
 
 
----@param world_id string
----@param world_data decore.world.instance
----@param pack_id string|nil default "decore"
-function M.register_world(world_id, world_data, pack_id)
-	decore_data.register_world(world_id, world_data, pack_id)
-end
-
-
----@param pack_id string
----@param worlds table<string, decore.world.instance>
----@return boolean, string|nil
-function M.register_worlds(pack_id, worlds)
-	for world_id, world_data in pairs(worlds) do
-		decore_data.register_world(world_id, world_data, pack_id)
-	end
-
-	decore_internal.logger:debug("Load worlds pack id", pack_id)
-
-	return true
-end
-
-
----@param pack_id string
-function M.unregister_worlds(pack_id)
-	if not decore_data.worlds[pack_id] then
-		decore_internal.logger:warn("No worlds pack with id to unload", pack_id)
-		return
-	end
-
-	decore_data.worlds[pack_id] = nil
-	decore_internal.remove_by_value(decore_data.worlds_order, pack_id)
-end
-
-
----Create entity instances from world prefab
----@param world_id string
----@param world_pack_id string|nil if nil, use first found from latest loaded pack
----@return entity[]|nil
-function M.create_world(world_id, world_pack_id)
-	local world = decore_data.get_world(world_id, world_pack_id)
-	if not world then
-		decore_internal.logger:error("No world with id", {
-			world_id = world_id,
-			pack_id = world_pack_id,
-		})
-
-		return nil
-	end
-
-	local entities = {}
-
-	-- Create all template entities
-	if world.included_worlds then
-		for world_index = 1, #world.included_worlds do
-			local world_instance = world.included_worlds[world_index]
-			local world_entities = M.create_world(world_instance.world_id, world_instance.pack_id)
-			if world_entities then
-				for _, entity in ipairs(world_entities) do
-					table.insert(entities, entity)
-				end
-			end
-		end
-	end
-
-	if world.entities then
-		for entity_index = 1, #world.entities do
-			local entity_info = world.entities[entity_index]
-
-			local entity
-			if entity_info.prefab_id and entity_info.prefab_id ~= "" then
-				-- Create entity from decore entities
-				entity = M.create_entity(entity_info.prefab_id, entity_info.pack_id)
-			else
-				-- Create empty entity
-				entity = {}
-			end
-
-			if entity then
-				local components = entity_info.components
-				if components then
-					M.apply_components(entity, components)
-				end
-
-				table.insert(entities, entity)
-			end
-
-			-- Entities can spawn a world
-			-- TODO: Add parent relations
-			local world_prefab_id = entity.world_prefab_id
-			if world_prefab_id then
-				local child_entities = M.create_world(world_prefab_id)
-				if child_entities then
-					for _, child_entity in ipairs(child_entities) do
-						local t = child_entity.transform
-						if t then
-							t.position.x = t.position.x + entity.transform.position.x - entity.transform.size.x/2
-							t.position.y = t.position.y + entity.transform.position.y - entity.transform.size.y/2
-						end
-
-						table.insert(entities, child_entity)
-					end
-				else
-					decore_internal.logger:error("Failed to create world prefab", {
-						world_prefab_id = world_prefab_id,
-					})
-				end
-			end
-		end
-	end
-
-	return entities
-end
-
-
 ---@param world world
 ---@param id number
 ---@return entity|nil
@@ -466,6 +364,7 @@ function M.print_loaded_packs_debug_info()
 end
 
 
+---Grab a command in text format to provide a way to call functions from the system
 ---@param command string Example: "system_name.function_name, arg1, arg2". Separators are : " ", "," and "\n" only
 ---@return any[]
 function M.parse_command(command)

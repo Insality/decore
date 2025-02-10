@@ -33,12 +33,6 @@ local TEMP_VECTOR = vmath.vector3(0, 0, 0)
 local TEMP_QUAT = vmath.quat(0, 0, 0, 1)
 local ROOT_URL = hash("/root")
 local HASH_POSITION = hash("position")
-local HASH_ROTATION = hash("rotation")
-local HASH_QUAT_Z = hash("rotation.z")
-local HASH_QUAT_W = hash("rotation.w")
-local HASH_POSITION_X = hash("position.x")
-local HASH_POSITION_Y = hash("position.y")
-local HASH_POSITION_Z = hash("position.z")
 local HASH_SIZE = hash("size")
 local HASH_SCALE = hash("scale")
 local HASH_EULER_Z = hash("euler.z")
@@ -82,11 +76,8 @@ function M:onAdd(entity)
 
 	if root then
 		if entity.game_object.is_slice9 then
-			TEMP_VECTOR.x = entity.transform.size.x
-			TEMP_VECTOR.y = entity.transform.size.y
-			TEMP_VECTOR.z = 0
 			local sprite_url = msg.url(nil, root, "sprite")
-			go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
+			go.set(sprite_url, HASH_SIZE, entity.transform.size)
 
 			-- Set scale to initial 1
 			TEMP_VECTOR.x = 1
@@ -94,10 +85,7 @@ function M:onAdd(entity)
 			TEMP_VECTOR.z = 1
 			go.set(root, HASH_SCALE, TEMP_VECTOR)
 		else
-			TEMP_VECTOR.x = entity.transform.scale.x
-			TEMP_VECTOR.y = entity.transform.scale.y
-			TEMP_VECTOR.z = entity.transform.scale.x -- X to keep uniform for physics
-			go.set(root, HASH_SCALE, TEMP_VECTOR)
+			go.set(root, HASH_SCALE, entity.transform.scale)
 		end
 
 		go.set(root, HASH_EULER_Z, entity.transform.rotation)
@@ -171,16 +159,12 @@ function M:process_transform_event(event)
 	end
 
 	if event.is_position_changed then
-		TEMP_VECTOR.x = transform.position.x
-		TEMP_VECTOR.y = transform.position.y
-		TEMP_VECTOR.z = transform.position.z
-
 		local animate_time = event.animate_time
 		if animate_time then
 			local easing = event.easing or go.EASING_LINEAR
-			go.animate(root, HASH_POSITION, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
+			go.animate(root, HASH_POSITION, go.PLAYBACK_ONCE_FORWARD, transform.position, easing, animate_time)
 		else
-			go.set_position(TEMP_VECTOR, root)
+			go.set_position(transform.position, root)
 		end
 	end
 
@@ -198,32 +182,25 @@ function M:process_transform_event(event)
 	end
 
 	if event.is_scale_changed then
-		TEMP_VECTOR.x = transform.scale.x
-		TEMP_VECTOR.y = transform.scale.y
-		TEMP_VECTOR.z = transform.scale.x -- X to keep uniform for physics
-
 		local animate_time = event.animate_time
 		if animate_time then
 			local easing = event.easing or go.EASING_LINEAR
-			go.animate(root, HASH_SCALE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
+			go.animate(root, HASH_SCALE, go.PLAYBACK_ONCE_FORWARD, transform.scale, easing, animate_time)
 		else
-			go.set_scale(TEMP_VECTOR, root)
+			go.set_scale(transform.scale, root)
 		end
 	end
 
 	if event.is_size_changed then
 		if game_object.is_slice9 then
-			TEMP_VECTOR.x = transform.size.x
-			TEMP_VECTOR.y = transform.size.y
-			TEMP_VECTOR.z = 0
 			local sprite_url = msg.url(nil, root, "sprite")
 
 			local animate_time = event.animate_time
 			if animate_time then
 				local easing = event.easing or go.EASING_LINEAR
-				go.animate(sprite_url, HASH_SIZE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
+				go.animate(sprite_url, HASH_SIZE, go.PLAYBACK_ONCE_FORWARD, transform.size, easing, animate_time)
 			else
-				go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
+				go.set(sprite_url, HASH_SIZE, transform.size)
 			end
 		end
 	end
@@ -236,21 +213,13 @@ function M:refresh_transform(entity)
 		return
 	end
 
-	TEMP_VECTOR.x = entity.transform.position_x
-	TEMP_VECTOR.y = entity.transform.position_y
-	TEMP_VECTOR.z = entity.transform.position_z
-	go.set_position(TEMP_VECTOR, root)
-
-	TEMP_VECTOR.x = entity.transform.scale_x
-	TEMP_VECTOR.y = entity.transform.scale_y
-	TEMP_VECTOR.z = entity.transform.scale_x -- X to keep uniform for physics
-	go.set_scale(TEMP_VECTOR, root)
+	go.set_position(entity.transform.position, root)
+	go.set_scale(entity.transform.scale, root)
 
 	TEMP_QUAT.z = sin(rad(entity.transform.rotation) * 0.5)
 	TEMP_QUAT.w = cos(rad(entity.transform.rotation) * 0.5)
 	go.set_rotation(TEMP_QUAT, root)
 end
-
 
 
 local PROPERTIES = {

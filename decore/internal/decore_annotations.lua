@@ -8,7 +8,7 @@
 ---@field id number|nil Unique entity id, autofilled by decore.create_entity
 ---@field prefab_id string|nil The entity id from decore collections, autofilled by decore.create_entity
 ---@field pack_id string|nil The entity id from decore collections, autofilled by decore.create_entity
----@field world_prefab_id string|nil The world to spawn on entity creation
+---@field child_instancies decore.entities_pack_data.instance[]|nil The child instances to spawn on entity creation
 
 ---Definition to group all components
 ---@class component
@@ -36,12 +36,6 @@
 ---@field process fun(system: system, entity:entity, dt:number)|nil
 ---@field postProcess fun(system: system, dt:number)|nil
 ---@field compare fun(e1:entity, e2:entity)|nil
-
----Definition to group all system..command
----@class system.command
-
----Definition to group all system..event
----@class system.event
 
 ---@class world
 ---@field entities entity[]
