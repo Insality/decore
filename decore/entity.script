@@ -43,14 +43,9 @@ function on_message(self, message_id, message)
 
 		local world_position = go.get_world_position()
 		self.components["transform"] = {
-			position_x = world_position.x,
-			position_y = world_position.y,
-			position_z = world_position.z,
-			scale_x = go.get(".", SCALE_X),
-			scale_y = go.get(".", SCALE_Y),
-			scale_z = go.get(".", SCALE_Z),
-			size_x = self.size_x,
-			size_y = self.size_y,
+			position = vmath.vector3(world_position.x, world_position.y, world_position.z),
+			scale = go.get_scale(),
+			size = vmath.vector3(self.size_x, self.size_y, 0),
 			rotation = go.get(".", ROTATION)
 		}
 	end

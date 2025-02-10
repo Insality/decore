@@ -13,11 +13,11 @@ return function()
 		end)
 
 		it("Should init correctly", function()
-			local entity = world:add({ transform = { position_x = 10, position_y = 20 }})
+			local entity = world:add({ transform = { position = vmath.vector3(10, 20, 0) }})
 			world:refresh()
 
-			assert(entity.transform.position_x == 10)
-			assert(entity.transform.position_y == 20)
+			assert(entity.transform.position.x == 10)
+			assert(entity.transform.position.y == 20)
 
 			-- Now it works only if we create an entity with decore
 			-- How or should we update it?
@@ -25,7 +25,7 @@ return function()
 		end)
 
 		it("Should trigger transform_event on position change", function()
-			local entity = world:add({ transform = { position_x = 10, position_y = 20 }})
+			local entity = world:add({ transform = { position = vmath.vector3(10, 20, 0) }})
 			world:refresh()
 
 			world.command_transform:set_position(entity, 20, 30)
@@ -37,7 +37,7 @@ return function()
 		end)
 
 		it("Should trigger transform_event on scale change", function()
-			local entity = world:add({ transform = { scale_x = 1, scale_y = 1 }})
+			local entity = world:add({ transform = { scale = vmath.vector3(1, 1, 1) }})
 			world:refresh()
 
 			world.command_transform:set_scale(entity, 2, 2)
@@ -49,7 +49,7 @@ return function()
 		end)
 
 		it("Should trigger transform_event on size change", function()
-			local entity = world:add({ transform = { size_x = 1, size_y = 1 }})
+			local entity = world:add({ transform = { size = vmath.vector3(1, 1, 0) }})
 			world:refresh()
 
 			world.command_transform:set_size(entity, 2, 2)
