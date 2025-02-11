@@ -124,10 +124,13 @@ end
 
 ---@param events system.transform.event[]
 ---@param event system.transform.event
+---@return boolean is_merged
 function M.event_merge_policy(events, event)
+	local entity = event.entity
+
 	for index = #events, 1, -1 do
 		local compare_event = events[index]
-		if compare_event.entity == event.entity then
+		if compare_event.entity == entity then
 			compare_event.is_position_changed = compare_event.is_position_changed or event.is_position_changed
 			compare_event.is_scale_changed = compare_event.is_scale_changed or event.is_scale_changed
 			compare_event.is_rotation_changed = compare_event.is_rotation_changed or event.is_rotation_changed
@@ -138,6 +141,8 @@ function M.event_merge_policy(events, event)
 			return true
 		end
 	end
+
+	return false
 end
 
 

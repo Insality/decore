@@ -1,8 +1,3 @@
-# Описание
-Работаем по флоу
-"хочу что-то добавить", ищу как это сделать тут
-Если этого нет, дописываю.
-
 # ECS
 
 ## Entities
@@ -10,6 +5,7 @@
 ## Systems
 
 ### Add new system
+
 - Create a folder with system name in yout systems folder
 - Copy a one of the system type ("template_system", "template_system..command or "template_system_event") to your folder
 - Replace all TEMPLATE with your system name

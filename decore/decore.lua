@@ -1,10 +1,12 @@
+local events = require("event.events")
+
 local event_bus = require("decore.internal.event_bus")
 local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
 local decore_commands = require("decore.internal.decore_commands")
-local system_event_bus = require("decore.internal.system_event_bus")
 
-local events = require("event.events")
+local system_decore = require("decore.internal.system_decore")
+local system_event_bus = require("decore.internal.system_event_bus")
 
 
 local EMPTY_HASH = hash("")
@@ -30,6 +32,7 @@ function M.world(...)
 	events.subscribe("decore.create_entity", world.addEntity, world)
 
 	-- Always included systems
+	world:addSystem(system_decore.create_system())
 	world:addSystem(system_event_bus.create_system())
 
 	-- Add systems passed to world constructor
@@ -193,7 +196,7 @@ function M.create_entity(prefab_id, pack_id, data)
 			local child_entity = child_entities[index]
 			local child_entity_instance = M.create_entity(child_entity.prefab_id, child_entity.pack_id, child_entity.components)
 			if child_entity_instance then
-				-- TODO: Add parent-child relations
+				print(child_entity_instance)
 			end
 		end
 	end
