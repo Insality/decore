@@ -1,6 +1,3 @@
-local events = require("event.events")
-
-local event_bus = require("decore.internal.event_bus")
 local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
 local decore_commands = require("decore.internal.decore_commands")
@@ -23,17 +20,14 @@ M.last_world = nil
 
 
 ---Create a new world instance
+---@param ... system[]|nil
 ---@return world
 function M.world(...)
-	local world = M.ecs.world()
-	world.event_bus = event_bus.create()
-
-	-- To make it works with entity.script to allows make entities in Defold editor via collections
-	events.subscribe("decore.create_entity", world.addEntity, world)
-
-	-- Always included systems
-	world:addSystem(system_decore.create_system())
-	world:addSystem(system_event_bus.create_system())
+	local world = M.ecs.world(
+		-- Always included systems
+		system_decore.create_system(M),
+		system_event_bus.create_system()
+	)
 
 	-- Add systems passed to world constructor
 	world:add(...)
@@ -110,7 +104,6 @@ end
 
 
 function M.final(world)
-	events.unsubscribe("decore.create_entity", world.addEntity, world)
 	world:clearEntities()
 	world:clearSystems()
 end
@@ -164,42 +157,15 @@ function M.create_entity(prefab_id, pack_id, data)
 		return {}
 	end
 
+	local entity = nil
 	local prefab = decore_data.get_entity(prefab_id, pack_id)
-	if not prefab then
-		local entity = {}
-		if data then
-			M.apply_components(entity, data)
-		end
-
-		return entity
+	if prefab and prefab.parent_prefab_id then
+		entity = M.create_entity(prefab.parent_prefab_id)
 	end
 
-	local entity
-	-- Use parent entity as template
-	if prefab.parent_prefab_id then
-		local parent_entity = M.create_entity(prefab.parent_prefab_id)
-		if parent_entity then
-			entity = parent_entity
-		end
-	end
 	entity = entity or {}
-
 	M.apply_components(entity, prefab)
-	if data then
-		M.apply_components(entity, data)
-	end
-
-	-- TODO: this is should be instead worlds
-	local child_entities = entity.child_instancies
-	if child_entities then
-		for index = 1, #child_entities do
-			local child_entity = child_entities[index]
-			local child_entity_instance = M.create_entity(child_entity.prefab_id, child_entity.pack_id, child_entity.components)
-			if child_entity_instance then
-				print(child_entity_instance)
-			end
-		end
-	end
+	M.apply_components(entity, data)
 
 	return entity
 end
@@ -280,6 +246,7 @@ end
 ---@param component_data any|nil if nil, create component with default values
 ---@return entity
 function M.apply_component(entity, component_id, component_data)
+	-- The component data can be false and this is valid
 	if component_data == nil then
 		component_data = {}
 	end
@@ -302,9 +269,13 @@ end
 ---Add components to entity
 ---To refresh system filters, call world:addEntity(entity) after this function
 ---@param entity entity
----@param components table<string, any>
+---@param components table<string, any>|nil
 ---@return entity
 function M.apply_components(entity, components)
+	if not components then
+		return entity
+	end
+
 	for component_id, component_data in pairs(components) do
 		M.apply_component(entity, component_id, component_data)
 	end
@@ -368,7 +339,7 @@ end
 
 
 ---Grab a command in text format to provide a way to call functions from the system
----@param command string Example: "system_name.function_name, arg1, arg2". Separators are : " ", "," and "\n" only
+---@param command string Example: "system_name.function_name, arg1, arg2". Separators can be: " ", "," and "\n"
 ---@return any[]
 function M.parse_command(command)
 	return decore_commands.parse_command(command)

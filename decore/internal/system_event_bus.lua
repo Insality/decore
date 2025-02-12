@@ -1,4 +1,5 @@
 local ecs = require("decore.ecs")
+local event_bus = require("decore.internal.event_bus")
 
 ---@class system.bus.event: system
 local M = {}
@@ -10,6 +11,11 @@ function M.create_system()
 	system.id = "event_bus"
 
 	return system
+end
+
+
+function M:onAddToWorld(world)
+	world.event_bus = event_bus.create()
 end
 
 
