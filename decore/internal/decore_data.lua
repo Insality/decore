@@ -8,15 +8,8 @@ function M.clear()
 	M.entities_order = {}
 
 	---@type table<string, table<string, any>> @Key: pack_id, Value: <component_id, component>
-	M.components = {
-		["decore"] = {
-			id = "",
-			prefab_id = false,
-			pack_id = false,
-			parent_prefab_id = false,
-		}
-	}
-	M.components_order = { "decore" }
+	M.components = {}
+	M.components_order = {}
 end
 M.clear()
 
@@ -93,6 +86,7 @@ function M.register_entity(entity_id, entity_data, pack_id)
 	M.entities[pack_id][entity_id] = entity_data or {}
 	M.entities[pack_id][hash(entity_id)] = M.entities[pack_id][entity_id]
 
+	-- The prefab_id in components often used to see from which entity it is instanced
 	entity_data.prefab_id = entity_id
 	entity_data.pack_id = pack_id
 end

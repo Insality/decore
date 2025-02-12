@@ -69,9 +69,10 @@ function M:add_children(entity)
 		for index = 1, #child_entities do
 			local child_entity = child_entities[index]
 			local child = self.decore.create_entity(child_entity.prefab_id, child_entity.pack_id, child_entity.components)
+			self.decore.apply_component(child, "transform")
 
 			-- Add my position to child
-			if child.transform and entity.transform then
+			if entity.transform then
 				child.transform.position.x = child.transform.position.x + entity.transform.position.x
 				child.transform.position.y = child.transform.position.y + entity.transform.position.y
 			end
