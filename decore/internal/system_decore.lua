@@ -26,9 +26,10 @@ decore_data.register_component("children", false)
 local M = {}
 
 
+---@param decore decore
 ---@return system.decore
 function M.create_system(decore)
-	local system = setmetatable(ecs.system({id = "decore"}), { __index = M })
+	local system = setmetatable(ecs.system({ id = "decore" }), { __index = M })
 	system.filter = ecs.requireAll("child_instancies")
 	system.decore = decore
 	return system

@@ -50,14 +50,14 @@ is_prehash = 1
 game_binding = /builtins/input/all.input_bindingc
 
 [sprite]
-max_count = 4096
+max_count = 32000
 
 [physics]
 max_collision_object_count = 512
 scale = 0.01
 
 [collection]
-max_instances = 4096
+max_instances = 32000
 
 [gui]
 max_count = 2048
@@ -71,4 +71,7 @@ use_xpcall = 1
 [defos]
 view_width = 1200
 view_height = 700
+
+[factory]
+max_count = 32000
 

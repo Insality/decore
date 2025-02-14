@@ -93,10 +93,6 @@ function M:process(entity, dt)
 	self.world.command_transform:add_position(entity, velocity.x * dt, velocity.y * dt)
 	self.world.command_transform:set_rotation(entity, velocity.angle)
 
-	--if self.interval then
-	--	self.world.command_transform:set_animate_time(entity, self.interval, go.EASING_LINEAR)
-	--end
-
 	if self.debug_draw and self.world.command_debug_draw then
 		local t = entity.transform
 		self.world.command_debug_draw:draw_line(

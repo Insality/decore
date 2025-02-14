@@ -19,3 +19,4 @@ New Tileset (collection of images)
 Press Plus -> Select image to add first entity
 Seems better to create the folder with all images inside tiled.
 Select Export as JSON (/resources/tilesets/tileset_name.json)
+

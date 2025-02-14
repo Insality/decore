@@ -22,8 +22,15 @@ decore.register_component("game_object")
 decore.register_component("hidden", false)
 
 
+---@class go_position_setter
+---@field add fun(self, entity, position, rotation)
+---@field remove fun(self, entity)
+---@field update fun(self)
+
 ---@class system.game_object: system
 ---@field root_to_entity table<string|hash, entity>
+---@field root_to_quaternion table<string|hash, quaternion>
+---@field go_setter go_position_setter
 local M = {}
 
 M.DEBUG_PANEL_UPDATE_MEMORY_LIMIT = 2048
@@ -46,6 +53,8 @@ function M.create_system()
 	system.filter = decore.ecs.requireAll("game_object", "transform", decore.ecs.rejectAll("hidden"))
 	system.id = "game_object"
 	system.root_to_entity = {}
+	system.root_to_quaternion = {}
+	system.go_setter = go_position_setter.new()
 
 	return system
 end
@@ -69,10 +78,15 @@ function M:onAdd(entity)
 		return
 	end
 
+
 	local object = self:create_object(entity)
 	local root = object[ROOT_URL]
 	entity.game_object.root = root
 	entity.game_object.object = object
+
+	local quaternion = vmath.quat_rotation_z(math.rad(entity.transform.rotation))
+	self.root_to_quaternion[root] = quaternion
+	self.go_setter:add(root, entity.transform.position, quaternion)
 
 	if root then
 		if entity.game_object.is_slice9 then
@@ -108,11 +122,31 @@ function M:onRemove(entity)
 end
 
 
+function M:update()
+	-- Update rotation
+	--for index = 1, #self.entities do
+	--	local entity = self.entities[index]
+	--	local root = entity.game_object.root
+	--	if root then
+	--		local quaternion = self.root_to_quaternion[root]
+	--		if quaternion then
+	--			quaternion.z = sin(rad(entity.transform.rotation) * 0.5)
+	--			quaternion.w = cos(rad(entity.transform.rotation) * 0.5)
+	--		end
+	--	end
+	--end
+	self.go_setter:update()
+end
+
+
 ---@param entity entity.game_object
 function M:remove_entity(entity)
 	local root = entity.game_object.root
 	if root then
 		self.root_to_entity[root] = nil
+		self.root_to_quaternion[root] = nil
+		self.go_setter:remove(root)
+
 		if go.exists(root) then
 			go.delete(root, false)
 			entity.game_object.root = nil
@@ -164,7 +198,8 @@ function M:process_transform_event(event)
 			local easing = event.easing or go.EASING_LINEAR
 			go.animate(root, HASH_POSITION, go.PLAYBACK_ONCE_FORWARD, transform.position, easing, animate_time)
 		else
-			go.set_position(transform.position, root)
+			--go.set_position(transform.position, root)
+			--go.set(root, HASH_POSITION, transform.position)
 		end
 	end
 
@@ -175,9 +210,10 @@ function M:process_transform_event(event)
 			go.animate(root, HASH_EULER_Z, go.PLAYBACK_ONCE_FORWARD, transform.rotation, easing, animate_time)
 		else
 			local deg = transform.rotation
-			TEMP_QUAT.z = sin(rad(deg) * 0.5)
-			TEMP_QUAT.w = cos(rad(deg) * 0.5)
-			go.set_rotation(TEMP_QUAT, root)
+			local quaternion = self.root_to_quaternion[root]
+			quaternion.z = sin(rad(deg) * 0.5)
+			quaternion.w = cos(rad(deg) * 0.5)
+			--go.set_rotation(quaternion, root)
 		end
 	end
 

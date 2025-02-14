@@ -2,10 +2,6 @@ local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
 local decore_commands = require("decore.internal.decore_commands")
 
-local system_decore = require("decore.internal.system_decore")
-local system_event_bus = require("decore.internal.system_event_bus")
-
-
 local EMPTY_HASH = hash("")
 local TYPE_TABLE = "table"
 
@@ -25,8 +21,8 @@ M.last_world = nil
 function M.world(...)
 	local world = M.ecs.world(
 		-- Always included systems
-		system_decore.create_system(M),
-		system_event_bus.create_system()
+		require("decore.internal.system_decore").create_system(M),
+		require("decore.internal.system_event_bus").create_system()
 	)
 
 	-- Add systems passed to world constructor
@@ -308,6 +304,7 @@ function M.find_entities_by_component_value(world, component_id, component_value
 		end
 	end
 
+	-- TODO: Should we search in entitiesToChange?
 	for index = 1, #world.entitiesToChange do
 		local entity = world.entitiesToChange[index]
 		if entity[component_id] and (not component_value or entity[component_id] == component_value) then
@@ -320,8 +317,9 @@ end
 
 
 ---Return if entity is alive in the system
----@param world_or_system world|system
----@param entity entity
+---@param world_or_system world|system If world, return if entity is alive in the world, if system, return if entity is alive in the system
+---@param entity entity The entity to check
+---@return boolean is_alive Is entity exists in the system or in the world
 function M.is_alive(world_or_system, entity)
 	local is_system = world_or_system.indices
 	if is_system then
