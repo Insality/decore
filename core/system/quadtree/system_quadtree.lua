@@ -105,18 +105,15 @@ end
 
 
 ---@param event system.transform.event
-function M:process_transform_event(event)
-	local entity = event.entity
+---@param entity entity.transform
+function M:process_transform_event(event, entity)
 	local quadtree_state = self.entity_to_state[entity]
 	if not quadtree_state then
+		print("entity to no update", entity)
 		return
 	end
 
-	local t = entity.transform
-	if event.is_position_changed or event.is_size_changed then
-		self.entity_to_update[entity] = quadtree_state
-		--self.quadtree:update(quadtree_state, t.position_x, t.position_y, t.size_x, t.size_y)
-	end
+	self.entity_to_update[entity] = quadtree_state
 end
 
 

@@ -134,7 +134,6 @@ function M:subdivide()
 	local y = self.y
 	local level = self.level + 1
 
-	--print(self.max_levels, level)
 	-- Bottom left
 	self.sectors = {}
 

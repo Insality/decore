@@ -14,11 +14,13 @@ local command_transform = require("core.system.transform.command_transform")
 ---@field position vector3 The position vector
 ---@field size vector3 The size vector
 ---@field scale vector3 The scale vector
+---@field quaternion quaternion The quaternion
 ---@field rotation number
 decore.register_component("transform", {
 	position = vmath.vector3(0),
 	size = vmath.vector3(1),
 	scale = vmath.vector3(1),
+	quaternion = vmath.quat(0, 0, 0, 1),
 	rotation = 0,
 })
 
@@ -54,15 +56,19 @@ end
 ---@param z number|nil
 function M:set_position(entity, x, y, z)
 	local t = entity.transform
+	x = x or t.position.x
+	y = y or t.position.y
+	z = z or t.position.z
+
 	if t.position.x == x and t.position.y == y and t.position.z == z then
 		return
 	end
 
-	t.position.x = x or t.position.x
-	t.position.y = y or t.position.y
-	t.position.z = z or t.position.z
+	t.position.x = x
+	t.position.y = y
+	t.position.z = z
 
-	self.world.event_bus:trigger("transform_event", { entity = entity, is_position_changed = true })
+	self.world.event_bus:trigger("transform_event", entity, true)
 end
 
 
@@ -72,15 +78,19 @@ end
 ---@param z number|nil
 function M:set_scale(entity, x, y, z)
 	local t = entity.transform
+	x = x or t.scale.x
+	y = y or t.scale.y
+	z = z or t.scale.z
+
 	if t.scale.x == x and t.scale.y == y and t.scale.z == z then
 		return
 	end
 
-	t.scale.x = x or t.scale.x
-	t.scale.y = y or t.scale.y
-	t.scale.z = z or t.scale.z
+	t.scale.x = x
+	t.scale.y = y
+	t.scale.z = z
 
-	self.world.event_bus:trigger("transform_event", { entity = entity, is_scale_changed = true })
+	self.world.event_bus:trigger("transform_event", entity, true)
 end
 
 
@@ -90,18 +100,24 @@ end
 ---@param z number|nil
 function M:set_size(entity, x, y, z)
 	local t = entity.transform
+	x = x or t.size.x
+	y = y or t.size.y
+	z = z or t.size.z
+
 	if t.size.x == x and t.size.y == y and t.size.z == z then
 		return
 	end
 
-	t.size.x = x or t.size.x
-	t.size.y = y or t.size.y
-	t.size.z = z or t.size.z
+	t.size.x = x
+	t.size.y = y
+	t.size.z = z
 
-	self.world.event_bus:trigger("transform_event", { entity = entity, is_size_changed = true })
+	self.world.event_bus:trigger("transform_event", entity, true)
 end
 
 
+---@param entity entity.transform
+---@param rotation number In degrees
 function M:set_rotation(entity, rotation)
 	local t = entity.transform
 	if t.rotation == rotation then
@@ -109,8 +125,10 @@ function M:set_rotation(entity, rotation)
 	end
 
 	t.rotation = rotation
+	t.quaternion.z = math.sin(math.rad(rotation) * 0.5)
+	t.quaternion.w = math.cos(math.rad(rotation) * 0.5)
 
-	self.world.event_bus:trigger("transform_event", { entity = entity, is_rotation_changed = true })
+	self.world.event_bus:trigger("transform_event", entity, true)
 end
 
 
@@ -118,31 +136,21 @@ end
 ---@param animate_time number|nil
 ---@param easing userdata|nil
 function M:set_animate_time(entity, animate_time, easing)
-	self.world.event_bus:trigger("transform_event", { entity = entity, animate_time = animate_time, easing = easing })
+	self.world.event_bus:trigger("transform_event", entity, true)
 end
 
 
 ---@param events system.transform.event[]
 ---@param event system.transform.event
+---@param entity entity.transform The entity that triggered the event.
+---@param entity_events system.transform.event[] Grouped events by entity it belongs
 ---@return boolean is_merged
-function M.event_merge_policy(events, event)
-	local entity = event.entity
-
-	for index = #events, 1, -1 do
-		local compare_event = events[index]
-		if compare_event.entity == entity then
-			compare_event.is_position_changed = compare_event.is_position_changed or event.is_position_changed
-			compare_event.is_scale_changed = compare_event.is_scale_changed or event.is_scale_changed
-			compare_event.is_rotation_changed = compare_event.is_rotation_changed or event.is_rotation_changed
-			compare_event.is_size_changed = compare_event.is_size_changed or event.is_size_changed
-			compare_event.animate_time = event.animate_time or compare_event.animate_time
-			compare_event.easing = event.easing or compare_event.easing
-
-			return true
-		end
+function M.event_merge_policy(events, event, entity, entity_events)
+	if #entity_events == 0 then
+		return false
 	end
 
-	return false
+	return true
 end
 
 

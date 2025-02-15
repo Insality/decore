@@ -1,8 +1,11 @@
 ---@class decore.event_bus
 ---@field events table<string, table> The current list of events
 ---@field stash table<string, table> The list of events to be processed after :stash_to_events() is called
+---@field stash_by_entity table<string, table<entity, table[]>> The list of entities group by event name
 ---@field merge_callbacks table<string, fun(events: any[], new_event: any):boolean> The merge policy for events. If the merge policy returns true, the events are merged and not will be added as new event
 local M = {}
+
+local NO_ENTITY_KEY = {}
 
 local tinsert = table.insert
 
@@ -12,6 +15,7 @@ function M.create()
 	local instance = {
 		events = {},
 		stash = {},
+		stash_by_entity = {},
 		merge_callbacks = {},
 	}
 
@@ -21,19 +25,32 @@ end
 
 ---Pushes an event onto the queue, triggering it and processing the queue of callbacks.
 ---@param event_name string|hash The name of the event to push onto the queue.
+---@param entity entity|nil The entity that triggered the event. This used for optimization and batching events.
 ---@param data any The data to pass to the event and its associated callbacks.
-function M:trigger(event_name, data)
+function M:trigger(event_name, entity, data)
 	self.stash[event_name] = self.stash[event_name] or {}
+
+	local entity_key = entity or NO_ENTITY_KEY
+	self.stash_by_entity[event_name] = self.stash_by_entity[event_name] or {}
+
+	if not self.stash_by_entity[event_name][entity_key] then
+		self.stash_by_entity[event_name][entity_key] = {}
+		tinsert(self.stash_by_entity[event_name], entity_key)
+	end
+
 	local stash = self.stash[event_name]
+	local entity_stash = self.stash_by_entity[event_name][entity_key]
 
 	local merge_callback = self.merge_callbacks[event_name]
 	if merge_callback then
-		local is_merged = merge_callback(stash, data)
+		local is_merged = merge_callback(stash, data, entity, entity_stash)
 		if not is_merged then
 			tinsert(stash, data or true)
+			tinsert(entity_stash, data or true)
 		end
 	else
 		tinsert(stash, data or true)
+		tinsert(entity_stash, data or true)
 	end
 end
 
@@ -48,13 +65,22 @@ function M:process(event_name, callback, context)
 		return
 	end
 
-	if context then
-		for i = 1, #event_data do
-			callback(context, event_data[i])
-		end
-	else
-		for i = 1, #event_data do
-			callback(event_data[i])
+	local entity_order = self.stash_by_entity[event_name]
+	if not entity_order then
+		return
+	end
+
+	for i = 1, #entity_order do
+		local entity = entity_order[i]
+		local entity_events = self.stash_by_entity[event_name][entity]
+		if context then
+			for j = 1, #entity_events do
+				callback(context, entity_events[j], entity)
+			end
+		else
+			for j = 1, #entity_events do
+				callback(entity_events[j], entity)
+			end
 		end
 	end
 end
@@ -76,6 +102,7 @@ end
 function M:stash_to_events()
 	self.events = self.stash
 	self.stash = {}
+	self.stash_by_entity = {}
 end
 
 

@@ -20,8 +20,8 @@ end
 
 
 ---@param collision_event system.collision.event
-function M:process_collision_event(collision_event)
-	local entity = collision_event.entity
+---@param entity entity.on_collision_remove
+function M:process_collision_event(collision_event, entity)
 	local on_collision_remove = entity.on_collision_remove
 	if on_collision_remove then
 		self.world:removeEntity(entity)

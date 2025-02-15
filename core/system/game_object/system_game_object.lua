@@ -29,7 +29,6 @@ decore.register_component("hidden", false)
 
 ---@class system.game_object: system
 ---@field root_to_entity table<string|hash, entity>
----@field root_to_quaternion table<string|hash, quaternion>
 ---@field go_setter go_position_setter
 local M = {}
 
@@ -38,6 +37,7 @@ M.DEBUG_PANEL_POSTWRAP_MEMORY_LIMIT = 2048
 
 local TEMP_VECTOR = vmath.vector3(0, 0, 0)
 local TEMP_QUAT = vmath.quat(0, 0, 0, 1)
+local VECTOR3_ONE = vmath.vector3(1, 1, 1)
 local ROOT_URL = hash("/root")
 local HASH_POSITION = hash("position")
 local HASH_SIZE = hash("size")
@@ -53,7 +53,6 @@ function M.create_system()
 	system.filter = decore.ecs.requireAll("game_object", "transform", decore.ecs.rejectAll("hidden"))
 	system.id = "game_object"
 	system.root_to_entity = {}
-	system.root_to_quaternion = {}
 	system.go_setter = go_position_setter.new()
 
 	return system
@@ -84,25 +83,19 @@ function M:onAdd(entity)
 	entity.game_object.root = root
 	entity.game_object.object = object
 
-	local quaternion = vmath.quat_rotation_z(math.rad(entity.transform.rotation))
-	self.root_to_quaternion[root] = quaternion
-	self.go_setter:add(root, entity.transform.position, quaternion)
+	self.go_setter:add(root, entity.transform.position, entity.transform.quaternion)
 
 	if root then
 		if entity.game_object.is_slice9 then
 			local sprite_url = msg.url(nil, root, "sprite")
 			go.set(sprite_url, HASH_SIZE, entity.transform.size)
-
-			-- Set scale to initial 1
-			TEMP_VECTOR.x = 1
-			TEMP_VECTOR.y = 1
-			TEMP_VECTOR.z = 1
-			go.set(root, HASH_SCALE, TEMP_VECTOR)
+			go.set(root, HASH_SCALE, VECTOR3_ONE)
 		else
 			go.set(root, HASH_SCALE, entity.transform.scale)
 		end
 
-		go.set(root, HASH_EULER_Z, entity.transform.rotation)
+		--go.set(root, HASH_EULER_Z, entity.transform.rotation)
+		go.set_rotation(entity.transform.quaternion, root)
 		self.root_to_entity[root] = entity
 	end
 end
@@ -123,18 +116,6 @@ end
 
 
 function M:update()
-	-- Update rotation
-	--for index = 1, #self.entities do
-	--	local entity = self.entities[index]
-	--	local root = entity.game_object.root
-	--	if root then
-	--		local quaternion = self.root_to_quaternion[root]
-	--		if quaternion then
-	--			quaternion.z = sin(rad(entity.transform.rotation) * 0.5)
-	--			quaternion.w = cos(rad(entity.transform.rotation) * 0.5)
-	--		end
-	--	end
-	--end
 	self.go_setter:update()
 end
 
@@ -144,7 +125,6 @@ function M:remove_entity(entity)
 	local root = entity.game_object.root
 	if root then
 		self.root_to_entity[root] = nil
-		self.root_to_quaternion[root] = nil
 		self.go_setter:remove(root)
 
 		if go.exists(root) then
@@ -174,8 +154,8 @@ end
 
 
 ---@param event system.transform.event
-function M:process_transform_event(event)
-	local entity = event.entity
+---@param entity entity.transform
+function M:process_transform_event(event, entity)
 	local transform = entity.transform
 	local game_object = entity.game_object
 
@@ -192,53 +172,13 @@ function M:process_transform_event(event)
 		return
 	end
 
-	if event.is_position_changed then
-		local animate_time = event.animate_time
-		if animate_time then
-			local easing = event.easing or go.EASING_LINEAR
-			go.animate(root, HASH_POSITION, go.PLAYBACK_ONCE_FORWARD, transform.position, easing, animate_time)
-		else
-			--go.set_position(transform.position, root)
-			--go.set(root, HASH_POSITION, transform.position)
-		end
-	end
+	go.set_position(transform.position, root)
+	go.set_rotation(transform.quaternion, root)
+	go.set_scale(transform.scale, root)
 
-	if event.is_rotation_changed then
-		local animate_time = event.animate_time
-		if animate_time then
-			local easing = event.easing or go.EASING_LINEAR
-			go.animate(root, HASH_EULER_Z, go.PLAYBACK_ONCE_FORWARD, transform.rotation, easing, animate_time)
-		else
-			local deg = transform.rotation
-			local quaternion = self.root_to_quaternion[root]
-			quaternion.z = sin(rad(deg) * 0.5)
-			quaternion.w = cos(rad(deg) * 0.5)
-			--go.set_rotation(quaternion, root)
-		end
-	end
-
-	if event.is_scale_changed then
-		local animate_time = event.animate_time
-		if animate_time then
-			local easing = event.easing or go.EASING_LINEAR
-			go.animate(root, HASH_SCALE, go.PLAYBACK_ONCE_FORWARD, transform.scale, easing, animate_time)
-		else
-			go.set_scale(transform.scale, root)
-		end
-	end
-
-	if event.is_size_changed then
-		if game_object.is_slice9 then
-			local sprite_url = msg.url(nil, root, "sprite")
-
-			local animate_time = event.animate_time
-			if animate_time then
-				local easing = event.easing or go.EASING_LINEAR
-				go.animate(sprite_url, HASH_SIZE, go.PLAYBACK_ONCE_FORWARD, transform.size, easing, animate_time)
-			else
-				go.set(sprite_url, HASH_SIZE, transform.size)
-			end
-		end
+	if game_object.is_slice9 then
+		local sprite_url = msg.url(nil, root, "sprite")
+		go.set(sprite_url, HASH_SIZE, transform.size)
 	end
 end
 

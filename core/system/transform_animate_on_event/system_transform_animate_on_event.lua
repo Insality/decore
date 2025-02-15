@@ -59,7 +59,7 @@ end
 
 function M:postWrap()
 	for event_id, entities in pairs(self.event_to_entities) do
-		self.world.event_bus:process(event_id, function()
+		self.world.event_bus:process(event_id, function(event, entity)
 			for index = 1, #entities do
 				self:process_event(entities[index])
 			end

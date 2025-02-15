@@ -60,7 +60,7 @@ end
 function M:apply_damage(entity, damage)
 	local health = entity.health
 	health.current_health = math.max(0, health.current_health - damage)
-	self.world.event_bus:trigger("health_event", { entity = entity, damage = damage })
+	self.world.event_bus:trigger("health_event", entity, damage)
 
 	if health.current_health == 0 and health.remove_on_death then
 		self.world:removeEntity(entity)

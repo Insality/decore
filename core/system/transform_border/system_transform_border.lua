@@ -46,11 +46,11 @@ end
 
 
 ---@param event system.transform.event
-function M:process_transform_event(event)
-	local entity = event.entity
+---@param entity entity.transform_border
+function M:process_transform_event(event, entity)
 	local transform_border = entity.transform_border
 
-	if transform_border and event.is_position_changed then
+	if transform_border then
 		local border = transform_border.border
 		local left, top, right, bottom = self.world.command_transform:get_transform_borders(entity)
 

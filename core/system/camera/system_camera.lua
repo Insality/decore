@@ -82,18 +82,14 @@ end
 
 
 ---@param event system.transform.event
-function M:process_transform_event(event)
-	local entity = event.entity
+---@param entity entity.camera
+function M:process_transform_event(event, entity)
 	if entity ~= self.camera then
 		return
 	end
 
-	if event.is_position_changed then
-		self:update_camera_position(self.camera, event.animate_time, event.easing)
-	end
-	if event.is_size_changed or event.is_scale_changed then
-		self:update_camera_zoom(self.camera, event.animate_time, event.easing)
-	end
+	self:update_camera_position(self.camera)
+	self:update_camera_zoom(self.camera)
 end
 
 

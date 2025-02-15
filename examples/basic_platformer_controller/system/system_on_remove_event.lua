@@ -19,7 +19,7 @@ end
 
 
 function M:onRemove(entity)
-	self.world.event_bus:trigger(entity.on_remove_event)
+	self.world.event_bus:trigger(entity.on_remove_event, entity)
 end
 
 

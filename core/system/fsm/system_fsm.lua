@@ -38,7 +38,7 @@ function M:trigger(entity, event)
 	local next_state = self:get_next_state(entity, event)
 	if next_state then
 		entity.fsm.state = next_state
-		self.world.event_bus:trigger("fsm_event", { entity = entity, event = event })
+		self.world.event_bus:trigger("fsm_event", entity, event)
 	end
 end
 

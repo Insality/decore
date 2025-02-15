@@ -249,13 +249,13 @@ end
 
 
 ---@param collision_event system.collision.event
-function M:process_collision_event(collision_event)
+---@param entity entity.platformer_physics
+function M:process_collision_event(collision_event, entity)
 	local contact_point_event = collision_event.contact_point_event
 
 	if contact_point_event then
 		 -- project the correction vector onto the contact normal
 		-- (the correction vector is the 0-vector for the first contact point)
-		local entity = collision_event.entity
 		local pf = entity.platformer_physics
 		local normal = collision_event.contact_point_event.b.normal
 		if not normal then

@@ -39,9 +39,11 @@ end
 
 ---@param input_event system.input.event
 function M:process_input_event(input_event)
+	print("PROCESS INPUT EVENT")
 	-- Process mod key
 	local action_id = input_event.action_id
 	local is_ctrl = (action_id == HASH_CTRL or action_id == HASH_CMD)
+	print("is_ctrl", is_ctrl, input_event.pressed)
 	if is_ctrl and input_event.pressed then
 		self.is_ctrl = true
 	elseif is_ctrl and input_event.released then

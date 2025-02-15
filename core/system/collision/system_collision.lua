@@ -129,7 +129,7 @@ local function handle_collision_event(self, entity_source, entity_target, event_
 			other = entity_target,
 			[event_type] = event_data
 		}
-		self.world.event_bus:trigger("collision_event", collision_event)
+		self.world.event_bus:trigger("collision_event", entity_source, collision_event)
 	end
 
 	if entity_target and entity_target.collision then
@@ -152,7 +152,7 @@ local function handle_collision_event(self, entity_source, entity_target, event_
 			other = entity_source,
 			[event_type] = event_data
 		}
-		self.world.event_bus:trigger("collision_event", collision_event)
+		self.world.event_bus:trigger("collision_event", entity_target, collision_event)
 	end
 end
 

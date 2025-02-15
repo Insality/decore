@@ -35,7 +35,8 @@ function init(self)
 	decore.register_entity("coin", require("examples.basic_collision.entity.entity_coin"))
 
 	--for index = 1, 4000 do
-	for index = 1, 16000 do
+	--for index = 1, 16000 do
+	for index = 1, 30 do
 		local boid = decore.create_entity("boid")
 		boid.transform_border.random_position = true
 		self.world:addEntity(boid)

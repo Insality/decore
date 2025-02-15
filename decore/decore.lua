@@ -91,7 +91,7 @@ end
 ---@param message table|nil
 ---@param sender url|nil
 function M.on_message(world, message_id, message, sender)
-	world.event_bus:trigger("on_message", {
+	world.event_bus:trigger("on_message", nil, {
 		message_id = message_id,
 		message = message,
 		sender = sender,
