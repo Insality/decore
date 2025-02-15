@@ -20,7 +20,6 @@ local command_transform = require("core.system.transform.command_transform")
 ---@field scale_x number The scale x
 ---@field scale_y number The scale y
 ---@field scale_z number The scale z
----@field quaternion quaternion The quaternion
 ---@field rotation number
 decore.register_component("transform", {
 	position_x = 0,
@@ -32,7 +31,6 @@ decore.register_component("transform", {
 	scale_x = 1,
 	scale_y = 1,
 	scale_z = 1,
-	quaternion = vmath.quat(0, 0, 0, 1),
 	rotation = 0,
 })
 

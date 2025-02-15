@@ -76,11 +76,6 @@ function M:update(dt)
 	if self.debug_is_draw_quadtree then
 		self:debug_draw_quadtree(self.quadtree)
 	end
-
-	--if not self.printed then
-	--	self.printed = true
-	--	self.quadtree:print_scheme()
-	--end
 end
 
 
@@ -112,7 +107,9 @@ function M:process_transform_event(event, entity)
 		return
 	end
 
-	self.entity_to_update[entity] = quadtree_state
+	if event.is_position_changed or event.is_size_changed then
+		self.entity_to_update[entity] = quadtree_state
+	end
 end
 
 

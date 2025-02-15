@@ -185,11 +185,21 @@ function M:process_transform_event(event, entity)
 		go.set_scale(TEMP_VECTOR, root)
 	end
 
-	if game_object.is_slice9 then
-		local sprite_url = msg.url(nil, root, "sprite")
-		TEMP_VECTOR.x = transform.size_x
-		TEMP_VECTOR.y = transform.size_y
-		go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
+	if event.is_size_changed then
+		if game_object.is_slice9 then
+			TEMP_VECTOR.x = transform.size_x
+			TEMP_VECTOR.y = transform.size_y
+			TEMP_VECTOR.z = 0
+			local sprite_url = msg.url(nil, root, "sprite")
+
+			local animate_time = event.animate_time
+			if animate_time then
+				local easing = event.easing or go.EASING_LINEAR
+				go.animate(sprite_url, HASH_SIZE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
+			else
+				go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
+			end
+		end
 	end
 end
 

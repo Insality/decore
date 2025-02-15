@@ -3,7 +3,7 @@ instances {
   id: "entity_camera"
   prototype: "/core/system/camera/entity_camera.go"
   position {
-    z: 15.0
+    z: 10.0
   }
 }
 instances {

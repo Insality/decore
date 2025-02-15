@@ -36,7 +36,7 @@ function init(self)
 
 	--for index = 1, 4000 do
 	--for index = 1, 16000 do
-	for index = 1, 30 do
+	for index = 1, 2000 do
 		local boid = decore.create_entity("boid")
 		boid.transform_border.random_position = true
 		self.world:addEntity(boid)

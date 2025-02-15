@@ -29,13 +29,14 @@ function M:trigger(event_name, entity, data)
 	local entity_key = entity or NO_ENTITY_KEY
 
 	self.stash_by_entity[event_name] = self.stash_by_entity[event_name] or {}
+	local event_stash = self.stash_by_entity[event_name]
 	-- If not entity's events, add a array and save their order in array part
-	if not self.stash_by_entity[event_name][entity_key] then
-		self.stash_by_entity[event_name][entity_key] = {}
-		tinsert(self.stash_by_entity[event_name], entity_key)
+	if not event_stash[entity_key] then
+		event_stash[entity_key] = {}
+		tinsert(event_stash, entity_key)
 	end
 
-	local entity_events = self.stash_by_entity[event_name][entity_key]
+	local entity_events = event_stash[entity_key]
 	local merge_callback = self.merge_callbacks[event_name]
 
 	local is_merged = merge_callback and merge_callback(data, entity_events, entity, self.stash_by_entity)
