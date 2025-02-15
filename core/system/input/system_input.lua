@@ -31,7 +31,6 @@ end
 function M:on_input(action_id, action)
 	action.action_id = action_id
 	self.world.event_bus:trigger("input_event", nil, action)
-
 	return false
 end
 

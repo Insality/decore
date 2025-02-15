@@ -32,19 +32,17 @@ end
 
 function M:onAddToWorld()
 	self.world.command_health = command_health.create(self)
-	self.world.event_bus:set_merge_policy("health_event", function(events, event)
-		---@cast events system.health.event[]
+	self.world.event_bus:set_merge_policy("health_event", function(event, events, entity, all_events)
 		---@cast event system.health.event
+		---@cast events system.health.event[]
 
-		for index = #events, 1, -1 do
-			local compare_event = events[index]
-			if compare_event.entity == event.entity then
-				compare_event.damage = compare_event.damage + event.damage
-				return true
-			end
+		if #events > 0 then
+			local last_event = events[#events]
+			last_event.damage = last_event.damage + event.damage
+			return true
 		end
 
-		return false
+		return true
 	end)
 end
 

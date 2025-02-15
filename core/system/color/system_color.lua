@@ -117,7 +117,6 @@ end
 ---@param properties_panel widget.properties_panel
 function M.component_debug_panel_draw(properties_panel)
 	properties_panel:add_button(function(button)
-		print("it works!")
 	end)
 end
 

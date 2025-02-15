@@ -109,7 +109,6 @@ end
 function M:process_transform_event(event, entity)
 	local quadtree_state = self.entity_to_state[entity]
 	if not quadtree_state then
-		print("entity to no update", entity)
 		return
 	end
 

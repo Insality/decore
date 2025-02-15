@@ -143,14 +143,14 @@ end
 ---@param events system.transform.event[]
 ---@param event system.transform.event
 ---@param entity entity.transform The entity that triggered the event.
----@param entity_events system.transform.event[] Grouped events by entity it belongs
+---@param all_events table<entity, system.transform.event[]> All events grouped by entity
 ---@return boolean is_merged
-function M.event_merge_policy(events, event, entity, entity_events)
-	if #entity_events == 0 then
-		return false
+function M.event_merge_policy(event, events, entity, all_events)
+	if #events > 0 then
+		return true
 	end
 
-	return true
+	return false
 end
 
 
