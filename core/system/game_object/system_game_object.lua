@@ -29,7 +29,6 @@ decore.register_component("hidden", false)
 
 ---@class system.game_object: system
 ---@field root_to_entity table<string|hash, entity>
----@field go_setter go_position_setter
 local M = {}
 
 M.DEBUG_PANEL_UPDATE_MEMORY_LIMIT = 2048
@@ -53,7 +52,6 @@ function M.create_system()
 	system.filter = decore.ecs.requireAll("game_object", "transform", decore.ecs.rejectAll("hidden"))
 	system.id = "game_object"
 	system.root_to_entity = {}
-	system.go_setter = go_position_setter.new()
 
 	return system
 end
@@ -83,19 +81,22 @@ function M:onAdd(entity)
 	entity.game_object.root = root
 	entity.game_object.object = object
 
-	self.go_setter:add(root, entity.transform.position, entity.transform.quaternion)
-
 	if root then
 		if entity.game_object.is_slice9 then
 			local sprite_url = msg.url(nil, root, "sprite")
-			go.set(sprite_url, HASH_SIZE, entity.transform.size)
+			TEMP_VECTOR.x = entity.transform.size_x
+			TEMP_VECTOR.y = entity.transform.size_y
+			go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
 			go.set(root, HASH_SCALE, VECTOR3_ONE)
 		else
-			go.set(root, HASH_SCALE, entity.transform.scale)
+			TEMP_VECTOR.x = entity.transform.scale_x
+			TEMP_VECTOR.y = entity.transform.scale_y
+			TEMP_VECTOR.z = entity.transform.scale_z
+			go.set(root, HASH_SCALE, TEMP_VECTOR)
 		end
 
-		--go.set(root, HASH_EULER_Z, entity.transform.rotation)
-		go.set_rotation(entity.transform.quaternion, root)
+		go.set(root, HASH_EULER_Z, entity.transform.rotation)
+
 		self.root_to_entity[root] = entity
 	end
 end
@@ -115,17 +116,11 @@ function M:onRemove(entity)
 end
 
 
-function M:update()
-	self.go_setter:update()
-end
-
-
 ---@param entity entity.game_object
 function M:remove_entity(entity)
 	local root = entity.game_object.root
 	if root then
 		self.root_to_entity[root] = nil
-		self.go_setter:remove(root)
 
 		if go.exists(root) then
 			go.delete(root, false)
@@ -172,13 +167,29 @@ function M:process_transform_event(event, entity)
 		return
 	end
 
-	go.set_position(transform.position, root)
-	go.set_rotation(transform.quaternion, root)
-	go.set_scale(transform.scale, root)
+	if event.is_position_changed then
+		TEMP_VECTOR.x = transform.position_x
+		TEMP_VECTOR.y = transform.position_y
+		TEMP_VECTOR.z = transform.position_z
+		go.set_position(TEMP_VECTOR, root)
+	end
+
+	if event.is_rotation_changed then
+		go.set(root, HASH_EULER_Z, transform.rotation)
+	end
+
+	if event.is_scale_changed then
+		TEMP_VECTOR.x = transform.scale_x
+		TEMP_VECTOR.y = transform.scale_y
+		TEMP_VECTOR.z = transform.scale_z
+		go.set_scale(TEMP_VECTOR, root)
+	end
 
 	if game_object.is_slice9 then
 		local sprite_url = msg.url(nil, root, "sprite")
-		go.set(sprite_url, HASH_SIZE, transform.size)
+		TEMP_VECTOR.x = transform.size_x
+		TEMP_VECTOR.y = transform.size_y
+		go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
 	end
 end
 
@@ -206,15 +217,15 @@ local PROPERTIES = {
 ---@param entity entity.game_object
 ---@return table<string|hash, string|hash>
 function M:create_object(entity)
-	TEMP_VECTOR.x = entity.transform.position.x
-	TEMP_VECTOR.y = entity.transform.position.y
+	TEMP_VECTOR.x = entity.transform.position_x
+	TEMP_VECTOR.y = entity.transform.position_y
 	TEMP_VECTOR.z = self:get_position_z(entity.transform)
 
 	if entity.game_object.is_factory then
-		local object = factory.create(entity.game_object.factory_url, TEMP_VECTOR, nil, PROPERTIES[ROOT_URL], entity.transform.scale.x)
+		local object = factory.create(entity.game_object.factory_url, TEMP_VECTOR, nil, PROPERTIES[ROOT_URL], entity.transform.scale_x)
 		return { [ROOT_URL] = object }
 	else
-		return collectionfactory.create(entity.game_object.factory_url, TEMP_VECTOR, nil, PROPERTIES, entity.transform.scale.x)
+		return collectionfactory.create(entity.game_object.factory_url, TEMP_VECTOR, nil, PROPERTIES, entity.transform.scale_x)
 	end
 end
 
@@ -222,7 +233,7 @@ end
 ---@param t component.transform
 ---@return number
 function M:get_position_z(t)
-	return -t.position.y / 10000 + t.position.x / 100000 + t.position.z / 10
+	return -t.position_y / 10000 + t.position_x / 100000 + t.position_z / 10
 end
 
 

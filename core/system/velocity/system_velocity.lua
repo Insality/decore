@@ -96,10 +96,10 @@ function M:process(entity, dt)
 	if self.debug_draw and self.world.command_debug_draw then
 		local t = entity.transform
 		self.world.command_debug_draw:draw_line(
-			t.position.x,
-			t.position.y,
-			t.position.x + velocity.x,
-			t.position.y + velocity.y
+			t.position_x,
+			t.position_y,
+			t.position_x + velocity.x,
+			t.position_y + velocity.y
 		)
 	end
 end

@@ -20,18 +20,14 @@ return function()
 
 			local entity = {
 				transform = {
-					position = {
-						x = 10,
-						y = 20,
-					},
-					size = {
-						x = 10,
-						y = 10,
-					},
+					position_x = 10,
+					position_y = 20,
+					size_x = 10,
+					size_y = 10,
 				}
 			}
 			local t = entity.transform
-			q:insert(entity, t.position.x, t.position.y, t.size.x, t.size.y)
+			q:insert(entity, t.position_x, t.position_y, t.size_x, t.size_y)
 
 			local entities = q:get_in_rect(0, 0, 0, 0, function() end)
 			assert(#entities == 0)

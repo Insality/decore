@@ -58,10 +58,10 @@ function M:process_transform_event(event, entity)
 			local t = entity.transform
 
 			if transform_border.is_wrap then
-				local x = t.position.x
-				local y = t.position.y
-				local size_x_half = t.size.x/2
-				local size_y_half = t.size.y/2
+				local x = t.position_x
+				local y = t.position_y
+				local size_x_half = t.size_x/2
+				local size_y_half = t.size_y/2
 
 				-- Wrap horizontally
 				if x - size_x_half > border.z then
@@ -79,8 +79,8 @@ function M:process_transform_event(event, entity)
 
 				self.world.command_transform:set_position(entity, x, y)
 			elseif transform_border.is_limit then
-				local x = decore.clamp(t.position.x, border.x + t.size.x/2, border.z - t.size.x/2)
-				local y = decore.clamp(t.position.y, border.w + t.size.y/2, border.y - t.size.y/2)
+				local x = decore.clamp(t.position_x, border.x + t.size_x/2, border.z - t.size_x/2)
+				local y = decore.clamp(t.position_y, border.w + t.size_y/2, border.y - t.size_y/2)
 				self.world.command_transform:set_position(entity, x, y)
 			end
 		end

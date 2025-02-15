@@ -143,9 +143,9 @@ end
 function M:convert_to_texture(x, y)
 	local camera = self.world.command_camera:get_current_camera()
 	local transform = camera.transform
-	local scale = transform.scale.x
-	local dx = transform.position.x
-	local dy = transform.position.y
+	local scale = transform.scale_x
+	local dx = transform.position_x
+	local dy = transform.position_y
 
 	-- Adjust zoom and move camera
 	x = (x - dx) / scale + 960

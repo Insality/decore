@@ -134,16 +134,16 @@ function M:calculate_forces_new(entity)
 	self.calculate_neighbor = self.calculate_neighbor or function(other_boid)
 		if other_boid ~= self._entity then
 			local t = other_boid.transform
-			local dx = t.position.x - self._entity.transform.position.x
-			local dy = t.position.y - self._entity.transform.position.y
+			local dx = t.position_x - self._entity.transform.position_x
+			local dy = t.position_y - self._entity.transform.position_y
 			local dist = dx * dx + dy * dy
 
 			if dist < self._protected_rande_sq then
 				self._close_dx = self._close_dx + dx
 				self._close_dy = self._close_dy + dy
 			elseif dist < boid.visual_range * boid.visual_range then
-				self._average_position_x = self._average_position_x + t.position.x
-				self._average_position_y = self._average_position_y + t.position.y
+				self._average_position_x = self._average_position_x + t.position_x
+				self._average_position_y = self._average_position_y + t.position_y
 				self._average_velocity_x = self._average_velocity_x + other_boid.velocity.x
 				self._average_velocity_y = self._average_velocity_y + other_boid.velocity.y
 				self._neighboring_boids = self._neighboring_boids + 1
@@ -166,10 +166,10 @@ function M:calculate_forces_new(entity)
 		average_velocity_x = average_velocity_x / neighboring_boids
 		average_velocity_y = average_velocity_y / neighboring_boids
 
-		force_x = force_x + (average_position_x - entity.transform.position.x) * boid.centering_factor
+		force_x = force_x + (average_position_x - entity.transform.position_x) * boid.centering_factor
 				+ (average_velocity_x - entity.velocity.x) * boid.matching_factor
 
-		force_y = force_y + (average_position_y - entity.transform.position.y) * boid.centering_factor
+		force_y = force_y + (average_position_y - entity.transform.position_y) * boid.centering_factor
 	end
 
 	if close_dx ~= 0 or close_dy ~= 0 then
@@ -181,16 +181,16 @@ function M:calculate_forces_new(entity)
 	local border = entity.transform_border and entity.transform_border.border
 	local transform = entity.transform
 	if border then
-		if transform.position.y > border.y then
+		if transform.position_y > border.y then
 			force_y = force_y - boid.turn_factor
 		end
-		if transform.position.y < border.w then
+		if transform.position_y < border.w then
 			force_y = force_y + boid.turn_factor
 		end
-		if transform.position.x > border.z then
+		if transform.position_x > border.z then
 			force_x = force_x - boid.turn_factor
 		end
-		if transform.position.x < border.x then
+		if transform.position_x < border.x then
 			force_x = force_x + boid.turn_factor
 		end
 	end

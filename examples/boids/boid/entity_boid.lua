@@ -22,7 +22,8 @@ return {
 		random_color = { color.hex2vector4("#A1D7F5"), color.hex2vector4("#1890D3") }
 	},
 	transform = {
-		size = vmath.vector3(10, 10, 1),
+		size_x = 10,
+		size_y = 10,
 	},
 	transform_border = {
 		border = vmath.vector4(-display_width / 2, display_width / 2, display_height / 2, -display_height / 2),

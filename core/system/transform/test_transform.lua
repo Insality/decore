@@ -16,8 +16,8 @@ return function()
 			local entity = world:add({ transform = { position = vmath.vector3(10, 20, 0) }})
 			world:refresh()
 
-			assert(entity.transform.position.x == 10)
-			assert(entity.transform.position.y == 20)
+			assert(entity.transform.position_x == 10)
+			assert(entity.transform.position_y == 20)
 
 			-- Now it works only if we create an entity with decore
 			-- How or should we update it?

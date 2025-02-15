@@ -11,15 +11,27 @@ local command_transform = require("core.system.transform.command_transform")
 ---@field transform component.transform
 
 ---@class component.transform
----@field position vector3 The position vector
----@field size vector3 The size vector
----@field scale vector3 The scale vector
+---@field position_x number The position x
+---@field position_y number The position y
+---@field position_z number The position z
+---@field size_x number The size x
+---@field size_y number The size y
+---@field size_z number The size z
+---@field scale_x number The scale x
+---@field scale_y number The scale y
+---@field scale_z number The scale z
 ---@field quaternion quaternion The quaternion
 ---@field rotation number
 decore.register_component("transform", {
-	position = vmath.vector3(0),
-	size = vmath.vector3(1),
-	scale = vmath.vector3(1),
+	position_x = 0,
+	position_y = 0,
+	position_z = 0,
+	size_x = 1,
+	size_y = 1,
+	size_z = 1,
+	scale_x = 1,
+	scale_y = 1,
+	scale_z = 1,
 	quaternion = vmath.quat(0, 0, 0, 1),
 	rotation = 0,
 })
@@ -56,19 +68,21 @@ end
 ---@param z number|nil
 function M:set_position(entity, x, y, z)
 	local t = entity.transform
-	x = x or t.position.x
-	y = y or t.position.y
-	z = z or t.position.z
+	x = x or t.position_x
+	y = y or t.position_y
+	z = z or t.position_z
 
-	if t.position.x == x and t.position.y == y and t.position.z == z then
+	if t.position_x == x and t.position_y == y and t.position_z == z then
 		return
 	end
 
-	t.position.x = x
-	t.position.y = y
-	t.position.z = z
+	t.position_x = x
+	t.position_y = y
+	t.position_z = z
 
-	self.world.event_bus:trigger("transform_event", entity, true)
+	self.world.event_bus:trigger("transform_event", entity, {
+		is_position_changed = true,
+	})
 end
 
 
@@ -78,19 +92,21 @@ end
 ---@param z number|nil
 function M:set_scale(entity, x, y, z)
 	local t = entity.transform
-	x = x or t.scale.x
-	y = y or t.scale.y
-	z = z or t.scale.z
+	x = x or t.scale_x
+	y = y or t.scale_y
+	z = z or t.scale_z
 
-	if t.scale.x == x and t.scale.y == y and t.scale.z == z then
+	if t.scale_x == x and t.scale_y == y and t.scale_z == z then
 		return
 	end
 
-	t.scale.x = x
-	t.scale.y = y
-	t.scale.z = z
+	t.scale_x = x
+	t.scale_y = y
+	t.scale_z = z
 
-	self.world.event_bus:trigger("transform_event", entity, true)
+	self.world.event_bus:trigger("transform_event", entity, {
+		is_scale_changed = true,
+	})
 end
 
 
@@ -100,19 +116,21 @@ end
 ---@param z number|nil
 function M:set_size(entity, x, y, z)
 	local t = entity.transform
-	x = x or t.size.x
-	y = y or t.size.y
-	z = z or t.size.z
+	x = x or t.size_x
+	y = y or t.size_y
+	z = z or t.size_z
 
-	if t.size.x == x and t.size.y == y and t.size.z == z then
+	if t.size_x == x and t.size_y == y and t.size_z == z then
 		return
 	end
 
-	t.size.x = x
-	t.size.y = y
-	t.size.z = z
+	t.size_x = x
+	t.size_y = y
+	t.size_z = z
 
-	self.world.event_bus:trigger("transform_event", entity, true)
+	self.world.event_bus:trigger("transform_event", entity, {
+		is_size_changed = true,
+	})
 end
 
 
@@ -125,10 +143,10 @@ function M:set_rotation(entity, rotation)
 	end
 
 	t.rotation = rotation
-	t.quaternion.z = math.sin(math.rad(rotation) * 0.5)
-	t.quaternion.w = math.cos(math.rad(rotation) * 0.5)
 
-	self.world.event_bus:trigger("transform_event", entity, true)
+	self.world.event_bus:trigger("transform_event", entity, {
+		is_rotation_changed = true,
+	})
 end
 
 
@@ -136,7 +154,10 @@ end
 ---@param animate_time number|nil
 ---@param easing userdata|nil
 function M:set_animate_time(entity, animate_time, easing)
-	self.world.event_bus:trigger("transform_event", entity, true)
+	self.world.event_bus:trigger("transform_event", entity, {
+		animate_time = animate_time,
+		easing = easing,
+	})
 end
 
 
@@ -147,6 +168,13 @@ end
 ---@return boolean is_merged
 function M.event_merge_policy(event, events, entity, all_events)
 	if #events > 0 then
+		local last_event = events[#events]
+		last_event.is_position_changed = event.is_position_changed or last_event.is_position_changed
+		last_event.is_scale_changed = event.is_scale_changed or last_event.is_scale_changed
+		last_event.is_rotation_changed = event.is_rotation_changed or last_event.is_rotation_changed
+		last_event.is_size_changed = event.is_size_changed or last_event.is_size_changed
+		last_event.animate_time = event.animate_time or last_event.animate_time
+		last_event.easing = event.easing or last_event.easing
 		return true
 	end
 

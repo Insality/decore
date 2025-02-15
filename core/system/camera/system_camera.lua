@@ -140,7 +140,7 @@ function M:update(dt)
 		local sprite_url = msg.url(nil, root, HASH_SPRITE)
 		local size_x = go.get(sprite_url, HASH_SIZE_X)
 		local size_y = go.get(sprite_url, HASH_SIZE_Y)
-		if size_x ~= camera.transform.size.x or size_y ~= camera.transform.size.y then
+		if size_x ~= camera.transform.size_x or size_y ~= camera.transform.size_y then
 			self.world.command_transform:set_size(camera, size_x, size_y)
 		end
 	end
@@ -152,15 +152,15 @@ end
 ---@param animate_time number|nil
 ---@param easing userdata|nil
 function M:update_camera_position(entity, animate_time, easing)
-	TEMP_VECTOR.x = entity.transform.position.x
-	TEMP_VECTOR.y = entity.transform.position.y
-	TEMP_VECTOR.z = entity.transform.position.z
+	TEMP_VECTOR.x = entity.transform.position_x
+	TEMP_VECTOR.y = entity.transform.position_y
+	TEMP_VECTOR.z = entity.transform.position_z
 
 	-- Apply borders
 	local borders = self.camera_borders
 	if borders then
-		local size_x = entity.transform.size.x / 2
-		local size_y = entity.transform.size.y / 2
+		local size_x = entity.transform.size_x / 2
+		local size_y = entity.transform.size_y / 2
 		if TEMP_VECTOR.x - size_x < borders.x then
 			TEMP_VECTOR.x = borders.x + size_x
 		end
@@ -190,8 +190,8 @@ end
 ---@param easing userdata|nil
 function M:update_camera_zoom(entity, animate_time, easing)
 	local _, _, width, height = defos.get_view_size()
-	local camera_size_x = entity.transform.size.x * entity.transform.scale.x
-	local camera_size_y = entity.transform.size.y * entity.transform.scale.y
+	local camera_size_x = entity.transform.size_x * entity.transform.scale_x
+	local camera_size_y = entity.transform.size_y * entity.transform.scale_y
 
 	local scale_x = width / camera_size_x
 	local scale_y = height / camera_size_y
@@ -299,11 +299,11 @@ function M:shake(power)
 	local power_sqr = power * power
 	local dx = math.random(-power_sqr, power_sqr)
 	local dy = math.random(-power_sqr, power_sqr)
-	local x = self.camera.transform.position.x + dx
-	local y = self.camera.transform.position.y + dy
+	local x = self.camera.transform.position_x + dx
+	local y = self.camera.transform.position_y + dy
 	TEMP_VECTOR.x = x
 	TEMP_VECTOR.y = y
-	TEMP_VECTOR.z = self.camera.transform.position.z
+	TEMP_VECTOR.z = self.camera.transform.position_z
 	--go.set_position(TEMP_VECTOR, obj_url)
 
 	go.animate(obj_url, "position", go.PLAYBACK_ONCE_FORWARD,TEMP_VECTOR, go.EASING_OUTSINE, 0.03)

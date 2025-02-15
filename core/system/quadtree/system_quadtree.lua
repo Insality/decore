@@ -47,7 +47,7 @@ function M:postWrap()
 
 	for entity, quadtree_state in pairs(self.entity_to_update) do
 		local t = entity.transform
-		self.quadtree:update(quadtree_state, t.position.x, t.position.y, t.size.x, t.size.y)
+		self.quadtree:update(quadtree_state, t.position_x, t.position_y, t.size_x, t.size_y)
 	end
 end
 
@@ -55,10 +55,10 @@ end
 ---@param entity entity.transform
 function M:onAdd(entity)
 	local t = entity.transform
-	local x = t.position.x
-	local y = t.position.y
-	local w = t.size.x
-	local h = t.size.y
+	local x = t.position_x
+	local y = t.position_y
+	local w = t.size_x
+	local h = t.size_y
 
 	local quadtree_state = self.quadtree:insert(entity, x, y, w, h)
 	self.entity_to_state[entity] = quadtree_state
@@ -120,8 +120,9 @@ end
 ---@param radius number
 ---@param callback fun(entity: entity)
 function M:get_neighbors(entity, radius, callback)
-	local position = entity.transform.position
-	self.quadtree:get_in_radius(position.x, position.y, radius, callback)
+	local position_x = entity.transform.position_x
+	local position_y = entity.transform.position_y
+	self.quadtree:get_in_radius(position_x, position_y, radius, callback)
 end
 
 

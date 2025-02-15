@@ -74,8 +74,8 @@ function M:add_children(entity)
 
 			-- Add my position to child
 			if entity.transform then
-				child.transform.position.x = child.transform.position.x + entity.transform.position.x
-				child.transform.position.y = child.transform.position.y + entity.transform.position.y
+				child.transform.position_x = child.transform.position_x + entity.transform.position_x
+				child.transform.position_y = child.transform.position_y + entity.transform.position_y
 			end
 
 			child.parent = entity

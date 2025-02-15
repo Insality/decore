@@ -116,7 +116,7 @@ function M:process_event(entity)
 	if position then
 		local x, y, z = position.x, position.y, position.z
 		if animate_transform.is_position_relative then
-			x, y, z = x + transform.position.x, y + transform.position.y, z + transform.position.z
+			x, y, z = x + transform.position_x, y + transform.position_y, z + transform.position_z
 		end
 		self.world.command_transform:set_position(entity, x, y, z)
 	end
@@ -134,7 +134,7 @@ function M:process_event(entity)
 	if scale then
 		local x, y, z = scale.x, scale.y, scale.z
 		if animate_transform.is_scale_relative then
-			x, y, z = x + transform.scale.x, y + transform.scale.y, z + transform.scale.z
+			x, y, z = x + transform.scale_x, y + transform.scale_y, z + transform.scale_z
 		end
 		self.world.command_transform:set_scale(entity, x, y, z)
 	end
@@ -143,7 +143,7 @@ function M:process_event(entity)
 	if size then
 		local x, y, z = size.x, size.y, size.z
 		if animate_transform.is_size_relative then
-			x, y, z = x + transform.size.x, y + transform.size.y, z + transform.size.z
+			x, y, z = x + transform.size_x, y + transform.size_y, z + transform.size_z
 		end
 		self.world.command_transform:set_size(entity, x, y, z)
 	end

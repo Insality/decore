@@ -38,10 +38,10 @@ function M:update(dt)
 		if entity.debug_draw_transform then
 			local t = entity.transform
 			self.world.command_debug_draw:draw_rectangle(
-				t.position.x,
-				t.position.y,
-				t.size.x * t.scale.x,
-				t.size.y * t.scale.y
+				t.position_x,
+				t.position_y,
+				t.size_x * t.scale_x,
+				t.size_y * t.scale_y
 			)
 
 			--self.world.command_debug_draw:draw_text(
