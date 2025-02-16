@@ -95,7 +95,7 @@ end
 
 
 ---@private
----@param window_event system.window.event
+---@param window_event system.window_event.event
 function M:process_window_event(window_event)
 	if window_event == window.WINDOW_EVENT_FOCUS_GAINED then
 		panthera.reload_animation()

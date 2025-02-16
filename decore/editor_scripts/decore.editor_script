@@ -24,7 +24,7 @@ end
 function M.get_commands()
 	return {
 		{
-			label = "Set as Bootstrap Collection",
+			label = "Decore] Set as Bootstrap Collection",
 			locations = { "Assets" },
 			query = { selection = { type = "resource", cardinality = "one" } },
 			active = function(opts)
@@ -51,7 +51,7 @@ function M.get_commands()
 		},
 
 		{
-			label = "Duplicate Folder with Assets Relink",
+			label = "[Decore] Duplicate Folder with Assets Relink",
 			locations = { "Assets" },
 			query = { selection = { type = "resource", cardinality = "one" } },
 			active = function(opts)

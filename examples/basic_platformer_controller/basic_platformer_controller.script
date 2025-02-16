@@ -11,7 +11,6 @@ function init(self)
 		require("core.system.game_object.system_game_object").create_system(),
 		require("core.system.collision.system_collision").create_system(),
 
-		require("examples.basic_platformer_controller.system.system_on_collision_remove").create_system(),
 		require("examples.basic_platformer_controller.system.system_on_remove_event").create_system(),
 		require("examples.basic_platformer_controller.system.system_score_counter").create_system(),
 

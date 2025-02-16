@@ -1,5 +1,5 @@
 [bootstrap]
-main_collection = /examples/boids/boids.collectionc
+main_collection = /examples/basic_camera_setup/basic_camera_setup.collectionc
 
 [script]
 shared_state = 1

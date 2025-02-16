@@ -33,9 +33,9 @@ function M:add_position(entity, x, y, z)
 	assert(t, "Entity does not have a transform component.")
 	---@cast entity entity.transform
 
-	x = t.position_x + (x or 0)
-	y = t.position_y + (y or 0)
-	z = t.position_z + (z or 0)
+	x = x and t.position_x + x
+	y = y and t.position_y + y
+	z = z and t.position_z + z
 	self.transform:set_position(entity, x, y, z)
 end
 
