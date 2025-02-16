@@ -68,7 +68,7 @@ function M:postWrap()
 end
 
 
----@param window_event system.window.event
+---@param window_event system.window_event.event
 function M:process_window_event(window_event)
 	if not self.camera then
 		return
@@ -88,8 +88,13 @@ function M:process_transform_event(event, entity)
 		return
 	end
 
-	self:update_camera_position(self.camera)
-	self:update_camera_zoom(self.camera)
+	if event.is_position_changed then
+		self:update_camera_position(self.camera, event.animate_time, event.easing)
+	end
+
+	if event.is_scale_changed or event.is_size_changed then
+		self:update_camera_zoom(self.camera, event.animate_time, event.easing)
+	end
 end
 
 

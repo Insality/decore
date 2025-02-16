@@ -18,6 +18,8 @@ local command_game_object = require("core.system.game_object.command_game_object
 ---@field remove_delay number|nil
 ---@field is_factory boolean|nil
 ---@field object_scheme table<string, boolean|nil> @For example: {["root"] = true}, used for find objects from already placed game object (not spawned by game object system)
+---@field position vector3|nil
+---@field rotation quaternion|nil
 decore.register_component("game_object")
 decore.register_component("hidden", false)
 
@@ -28,6 +30,7 @@ decore.register_component("hidden", false)
 ---@field update fun(self)
 
 ---@class system.game_object: system
+---@field entities entity.game_object[]
 ---@field root_to_entity table<string|hash, entity>
 local M = {}
 
@@ -65,6 +68,7 @@ end
 function M:postWrap()
 	self.world.event_bus:process("transform_event", self.process_transform_event, self)
 end
+
 
 
 ---@param entity entity.game_object
@@ -185,23 +189,15 @@ function M:process_transform_event(event, entity)
 		go.set_scale(TEMP_VECTOR, root)
 	end
 
-	if event.is_size_changed then
-		if game_object.is_slice9 then
-			TEMP_VECTOR.x = transform.size_x
-			TEMP_VECTOR.y = transform.size_y
-			TEMP_VECTOR.z = 0
-			local sprite_url = msg.url(nil, root, "sprite")
-
-			local animate_time = event.animate_time
-			if animate_time then
-				local easing = event.easing or go.EASING_LINEAR
-				go.animate(sprite_url, HASH_SIZE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, animate_time)
-			else
-				go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
-			end
-		end
+	if game_object.is_slice9 then
+		local sprite_url = msg.url(nil, root, "sprite")
+		TEMP_VECTOR.x = transform.size_x
+		TEMP_VECTOR.y = transform.size_y
+		go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
 	end
 end
+
+
 
 
 function M:refresh_transform(entity)

@@ -20,7 +20,7 @@ local command_transform = require("core.system.transform.command_transform")
 ---@field scale_x number The scale x
 ---@field scale_y number The scale y
 ---@field scale_z number The scale z
----@field rotation number
+---@field rotation number The rotation
 decore.register_component("transform", {
 	position_x = 0,
 	position_y = 0,
@@ -66,21 +66,17 @@ end
 ---@param z number|nil
 function M:set_position(entity, x, y, z)
 	local t = entity.transform
-	x = x or t.position_x
-	y = y or t.position_y
-	z = z or t.position_z
+	local is_changed = (x and t.position_x ~= x) or (y and t.position_y ~= y) or (z and t.position_z ~= z)
 
-	if t.position_x == x and t.position_y == y and t.position_z == z then
-		return
+	t.position_x = x or t.position_x
+	t.position_y = y or t.position_y
+	t.position_z = z or t.position_z
+
+	if is_changed then
+		self.world.event_bus:trigger("transform_event", entity, {
+			is_position_changed = true,
+		})
 	end
-
-	t.position_x = x
-	t.position_y = y
-	t.position_z = z
-
-	self.world.event_bus:trigger("transform_event", entity, {
-		is_position_changed = true,
-	})
 end
 
 
@@ -90,21 +86,17 @@ end
 ---@param z number|nil
 function M:set_scale(entity, x, y, z)
 	local t = entity.transform
-	x = x or t.scale_x
-	y = y or t.scale_y
-	z = z or t.scale_z
+	local is_changed = (x and t.scale_x ~= x) or (y and t.scale_y ~= y) or (z and t.scale_z ~= z)
 
-	if t.scale_x == x and t.scale_y == y and t.scale_z == z then
-		return
+	t.scale_x = x or t.scale_x
+	t.scale_y = y or t.scale_y
+	t.scale_z = z or t.scale_z
+
+	if is_changed then
+		self.world.event_bus:trigger("transform_event", entity, {
+			is_scale_changed = true,
+		})
 	end
-
-	t.scale_x = x
-	t.scale_y = y
-	t.scale_z = z
-
-	self.world.event_bus:trigger("transform_event", entity, {
-		is_scale_changed = true,
-	})
 end
 
 
@@ -114,21 +106,17 @@ end
 ---@param z number|nil
 function M:set_size(entity, x, y, z)
 	local t = entity.transform
-	x = x or t.size_x
-	y = y or t.size_y
-	z = z or t.size_z
+	local is_changed = (x and t.size_x ~= x) or (y and t.size_y ~= y) or (z and t.size_z ~= z)
 
-	if t.size_x == x and t.size_y == y and t.size_z == z then
-		return
+	t.size_x = x or t.size_x
+	t.size_y = y or t.size_y
+	t.size_z = z or t.size_z
+
+	if is_changed then
+		self.world.event_bus:trigger("transform_event", entity, {
+			is_size_changed = true,
+		})
 	end
-
-	t.size_x = x
-	t.size_y = y
-	t.size_z = z
-
-	self.world.event_bus:trigger("transform_event", entity, {
-		is_size_changed = true,
-	})
 end
 
 
@@ -136,15 +124,14 @@ end
 ---@param rotation number In degrees
 function M:set_rotation(entity, rotation)
 	local t = entity.transform
-	if t.rotation == rotation then
-		return
+	local is_changed = t.rotation ~= rotation
+	t.rotation = rotation or t.rotation
+
+	if is_changed then
+		self.world.event_bus:trigger("transform_event", entity, {
+			is_rotation_changed = true,
+		})
 	end
-
-	t.rotation = rotation
-
-	self.world.event_bus:trigger("transform_event", entity, {
-		is_rotation_changed = true,
-	})
 end
 
 
