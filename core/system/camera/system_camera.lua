@@ -82,9 +82,8 @@ end
 
 
 ---@param event system.transform.event
----@param entity entity.camera
-function M:process_transform_event(event, entity)
-	if entity ~= self.camera then
+function M:process_transform_event(event)
+	if event.entity ~= self.camera then
 		return
 	end
 

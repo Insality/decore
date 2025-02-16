@@ -153,8 +153,8 @@ end
 
 
 ---@param event system.transform.event
----@param entity entity.transform
-function M:process_transform_event(event, entity)
+function M:process_transform_event(event)
+	local entity = event.entity
 	local transform = entity.transform
 	local game_object = entity.game_object
 

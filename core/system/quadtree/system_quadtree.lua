@@ -100,8 +100,8 @@ end
 
 
 ---@param event system.transform.event
----@param entity entity.transform
-function M:process_transform_event(event, entity)
+function M:process_transform_event(event)
+	local entity = event.entity
 	local quadtree_state = self.entity_to_state[entity]
 	if not quadtree_state then
 		return

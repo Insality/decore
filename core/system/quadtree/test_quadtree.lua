@@ -29,17 +29,21 @@ return function()
 			local t = entity.transform
 			q:insert(entity, t.position_x, t.position_y, t.size_x, t.size_y)
 
-			local entities = q:get_in_rect(0, 0, 0, 0, function() end)
-			assert(#entities == 0)
+			local counter = 0
+			q:get_in_rect(0, 0, 0, 0, function() counter = counter + 1 end)
+			assert(counter == 0)
 
-			local entities = q:get_in_rect(0, 0, 10, 10, function() end)
-			assert(#entities == 0)
+			counter = 0
+			q:get_in_rect(0, 0, 10, 10, function() counter = counter + 1 end)
+			assert(counter == 0)
 
-			local entities = q:get_in_rect(0, 0, 20, 20, function() end)
-			assert(#entities == 1)
+			counter = 0
+			q:get_in_rect(0, 0, 20, 20, function() counter = counter + 1 end)
+			assert(counter == 1)
 
-			local entities = q:get_in_rect(0, 0, 30, 30, function() end)
-			assert(#entities == 1)
+			counter = 0
+			q:get_in_rect(0, 0, 30, 30, function() counter = counter + 1 end)
+			assert(counter == 1)
 		end)
 	end)
 end

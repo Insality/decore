@@ -1,9 +1,9 @@
 local deftest = require("deftest.deftest")
 
 function init(self)
-	--deftest.add(require("core.system.health.test_health"))
-	--deftest.add(require("core.system.fsm.test_fsm"))
-	--deftest.add(require("core.system.transform.test_transform"))
+	deftest.add(require("core.system.health.test_health"))
+	deftest.add(require("core.system.fsm.test_fsm"))
+	deftest.add(require("core.system.transform.test_transform"))
 	deftest.add(require("core.system.quadtree.test_quadtree"))
 
 	local is_report = (sys.get_config_int("test.report", 0) == 1)

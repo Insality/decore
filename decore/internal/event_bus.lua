@@ -1,10 +1,8 @@
 ---@class decore.event_bus
----@field events table<string, table> The current list of events
----@field stash_by_entity table<string, table<entity, table[]>> The list of entities group by event name. Array part of entities map is the order of entities event's triggers
+---@field events table<string, table[]> The list of events group by event name. Array part of entities map is the order of entities event's triggers
+---@field stash table<string, table[]> Events to be processed in PostWrap
 ---@field merge_callbacks table<string, fun(events: any[], new_event: any):boolean> The merge policy for events. If the merge policy returns true, the events are merged and not will be added as new event
 local M = {}
-
-local NO_ENTITY_KEY = {}
 
 local tinsert = table.insert
 
@@ -13,7 +11,7 @@ local tinsert = table.insert
 function M.create()
 	local instance = {
 		events = {},
-		stash_by_entity = {},
+		stash = {},
 		merge_callbacks = {},
 	}
 
@@ -23,25 +21,16 @@ end
 
 ---Pushes an event onto the queue, triggering it and processing the queue of callbacks.
 ---@param event_name string|hash The name of the event to push onto the queue.
----@param entity entity|nil The entity that triggered the event. This used for optimization and batching events.
 ---@param data any The data to pass to the event and its associated callbacks.
-function M:trigger(event_name, entity, data)
-	local entity_key = entity or NO_ENTITY_KEY
+function M:trigger(event_name, data)
+	self.stash[event_name] = self.stash[event_name] or {}
+	local stash = self.stash[event_name]
 
-	self.stash_by_entity[event_name] = self.stash_by_entity[event_name] or {}
-	local event_stash = self.stash_by_entity[event_name]
-	-- If not entity's events, add a array and save their order in array part
-	if not event_stash[entity_key] then
-		event_stash[entity_key] = {}
-		tinsert(event_stash, entity_key)
-	end
-
-	local entity_events = event_stash[entity_key]
 	local merge_callback = self.merge_callbacks[event_name]
-
-	local is_merged = merge_callback and merge_callback(data, entity_events, entity, self.stash_by_entity)
+	local is_merged = merge_callback and merge_callback(data, stash)
 	if not is_merged then
-		tinsert(entity_events, data or true)
+		print("NOT MERGED")
+		tinsert(stash, data or true)
 	end
 end
 
@@ -56,18 +45,13 @@ function M:process(event_name, callback, context)
 		return
 	end
 
-	for event_index = 1, #events do
-		local entity = events[event_index]
-		local entity_events = events[entity]
-
-		if context then
-			for index = 1, #entity_events do
-				callback(context, entity_events[index], entity)
-			end
-		else
-			for index = 1, #entity_events do
-				callback(entity_events[index], entity)
-			end
+	if context then
+		for i = 1, #events do
+			callback(context, events[i])
+		end
+	else
+		for i = 1, #events do
+			callback(events[i])
 		end
 	end
 end
@@ -75,7 +59,7 @@ end
 
 ---You can set the merge policy for an event. This is useful when you want to merge events of the same type.
 ---@param event_name string The name of the event to set the merge policy for.
----@param merge_callback (fun(new_event: any?, entity_events: any[], entity: entity, all_events: table<entity, table[]>):boolean)|nil The callback function to merge the events. Return true if the events were merged, false otherwise.
+---@param merge_callback (fun(events: any[], new_event: any):boolean)|nil The callback function to merge the events. Return true if the events were merged, false otherwise.
 function M:set_merge_policy(event_name, merge_callback)
 	self.merge_callbacks[event_name] = merge_callback
 end
@@ -87,8 +71,8 @@ end
 
 
 function M:stash_to_events()
-	self.events = self.stash_by_entity
-	self.stash_by_entity = {}
+	self.events = self.stash
+	self.stash = {}
 end
 
 
@@ -97,8 +81,10 @@ function M:get_events(event_name)
 end
 
 
+---@param event_name hash|string
+---@return table[]|nil
 function M:get_stash(event_name)
-	return self.stash_by_entity[event_name]
+	return self.stash[event_name]
 end
 
 

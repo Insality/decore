@@ -73,7 +73,8 @@ function M:set_position(entity, x, y, z)
 	t.position_z = z or t.position_z
 
 	if is_changed then
-		self.world.event_bus:trigger("transform_event", entity, {
+		self.world.event_bus:trigger("transform_event", {
+			entity = entity,
 			is_position_changed = true,
 		})
 	end
@@ -93,7 +94,8 @@ function M:set_scale(entity, x, y, z)
 	t.scale_z = z or t.scale_z
 
 	if is_changed then
-		self.world.event_bus:trigger("transform_event", entity, {
+		self.world.event_bus:trigger("transform_event", {
+			entity = entity,
 			is_scale_changed = true,
 		})
 	end
@@ -113,7 +115,8 @@ function M:set_size(entity, x, y, z)
 	t.size_z = z or t.size_z
 
 	if is_changed then
-		self.world.event_bus:trigger("transform_event", entity, {
+		self.world.event_bus:trigger("transform_event", {
+			entity = entity,
 			is_size_changed = true,
 		})
 	end
@@ -128,7 +131,8 @@ function M:set_rotation(entity, rotation)
 	t.rotation = rotation or t.rotation
 
 	if is_changed then
-		self.world.event_bus:trigger("transform_event", entity, {
+		self.world.event_bus:trigger("transform_event", {
+			entity = entity,
 			is_rotation_changed = true,
 		})
 	end
@@ -139,7 +143,8 @@ end
 ---@param animate_time number|nil
 ---@param easing userdata|nil
 function M:set_animate_time(entity, animate_time, easing)
-	self.world.event_bus:trigger("transform_event", entity, {
+	self.world.event_bus:trigger("transform_event", {
+		entity = entity,
 		animate_time = animate_time,
 		easing = easing,
 	})
@@ -148,19 +153,20 @@ end
 
 ---@param events system.transform.event[]
 ---@param event system.transform.event
----@param entity entity.transform The entity that triggered the event.
----@param all_events table<entity, system.transform.event[]> All events grouped by entity
 ---@return boolean is_merged
-function M.event_merge_policy(event, events, entity, all_events)
-	if #events > 0 then
-		local last_event = events[#events]
-		last_event.is_position_changed = event.is_position_changed or last_event.is_position_changed
-		last_event.is_scale_changed = event.is_scale_changed or last_event.is_scale_changed
-		last_event.is_rotation_changed = event.is_rotation_changed or last_event.is_rotation_changed
-		last_event.is_size_changed = event.is_size_changed or last_event.is_size_changed
-		last_event.animate_time = event.animate_time or last_event.animate_time
-		last_event.easing = event.easing or last_event.easing
-		return true
+function M.event_merge_policy(event, events)
+	local entity = event.entity
+	for i = 1, #events do
+		local e = events[i]
+		if e.entity == entity then
+			e.is_position_changed = event.is_position_changed or e.is_position_changed
+			e.is_scale_changed = event.is_scale_changed or e.is_scale_changed
+			e.is_rotation_changed = event.is_rotation_changed or e.is_rotation_changed
+			e.is_size_changed = event.is_size_changed or e.is_size_changed
+			e.animate_time = event.animate_time or e.animate_time
+			e.easing = event.easing or e.easing
+			return true
+		end
 	end
 
 	return false
