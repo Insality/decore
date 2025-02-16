@@ -28,7 +28,6 @@ end
 
 function on_message(self, message_id, message)
 	if message_id == MSG_INIT_ENTITY then
-
 		local data = nil
 		if self.prefab_id == HASH_EMPTY then
 			--print(msg.url(), debug.traceback("The entity_id is empty"))
@@ -78,7 +77,18 @@ function on_message(self, message_id, message)
 		if object_scheme then
 			local object = self.entity.game_object.object or {}
 			for object_path in pairs(object_scheme) do
-				object[hash("/" .. object_path)] = go.get_id(object_path)
+				-- If first "/" use get_id
+				local first_char = string.sub(object_path, 1, 1)
+				local other_chars = string.sub(object_path, 2, -1)
+
+				if first_char == "/" then
+					object[hash(object_path)] = go.get_id(other_chars)
+				elseif first_char == "#" then
+					local component_url = msg.url()
+					component_url.fragment = hash(other_chars)
+
+					object[hash(object_path)] = component_url --[[@as userdata]]
+				end
 			end
 			self.entity.game_object.object = object
 		end

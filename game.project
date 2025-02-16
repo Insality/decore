@@ -1,5 +1,5 @@
 [bootstrap]
-main_collection = /test/test.collectionc
+main_collection = /examples/nested_entities/nested_entities.collectionc
 
 [script]
 shared_state = 1
@@ -69,8 +69,8 @@ app_manifest = /examples/manifest.appmanifest
 use_xpcall = 1
 
 [defos]
-view_width = 1200
-view_height = 700
+view_width = 1440
+view_height = 810
 
 [factory]
 max_count = 32000

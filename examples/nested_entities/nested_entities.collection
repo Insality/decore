@@ -1,0 +1,27 @@
+name: "nested_entities"
+instances {
+  id: "player"
+  prototype: "/examples/nested_entities/entity/player.go"
+  position {
+    x: 480.0
+    y: 320.0
+  }
+}
+instances {
+  id: "entity_camera"
+  prototype: "/core/system/camera/entity_camera.go"
+  position {
+    z: 15.0
+  }
+}
+scale_along_z: 0
+embedded_instances {
+  id: "root"
+  children: "entity_camera"
+  children: "player"
+  data: "components {\n"
+  "  id: \"nested_entities\"\n"
+  "  component: \"/examples/nested_entities/nested_entities.script\"\n"
+  "}\n"
+  ""
+}
