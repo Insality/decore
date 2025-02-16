@@ -29,7 +29,7 @@ function M:trigger(event_name, data)
 	local merge_callback = self.merge_callbacks[event_name]
 	local is_merged = merge_callback and merge_callback(data, stash)
 	if not is_merged then
-		print("NOT MERGED")
+		print("INSERT", event_name, data)
 		tinsert(stash, data or true)
 	end
 end

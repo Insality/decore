@@ -30,7 +30,7 @@ end
 
 
 function M:on_window_event(event)
-	self.world.event_bus:trigger("window_event", nil, event)
+	self.world.event_bus:trigger("window_event", event)
 end
 
 

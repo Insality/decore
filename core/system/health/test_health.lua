@@ -34,7 +34,6 @@ return function()
 			world.command_health:apply_damage(entity, 10)
 
 			assert(world.event_bus:get_stash("health_event"))
-			pprint(world.event_bus:get_stash("health_event"))
 			assert(#world.event_bus:get_stash("health_event") == 1)
 			local event = world.event_bus:get_stash("health_event")[1]
 			assert(event.entity == entity)

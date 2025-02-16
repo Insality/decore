@@ -31,6 +31,7 @@ return function()
 
 			local counter = 0
 			q:get_in_rect(0, 0, 0, 0, function() counter = counter + 1 end)
+			print("COUNTER", counter)
 			assert(counter == 0)
 
 			counter = 0
