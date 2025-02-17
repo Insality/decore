@@ -97,14 +97,6 @@ end
 ---@param context any
 ---@param page_name string
 function M:draw_page_main(context, page_name)
-	self.properties_panel:add_input(function(input)
-		input:set_text_property("World Name")
-		input:set_text_value("Dreams")
-		input:on_change(function(_, value)
-			print("World", value)
-		end)
-	end)
-
 	self.properties_panel:add_button(function(button)
 		button.text_name:set_text("Entities")
 		button.text_button:set_text(string.format("Inspect (%d)", #self.world.entities))
@@ -141,7 +133,7 @@ function M:draw_page_main(context, page_name)
 
 	-- Add system interval slider
 	self.properties_panel:add_slider(function(slider)
-		slider:set_number_type(0.05, 2, 0.01)
+		slider:set_number_type(0.00, 5, 0.05)
 		slider:set_text_property("World Speed")
 		slider:set_value(self.world.speed or 1)
 		slider:on_change(function(value)

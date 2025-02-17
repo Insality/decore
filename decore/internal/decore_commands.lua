@@ -5,6 +5,10 @@ local M = {}
 ---@param command string Example: "system_name.function_name, arg1, arg2". Separators are : " ", "," and "\n" only
 ---@return any[]
 function M.parse_command(command)
+	if type(command) ~= "string" then
+		return command
+	end
+
 	-- Split the command string into a table. check numbers, remove newlines and spaces
 	local command_table = decore_internal.split_by_several_separators(command, { " ", ",", "\n" })
 
@@ -26,7 +30,6 @@ function M.parse_command(command)
 			command_table[i] = false
 		end
 	end
-
 
 	return command_table
 end
