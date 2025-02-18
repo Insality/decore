@@ -8,11 +8,11 @@ local command_health = require("core.system.health.command_health")
 ---@field health component.health
 
 ---@class component.health
----@field health number
+---@field max_health number
 ---@field current_health number|nil
 ---@field remove_on_death boolean|nil
 decore.register_component("health", {
-	health = 0,
+	max_health = 1,
 })
 
 ---@class system.health.event
@@ -52,7 +52,7 @@ end
 ---@param entity entity.health
 function M:onAdd(entity)
 	local health = entity.health
-	health.current_health = health.health
+	health.current_health = health.max_health
 end
 
 

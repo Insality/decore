@@ -26,7 +26,7 @@ end
 
 ---@param action action
 function M:process_input(action)
-	if not action.action_id or #self.entities == 0 then
+	if #self.entities == 0 then
 		return
 	end
 

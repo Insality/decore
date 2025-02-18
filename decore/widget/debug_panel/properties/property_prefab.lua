@@ -1,4 +1,3 @@
-local event = require("event.event")
 local color = require("druid.color")
 local panthera = require("panthera.panthera")
 

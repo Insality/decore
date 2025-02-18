@@ -55,6 +55,11 @@ function M:onAdd(entity)
 		entity.color.color = color.lerp(math.random(), random_color[1], random_color[2])
 	end
 
+	local color_data = entity.color.color
+	if type(color_data) == "string" then
+		entity.color.color = color.hex2vector4(color_data)
+	end
+
 	if entity.color.color then
 		self:apply_color(entity, entity.color.color, entity.color.sprites)
 	end

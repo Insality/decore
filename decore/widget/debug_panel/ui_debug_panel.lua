@@ -2,12 +2,17 @@ local helper = require("druid.helper")
 local decore = require("decore.decore")
 local panthera = require("panthera.panthera")
 local decore_data = require("decore.internal.decore_data")
-local properties_panel = require("druid.widget.properties_panel.properties_panel")
 
+local fps_panel = require("druid.widget.fps_panel.fps_panel")
+local memory_panel = require("druid.widget.memory_panel.memory_panel")
+local properties_panel = require("druid.widget.properties_panel.properties_panel")
 local property_prefab = require("decore.widget.debug_panel.properties.property_prefab")
 local property_system = require("decore.widget.debug_panel.properties.property_system")
-local memory_panel = require("druid.widget.memory_panel.memory_panel")
-local fps_panel = require("druid.widget.fps_panel.fps_panel")
+
+local save_state_path = sys.get_save_file(sys.get_config_string("project.title", ""), "ui_debug_panel")
+local save_state = sys.load(save_state_path) or {
+	is_hidden = false,
+}
 
 ---@class decore.widget.debug_panel: druid.widget
 ---@field properties_panel widget.properties_panel
@@ -51,7 +56,16 @@ function M:init()
 	self.page_stack = {}
 	self.undo_stack = {}
 
-	self.properties_panel:toggle_hide()
+	self.properties_panel:set_hidden(save_state.is_hidden)
+	self.properties_panel.button_hidden.on_click:subscribe(function()
+		self:save_state()
+	end)
+end
+
+
+function M:save_state()
+	save_state.is_hidden = self.properties_panel:is_hidden()
+	sys.save(save_state_path, save_state)
 end
 
 
@@ -59,9 +73,6 @@ end
 function M:set_world(world)
 	self.world = world
 	self:select_page(PAGES.MAIN, nil, "Decore Panel")
-
-	-- And systems
-	--self:select_page(PAGES.SYSTEMS, self.world.systems, "Systems")
 end
 
 
@@ -199,14 +210,15 @@ function M:draw_page_systems(context, page_name)
 	self.properties_panel.text_header:set_text("World systems (" .. #systems .. ")")
 	for i = 1, #systems do
 		local system = systems[i]
-		local system_name = i .. ". " .. system.id .. " (" .. #system.entities .. ")"
+		local system_id = system.id or "Unknown"
+		local system_name = i .. ". " .. system_id .. " (" .. #system.entities .. ")"
 
 		self.properties_panel:add_widget(function()
 			local widget = self.druid:new_widget(property_system, "property_system", self.prefab_property_system)
 			widget:set_system(system)
 			widget:set_text(system_name)
 			widget.button_inspect.on_click:subscribe(function()
-				self:select_page(PAGES.SYSTEM, system, system.id)
+				self:select_page(PAGES.SYSTEM, system, system_id)
 			end)
 
 			return widget
@@ -239,7 +251,8 @@ function M:draw_page_system(context, page_name)
 	self:draw_page_table(context, page_name)
 
 	-- If system has command, add button to inspect it
-	local command_system_id = "command_" .. system.id
+	local system_id = system.id or "Unknown"
+	local command_system_id = "command_" .. system_id
 	if self.world[command_system_id] then
 		self.properties_panel:add_button(function(button)
 			button:set_text_property("Command")
@@ -341,7 +354,7 @@ function M:draw_page_entity_prefabs(context, page_name)
 						entity_to_create = decore.create_entity(prefab_id, pack_id)
 						drag_n_drop_entity = decore.create_entity(nil, nil, {
 							game_object = entity_to_create.game_object,
-							transform = entity_to_create.transform,
+							transform = entity_to_create.transform or {},
 							color = entity_to_create.color,
 							follow_cursor = true,
 						})

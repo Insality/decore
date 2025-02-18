@@ -21,4 +21,18 @@ function M:refresh_transform(entity)
 end
 
 
+---@param entity entity
+---@param enabled boolean
+function M:set_enabled(entity, enabled)
+	assert(entity.game_object, "Entity has no game_object component")
+
+	for _, game_object in pairs(entity.game_object.object) do
+		if enabled then
+			msg.post(game_object, "enable")
+		else
+			msg.post(game_object, "disable")
+		end
+	end
+end
+
 return M

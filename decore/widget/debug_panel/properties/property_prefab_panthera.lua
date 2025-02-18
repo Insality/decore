@@ -180,12 +180,48 @@ return {
                         property_id = "color_a",
                         start_value = 1,
                     },
+                    {
+                        duration = 0.3,
+                        easing = "outsine",
+                        end_value = 0.8,
+                        key_type = "tween",
+                        node_id = "drag",
+                        property_id = "scale_x",
+                        start_value = 1,
+                    },
+                    {
+                        duration = 0.3,
+                        easing = "outsine",
+                        end_value = 0.8,
+                        key_type = "tween",
+                        node_id = "drag",
+                        property_id = "scale_y",
+                        start_value = 1,
+                    },
                 },
                 duration = 1,
             },
             {
                 animation_id = "on_drag_end",
                 animation_keys = {
+                    {
+                        duration = 0.3,
+                        easing = "outsine",
+                        end_value = 1,
+                        key_type = "tween",
+                        node_id = "drag",
+                        property_id = "scale_x",
+                        start_value = 0.8,
+                    },
+                    {
+                        duration = 0.3,
+                        easing = "outsine",
+                        end_value = 1,
+                        key_type = "tween",
+                        node_id = "drag",
+                        property_id = "scale_y",
+                        start_value = 0.8,
+                    },
                     {
                         duration = 0.3,
                         easing = "outsine",
@@ -208,6 +244,8 @@ return {
             },
             settings = {
                 font_size = 30,
+            },
+            template_animation_paths = {
             },
         },
         nodes = {

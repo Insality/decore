@@ -198,8 +198,6 @@ function M:process_transform_event(event)
 end
 
 
-
-
 function M:refresh_transform(entity)
 	local root = entity.game_object.root
 	if not root then

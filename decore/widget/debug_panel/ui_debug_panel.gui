@@ -13,8 +13,8 @@ textures {
 }
 nodes {
   position {
-    x: 208.0
-    y: 356.0
+    x: 210.0
+    y: 1070.0
   }
   size {
     x: 200.0
@@ -27,10 +27,6 @@ nodes {
   visible: false
 }
 nodes {
-  position {
-    x: 4.0
-    y: 585.3333
-  }
   type: TYPE_TEMPLATE
   id: "properties_panel"
   parent: "root"
@@ -598,8 +594,7 @@ nodes {
 }
 nodes {
   position {
-    x: 4.0
-    y: 705.3333
+    y: -4.0
   }
   size {
     x: 400.0
@@ -638,6 +633,7 @@ nodes {
 nodes {
   position {
     x: 20.0
+    y: 4.0
   }
   rotation {
     z: 180.0
@@ -657,7 +653,7 @@ nodes {
 nodes {
   position {
     x: -160.0
-    y: -21.0
+    y: -18.0
   }
   scale {
     x: 0.25
@@ -694,8 +690,7 @@ nodes {
 }
 nodes {
   position {
-    x: 4.0
-    y: 335.33334
+    y: -426.66666
   }
   type: TYPE_TEMPLATE
   id: "property_system"
@@ -819,8 +814,7 @@ nodes {
 }
 nodes {
   position {
-    x: 4.0
-    y: 294.33334
+    y: -467.66666
   }
   type: TYPE_TEMPLATE
   id: "property_prefab"
@@ -877,6 +871,10 @@ nodes {
   template_node_child: true
 }
 nodes {
+  position {
+    x: -118.0
+    y: -572.0
+  }
   type: TYPE_TEMPLATE
   id: "memory_panel"
   parent: "root"
@@ -908,16 +906,23 @@ nodes {
   template_node_child: true
 }
 nodes {
+  position {
+    x: -100.0
+    y: -8.0
+  }
   type: TYPE_TEXT
   id: "memory_panel/mini_graph/text_header"
   parent: "memory_panel/mini_graph/header"
+  overridden_fields: 1
   template_node_child: true
 }
 nodes {
   type: TYPE_BOX
   id: "memory_panel/mini_graph/icon_drag"
   parent: "memory_panel/mini_graph/header"
+  overridden_fields: 45
   template_node_child: true
+  enabled: false
 }
 nodes {
   type: TYPE_BOX
@@ -975,7 +980,8 @@ nodes {
 }
 nodes {
   position {
-    x: 236.0
+    x: 118.0
+    y: -572.0
   }
   type: TYPE_TEMPLATE
   id: "fps_panel"
@@ -1008,16 +1014,23 @@ nodes {
   template_node_child: true
 }
 nodes {
+  position {
+    x: -100.0
+    y: -8.0
+  }
   type: TYPE_TEXT
   id: "fps_panel/mini_graph/text_header"
   parent: "fps_panel/mini_graph/header"
+  overridden_fields: 1
   template_node_child: true
 }
 nodes {
   type: TYPE_BOX
   id: "fps_panel/mini_graph/icon_drag"
   parent: "fps_panel/mini_graph/header"
+  overridden_fields: 45
   template_node_child: true
+  enabled: false
 }
 nodes {
   type: TYPE_BOX
@@ -1040,7 +1053,9 @@ nodes {
 nodes {
   type: TYPE_BOX
   id: "fps_panel/content"
+  adjust_mode: ADJUST_MODE_STRETCH
   parent: "fps_panel/root"
+  overridden_fields: 17
   template_node_child: true
 }
 nodes {
