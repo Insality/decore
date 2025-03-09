@@ -32,20 +32,7 @@ end
 
 function M:onAddToWorld()
 	self.world.command_health = command_health.create(self)
-	self.world.event_bus:set_merge_policy("health_event", function(event, events)
-		---@cast event system.health.event
-		---@cast events system.health.event[]
-
-		for index = #events, 1, -1 do
-			local compare_event = events[index]
-			if compare_event.entity == event.entity then
-				compare_event.damage = compare_event.damage + event.damage
-				return true
-			end
-		end
-
-		return false
-	end)
+	self.world.event_bus:set_merge_policy("health_event", M.event_merge_policy)
 end
 
 
@@ -68,6 +55,22 @@ function M:apply_damage(entity, damage)
 	if health.current_health == 0 and health.remove_on_death then
 		self.world:removeEntity(entity)
 	end
+end
+
+
+---@param event system.health.event
+---@param events system.health.event[]
+---@return boolean
+function M.event_merge_policy(event, events)
+	for index = #events, 1, -1 do
+		local compare_event = events[index]
+		if compare_event.entity == event.entity then
+			compare_event.damage = compare_event.damage + event.damage
+			return true
+		end
+	end
+
+	return false
 end
 
 

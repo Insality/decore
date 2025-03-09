@@ -6,6 +6,7 @@
 local M = {}
 
 
+---@param health system.health
 ---@return system.health.command
 function M.create(health)
 	return setmetatable({ health = health }, { __index = M })

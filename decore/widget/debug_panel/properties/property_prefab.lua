@@ -10,7 +10,6 @@ local animation = require("decore.widget.debug_panel.properties.property_prefab_
 ---@field text_name druid.text
 ---@field button druid.button
 ---@field text_button druid.text
----@field druid druid_instance
 local M = {}
 
 function M:init()

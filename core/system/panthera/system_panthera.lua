@@ -13,12 +13,12 @@ local command_panthera = require("core.system.panthera.command_panthera")
 
 ---@class component.panthera
 ---@field animation_path string|table
----@field animation_state panthera.animation.state|nil
+---@field animation_state panthera.animation|nil
 ---@field default_animation string
 ---@field speed number
 ---@field is_loop boolean|nil
 ---@field play_on_start boolean|nil
----@field detached_animations panthera.animation.state[]
+---@field detached_animations panthera.animation[]
 ---@field play_on_remove string|nil Play animation on entity remove
 decore.register_component("panthera", {
 	default_animation = "default",

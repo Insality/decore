@@ -9,10 +9,10 @@ local decore = require("decore.decore")
 ---@field game_object component.game_object
 
 ---@class component.color
+---@field color_id string|nil
 ---@field color vector4
 ---@field sprites string # "/root#sprite,/root#sprite2"
 ---@field random_color vector4[] # two colors for lerp
----@field debug_panel_draw fun(properties_panel: widget.properties_panel)
 decore.register_component("color", {
 	color = vmath.vector4(1),
 })
@@ -32,24 +32,8 @@ function M.create_system()
 end
 
 
----@param properties_panel widget.properties_panel
-function M:debug_panel_draw(properties_panel)
-	properties_panel:add_text(function(text)
-		text:set_text_property("System id")
-		text:set_text_value(self.id)
-	end)
-
-	properties_panel:add_text(function(text)
-		text:set_text_property("Entities")
-		text:set_text_value(tostring(#self.entities))
-	end)
-end
-
-
 ---@param entity entity.color
 function M:onAdd(entity)
-	entity.color.debug_panel_draw = M.component_debug_panel_draw
-
 	local random_color = entity.color.random_color
 	if random_color then
 		entity.color.color = color.lerp(math.random(), random_color[1], random_color[2])
@@ -116,13 +100,6 @@ function M.split(s, sep)
 		i = i + 1
 	end
 	return t
-end
-
-
----@param properties_panel widget.properties_panel
-function M.component_debug_panel_draw(properties_panel)
-	properties_panel:add_button(function(button)
-	end)
 end
 
 

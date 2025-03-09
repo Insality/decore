@@ -5,7 +5,7 @@
 
 ---@class entity
 
----Definition to group all components
+---All subclasses are a component types for entity in the Decore ECS
 ---@class component
 
 ---@class system

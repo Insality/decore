@@ -16,7 +16,7 @@ end
 
 
 ---@param entity entity
----@param animation_state panthera.animation.state
+---@param animation_state panthera.animation
 ---@param animation_id string
 function M:play_state(entity, animation_state, animation_id)
 	if not decore.is_alive(self.panthera, entity) then

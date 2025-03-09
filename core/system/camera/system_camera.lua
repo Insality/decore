@@ -14,6 +14,7 @@ local HASH_SPRITE = hash("sprite")
 ---@field camera component.camera
 ---@field transform component.transform
 
+---Add this component to camera entity, it will manage the camera visible size and position
 ---@class component.camera
 ---@field camera_url url
 ---@field follow_entity entity.transform|nil
