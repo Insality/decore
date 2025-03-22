@@ -10,7 +10,7 @@ local decore = require("decore.decore")
 
 ---@class component.color
 ---@field color_id string|nil
----@field color vector4
+---@field color vector4 # color of the entity, constructor can be string
 ---@field sprites string # "/root#sprite,/root#sprite2"
 ---@field random_color vector4[] # two colors for lerp
 decore.register_component("color", {

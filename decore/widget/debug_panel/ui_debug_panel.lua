@@ -3,9 +3,6 @@ local decore = require("decore.decore")
 local panthera = require("panthera.panthera")
 local decore_data = require("decore.internal.decore_data")
 
-local fps_panel = require("druid.widget.fps_panel.fps_panel")
-local memory_panel = require("druid.widget.memory_panel.memory_panel")
-local properties_panel = require("druid.widget.properties_panel.properties_panel")
 local property_prefab = require("decore.widget.debug_panel.properties.property_prefab")
 local property_system = require("decore.widget.debug_panel.properties.property_system")
 
@@ -15,7 +12,7 @@ local save_state = sys.load(save_state_path) or {
 }
 
 ---@class decore.widget.debug_panel: druid.widget
----@field properties_panel widget.properties_panel
+---@field properties_panel druid.widget.properties_panel
 local M = {}
 
 local PAGES = {
@@ -28,8 +25,9 @@ local PAGES = {
 	PROFILE = "profile", -- Profile
 }
 
-function M:init()
-	self.properties_panel = self.druid:new_widget(properties_panel, "properties_panel")
+---@param properties_panel druid.widget.properties_panel
+function M:init(properties_panel)
+	self.properties_panel = properties_panel
 	self.properties_panel.paginator.button_left:set_key_trigger("key_minus")
 	self.properties_panel.paginator.button_right:set_key_trigger("key_equals")
 
@@ -46,12 +44,6 @@ function M:init()
 
 	self.prefab_property_system = self:get_node("property_system/root")
 	gui.set_enabled(self.prefab_property_system, false)
-
-	self.node_memory_panel = self:get_node("memory_panel/root")
-	gui.set_enabled(self.node_memory_panel, false)
-
-	self.node_fps_panel = self:get_node("fps_panel/root")
-	gui.set_enabled(self.node_fps_panel, false)
 
 	self.page_stack = {}
 	self.undo_stack = {}
@@ -366,6 +358,8 @@ function M:draw_page_entity_prefabs(context, page_name)
 							return
 
 						end
+
+						drag_n_drop_entity.game_object.remove_delay = nil
 						entity_to_create.transform = drag_n_drop_entity.transform
 
 						self.world:removeEntity(drag_n_drop_entity)
@@ -404,14 +398,6 @@ function M:draw_page_profile(context, page_name)
 				profiler_mode = nil
 			end
 		end)
-	end)
-
-	self.properties_panel:add_widget(function()
-		return self.druid:new_widget(memory_panel, "memory_panel")
-	end)
-
-	self.properties_panel:add_widget(function()
-		return self.druid:new_widget(fps_panel, "fps_panel")
 	end)
 end
 

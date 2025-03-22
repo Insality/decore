@@ -1,8 +1,15 @@
 return function()
 	describe("System FSM", function()
 		local decore ---@type decore
-		local world ---@type world
 		local system_fsm ---@type system.fsm
+		local world ---@type world
+
+		before(function()
+			decore = require("decore.decore")
+			system_fsm = require("core.system.fsm.system_fsm")
+			world = decore.world()
+			world:add(system_fsm.create_system())
+		end)
 
 		local get_entity = function()
 			return { fsm = {
@@ -20,14 +27,6 @@ return function()
 				}
 			}}
 		end
-
-		before(function()
-			decore = require("decore.decore")
-			system_fsm = require("core.system.fsm.system_fsm")
-
-			world = decore.world()
-			world:add(system_fsm.create_system())
-		end)
 
 		it("Should init system", function()
 			local entity = world:add(get_entity())

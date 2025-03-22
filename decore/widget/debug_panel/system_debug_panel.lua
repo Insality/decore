@@ -1,6 +1,8 @@
 local decore = require("decore.decore")
 local druid = require("druid.druid")
 
+local debug_panel = require("decore.widget.debug_panel.ui_debug_panel")
+
 ---@class entity
 ---@field debug_panel component.debug_panel|nil
 
@@ -23,10 +25,10 @@ end
 
 
 function M:onAdd(entity)
-	local widget = druid.get_widget(entity.game_object.root) --[[@as decore.widget.debug_panel]]
-	entity.widget = widget
-
-	widget:set_world(self.world)
+	local object = entity.game_object.root
+	local widget_url = msg.url(nil, object, "debug_panel")
+	entity.widget = druid.get_widget(debug_panel, widget_url)
+	entity.widget:set_world(self.world)
 end
 
 

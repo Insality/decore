@@ -1,4 +1,4 @@
-script: "/decore/widget/debug_panel/ui_debug_panel.gui_script"
+script: "/druid/druid_widget.gui_script"
 fonts {
   name: "text_regular"
   font: "/druid/fonts/druid_text_regular.font"

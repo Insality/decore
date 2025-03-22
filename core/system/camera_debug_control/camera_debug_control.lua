@@ -1,16 +1,6 @@
 local decore = require("decore.decore")
 
----@class entity
----@field camera_debug_control component.camera_debug_control|nil
-
----@class entity.camera_debug_control: entity
----@field camera_debug_control component.camera_debug_control
-
----@class component.camera_debug_control
-decore.register_component("camera_debug_control", {})
-
 ---@class system.camera_debug_control: system
----@field entities entity.camera_debug_control[]
 ---@field is_ctrl boolean
 local M = {}
 

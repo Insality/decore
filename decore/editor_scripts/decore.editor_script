@@ -34,19 +34,55 @@ function M.get_commands()
 			run = function(opts)
 				local file = opts.selection
 				print("Run script for", editor.get(file, "path"))
-				save_file_from_dependency('/decore/editor_scripts/run_python_script.sh', "./build/run_python_script.sh")
-				save_file_from_dependency('/decore/editor_scripts/set_as_bootstrap_collection.py', "./build/set_as_bootstrap_collection.py")
-				return {
-					{
-						action = "shell",
-						command = {
-							"bash",
-							"./build/run_python_script.sh",
-							"./build/set_as_bootstrap_collection.py",
-							"." .. editor.get(file, "path")
-						}
-					}
-				}
+				local collection_path = editor.get(file, "path")
+
+				local project_path = editor.external_file_attributes(".").path
+				local game_project_path = project_path .. editor.get("/game.project", "path")
+
+				-- Open game.project file for reading
+				local game_project_file = io.open(game_project_path, "r")
+				if not game_project_file then
+					print("Error: Could not open game.project file")
+					return
+				end
+
+				-- Read all lines and modify the main_collection line
+				local lines = {}
+				for line in game_project_file:lines() do
+					if line:match("main_collection%s*=.*") then
+						line = "main_collection = " .. collection_path .. "c"
+					end
+					table.insert(lines, line)
+				end
+				game_project_file:close()
+
+				-- Write the modified content back to the file
+				local game_project_file = io.open(game_project_path, "w")
+				if not game_project_file then
+					print("Error: Could not open game.project file for writing")
+					return
+				end
+
+				for _, line in ipairs(lines) do
+					game_project_file:write(line .. "\n")
+				end
+				game_project_file:close()
+
+				print("Successfully updated main_collection to " .. collection_path .. "c")
+
+				--save_file_from_dependency('/decore/editor_scripts/run_python_script.sh', "./build/run_python_script.sh")
+				--save_file_from_dependency('/decore/editor_scripts/set_as_bootstrap_collection.py', "./build/set_as_bootstrap_collection.py")
+				--return {
+				--	{
+				--		action = "shell",
+				--		command = {
+				--			"bash",
+				--			"./build/run_python_script.sh",
+				--			"./build/set_as_bootstrap_collection.py",
+				--			"." .. editor.get(file, "path")
+				--		}
+				--	}
+				--}
 			end
 		},
 

@@ -163,6 +163,12 @@ function M.create_entity(prefab_id, pack_id, data)
 	M.apply_components(entity, prefab)
 	M.apply_components(entity, data)
 
+	decore_internal.logger:trace("Create entity", {
+		prefab_id = prefab_id,
+		pack_id = pack_id,
+		entity = entity,
+	})
+
 	return entity
 end
 
