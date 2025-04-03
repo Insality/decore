@@ -1,6 +1,8 @@
 local decore = require("decore.decore")
 local command_fsm = require("core.system.fsm.command_fsm")
 
+local logger = decore.get_logger("system.fsm")
+
 ---@class entity
 ---@field fsm component.fsm|nil
 
@@ -15,6 +17,8 @@ decore.register_component("fsm")
 ---@class system.fsm.event
 ---@field entity entity
 ---@field event string
+---@field state_before string
+---@field state_after string
 
 ---@class system.fsm: system
 ---@field entities entity.fsm[]
@@ -37,10 +41,21 @@ end
 function M:trigger(entity, event)
 	local next_state = self:get_next_state(entity, event)
 	if next_state then
+		local state_before = entity.fsm.state
 		entity.fsm.state = next_state
+
 		self.world.event_bus:trigger("fsm_event", {
 			entity = entity,
 			event = event,
+			state_before = state_before,
+			state_after = next_state,
+		})
+
+		logger:info("FSM event triggered", {
+			entity = entity,
+			event = event,
+			state_before = state_before,
+			next_state = next_state,
 		})
 	end
 end

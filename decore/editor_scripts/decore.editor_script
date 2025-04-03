@@ -39,50 +39,38 @@ function M.get_commands()
 				local project_path = editor.external_file_attributes(".").path
 				local game_project_path = project_path .. editor.get("/game.project", "path")
 
-				-- Open game.project file for reading
-				local game_project_file = io.open(game_project_path, "r")
-				if not game_project_file then
-					print("Error: Could not open game.project file")
-					return
-				end
-
-				-- Read all lines and modify the main_collection line
 				local lines = {}
-				for line in game_project_file:lines() do
-					if line:match("main_collection%s*=.*") then
-						line = "main_collection = " .. collection_path .. "c"
+				do -- Open game.project file for reading
+					local game_project_file = io.open(game_project_path, "r")
+					if not game_project_file then
+						print("Error: Could not open game.project file")
+						return
 					end
-					table.insert(lines, line)
+
+					-- Read all lines and modify the main_collection line
+					for line in game_project_file:lines() do
+						if line:match("main_collection%s*=.*") then
+							line = "main_collection = " .. collection_path .. "c"
+						end
+						table.insert(lines, line)
+					end
+					game_project_file:close()
 				end
-				game_project_file:close()
 
-				-- Write the modified content back to the file
-				local game_project_file = io.open(game_project_path, "w")
-				if not game_project_file then
-					print("Error: Could not open game.project file for writing")
-					return
+				do -- Write the modified content back to the file
+					local game_project_file = io.open(game_project_path, "w")
+					if not game_project_file then
+						print("Error: Could not open game.project file for writing")
+						return
+					end
+
+					for _, line in ipairs(lines) do
+						game_project_file:write(line .. "\n")
+					end
+					game_project_file:close()
+
+					print("Successfully updated main_collection to " .. collection_path .. "c")
 				end
-
-				for _, line in ipairs(lines) do
-					game_project_file:write(line .. "\n")
-				end
-				game_project_file:close()
-
-				print("Successfully updated main_collection to " .. collection_path .. "c")
-
-				--save_file_from_dependency('/decore/editor_scripts/run_python_script.sh', "./build/run_python_script.sh")
-				--save_file_from_dependency('/decore/editor_scripts/set_as_bootstrap_collection.py', "./build/set_as_bootstrap_collection.py")
-				--return {
-				--	{
-				--		action = "shell",
-				--		command = {
-				--			"bash",
-				--			"./build/run_python_script.sh",
-				--			"./build/set_as_bootstrap_collection.py",
-				--			"." .. editor.get(file, "path")
-				--		}
-				--	}
-				--}
 			end
 		},
 
@@ -184,6 +172,74 @@ function M.get_commands()
 						}
 					}
 				end
+			end
+		},
+
+		{
+			-- A Decore Creator Panel, where you able to select a type of prefab/template you can create (system, entity, collection etc)
+			-- Then show couple of options, like name, bool checkbox (is command included, is tests included, etc)
+			-- Then button to create inside a selected folder the required files
+			-- Base name is a name of folder selected
+
+			-- Type: System
+			-- Add a system_lua with name
+			-- Option to add a command system
+
+			-- Type: Entity
+			-- subtype: collection, go, gui
+
+			label = "[Decore] Assistent",
+			locations = { "Assets" },
+			query = { selection = { type = "resource", cardinality = "one" } },
+			active = function(opts)
+				local path = editor.get(opts.selection, "path")
+				local attr = editor.resource_attributes(path)
+				return attr.is_file
+			end,
+			run = function(opts)
+				-- initial file name, will be replaced by the dialog
+				local path = editor.get(opts.selection, "path")
+
+				-- We take parent, due the editor scripts can't select folders now
+				local folder_path = path:match("(.*/)") -- Example: /gui/window_animation/
+				local folder_name = folder_path:match(".*/(.*)/") -- Example: window_animation
+
+				--local create_file =
+				local dialog = editor.ui.component(function(props)
+					local target_folder_name, set_target_folder_name = editor.ui.use_state(folder_name)
+
+					return editor.ui.dialog({
+						title = "Decore Assistent",
+						content = editor.ui.horizontal({
+							padding = editor.ui.PADDING.MEDIUM,
+							columns = {{}, {grow = true}, {}},
+							children = {
+								editor.ui.label({
+									text = "Action",
+									alignment = editor.ui.ALIGNMENT.CENTER
+								}),
+								editor.ui.select_box({
+									grow = true,
+									value = "Create Entity",
+									on_value_changed = function(value)
+										print(value)
+									end,
+									options = {
+										"Create System",
+										"Create Entity",
+									}
+								})
+							}
+						}),
+						buttons = {
+							editor.ui.dialog_button({ text = "Cancel", cancel = true, result = false }),
+							editor.ui.dialog_button({ text = "Create", default = true, result = true })
+						}
+					})
+				end)
+
+				local target_file_name = editor.ui.show_dialog(dialog({}))
+				print("Result", target_file_name)
 			end
 		}
 	}

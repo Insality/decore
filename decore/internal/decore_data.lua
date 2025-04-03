@@ -137,4 +137,15 @@ function M.print_loaded_packs_debug_info(logger)
 end
 
 
+---Log all loaded systems
+---@param world world
+---@param logger decore.logger
+function M.print_loaded_systems_debug_info(world, logger)
+	logger:debug("Systems:")
+	for _, system in ipairs(world.systems) do
+		logger:debug(" - " .. system.id)
+	end
+end
+
+
 return M

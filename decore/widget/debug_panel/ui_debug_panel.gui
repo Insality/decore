@@ -46,16 +46,9 @@ nodes {
   template_node_child: true
 }
 nodes {
-  position {
-    y: -20.0
-  }
   type: TYPE_TEXT
-  font: "text_bold"
   id: "properties_panel/text_header"
   parent: "properties_panel/header"
-  overridden_fields: 1
-  overridden_fields: 10
-  overridden_fields: 14
   template_node_child: true
 }
 nodes {
@@ -906,23 +899,16 @@ nodes {
   template_node_child: true
 }
 nodes {
-  position {
-    x: -100.0
-    y: -8.0
-  }
   type: TYPE_TEXT
   id: "memory_panel/mini_graph/text_header"
   parent: "memory_panel/mini_graph/header"
-  overridden_fields: 1
   template_node_child: true
 }
 nodes {
   type: TYPE_BOX
   id: "memory_panel/mini_graph/icon_drag"
   parent: "memory_panel/mini_graph/header"
-  overridden_fields: 45
   template_node_child: true
-  enabled: false
 }
 nodes {
   type: TYPE_BOX
@@ -1014,23 +1000,16 @@ nodes {
   template_node_child: true
 }
 nodes {
-  position {
-    x: -100.0
-    y: -8.0
-  }
   type: TYPE_TEXT
   id: "fps_panel/mini_graph/text_header"
   parent: "fps_panel/mini_graph/header"
-  overridden_fields: 1
   template_node_child: true
 }
 nodes {
   type: TYPE_BOX
   id: "fps_panel/mini_graph/icon_drag"
   parent: "fps_panel/mini_graph/header"
-  overridden_fields: 45
   template_node_child: true
-  enabled: false
 }
 nodes {
   type: TYPE_BOX
@@ -1053,9 +1032,7 @@ nodes {
 nodes {
   type: TYPE_BOX
   id: "fps_panel/content"
-  adjust_mode: ADJUST_MODE_STRETCH
   parent: "fps_panel/root"
-  overridden_fields: 17
   template_node_child: true
 }
 nodes {

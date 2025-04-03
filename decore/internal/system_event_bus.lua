@@ -1,6 +1,7 @@
 local ecs = require("decore.ecs")
 local event_bus = require("decore.internal.event_bus")
 
+---System to manage event bus inside the world
 ---@class system.bus.event: system
 local M = {}
 

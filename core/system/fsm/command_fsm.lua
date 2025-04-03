@@ -12,10 +12,11 @@ function M.create(fsm)
 end
 
 
----@param entity entity.fsm
+---@param entity entity
 ---@param event string
 function M:trigger(entity, event)
 	assert(entity.fsm, "Entity does not have a fsm component.")
+	---@cast entity entity.fsm
 	self.fsm:trigger(entity, event)
 end
 

@@ -1,4 +1,4 @@
-local helper = require("druid.helper")
+	local helper = require("druid.helper")
 local decore = require("decore.decore")
 local panthera = require("panthera.panthera")
 local decore_data = require("decore.internal.decore_data")
@@ -344,12 +344,31 @@ function M:draw_page_entity_prefabs(context, page_name)
 
 					widget.on_drag_start:subscribe(function()
 						entity_to_create = decore.create_entity(prefab_id, pack_id)
-						drag_n_drop_entity = decore.create_entity(nil, nil, {
+						local visual_entity_to_create = {
 							game_object = entity_to_create.game_object,
 							transform = entity_to_create.transform or {},
 							color = entity_to_create.color,
 							follow_cursor = true,
-						})
+						}
+
+						if entity_to_create.child_instancies then
+							local child_instancies = {}
+							for index = 1, #entity_to_create.child_instancies do
+								local child = entity_to_create.child_instancies[index]
+								local components = child.components
+								local created_child = decore.create_entity(child.prefab_id, child.pack_id, child.components)
+								if components then
+									table.insert(child_instancies, {
+										game_object = created_child.game_object,
+										transform = created_child.transform,
+										color = created_child.color,
+									})
+								end
+							end
+							visual_entity_to_create.child_instancies = child_instancies
+						end
+
+						drag_n_drop_entity = decore.create_entity(nil, nil, visual_entity_to_create)
 						self.world:addEntity(drag_n_drop_entity)
 					end)
 

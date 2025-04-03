@@ -12,6 +12,14 @@ function M.create(camera_system)
 end
 
 
+---@param entity entity
+---@param time number?
+function M:move_to_entity(entity, time)
+	time = time or 0.3
+	self.camera:move_to(entity.transform.position_x, entity.transform.position_y, time, go.EASING_OUTSINE)
+end
+
+
 ---@param power number
 ---@param time number
 function M:shake(power, time)

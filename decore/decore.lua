@@ -163,12 +163,6 @@ function M.create_entity(prefab_id, pack_id, data)
 	M.apply_components(entity, prefab)
 	M.apply_components(entity, data)
 
-	decore_internal.logger:trace("Create entity", {
-		prefab_id = prefab_id,
-		pack_id = pack_id,
-		entity = entity,
-	})
-
 	return entity
 end
 
@@ -339,6 +333,13 @@ end
 ---Log all loaded packs for entities, components and worlds
 function M.print_loaded_packs_debug_info()
 	decore_data.print_loaded_packs_debug_info(decore_internal.logger)
+end
+
+
+---Log all loaded systems
+---@param world world
+function M.print_loaded_systems_debug_info(world)
+	decore_data.print_loaded_systems_debug_info(world, decore_internal.logger)
 end
 
 

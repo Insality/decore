@@ -175,25 +175,45 @@ function M:process_transform_event(event)
 		TEMP_VECTOR.x = transform.position_x
 		TEMP_VECTOR.y = transform.position_y
 		TEMP_VECTOR.z = transform.position_z
-		go.set_position(TEMP_VECTOR, root)
+		if event.animate_time then
+			local easing = event.easing or go.EASING_OUTSINE
+			go.animate(root, HASH_POSITION, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, event.animate_time)
+		else
+			go.set_position(TEMP_VECTOR, root)
+		end
 	end
 
 	if event.is_rotation_changed then
-		go.set(root, HASH_EULER_Z, transform.rotation)
+		if event.animate_time then
+			local easing = event.easing or go.EASING_OUTSINE
+			go.animate(root, HASH_EULER_Z, go.PLAYBACK_ONCE_FORWARD, transform.rotation, easing, event.animate_time)
+		else
+			go.set(root, HASH_EULER_Z, transform.rotation)
+		end
 	end
 
 	if event.is_scale_changed then
 		TEMP_VECTOR.x = transform.scale_x
 		TEMP_VECTOR.y = transform.scale_y
 		TEMP_VECTOR.z = transform.scale_z
-		go.set_scale(TEMP_VECTOR, root)
+		if event.animate_time then
+			local easing = event.easing or go.EASING_OUTSINE
+			go.animate(root, HASH_SCALE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, event.animate_time)
+		else
+			go.set_scale(TEMP_VECTOR, root)
+		end
 	end
 
 	if game_object.is_slice9 then
 		local sprite_url = msg.url(nil, root, "sprite")
 		TEMP_VECTOR.x = transform.size_x
 		TEMP_VECTOR.y = transform.size_y
-		go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
+		if event.animate_time then
+			local easing = event.easing or go.EASING_OUTSINE
+			go.animate(sprite_url, HASH_SIZE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, event.animate_time)
+		else
+			go.set(sprite_url, HASH_SIZE, TEMP_VECTOR)
+		end
 	end
 end
 

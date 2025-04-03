@@ -9,20 +9,22 @@ local ecs = require("decore.ecs")
 ---@field pack_id string|nil The entity id from decore collections, autofilled by decore.create_entity
 ---@field parent_prefab_id string|nil The parent prefab_id, used for prefab inheritance
 ---@field child_instancies decore.entities_pack_data.instance[]|nil The child instances to spawn on entity creation
----@field parent entity|nil The parent entity
----@field children entity[]|nil The children entities
+---@field parent_id number|nil The parent id
+---@field children_ids number[]|nil The children ids
 
 decore_data.register_component("id", false)
 decore_data.register_component("prefab_id", false)
 decore_data.register_component("pack_id", false)
 decore_data.register_component("parent_prefab_id", false)
 decore_data.register_component("child_instancies", false)
-decore_data.register_component("parent", false)
-decore_data.register_component("children", false)
+decore_data.register_component("parent_id", false)
+decore_data.register_component("children_ids", false)
 
 
+---System Decore class to manage child-parent relationships and default components
 ---@class system.decore: system
 ---@field decore decore
+---@field id_to_entity table<number, entity> The entity id to entity map
 local M = {}
 
 
@@ -32,6 +34,8 @@ function M.create_system(decore)
 	local system = setmetatable(ecs.system({ id = "decore" }), { __index = M })
 	system.filter = ecs.requireAll("child_instancies")
 	system.decore = decore
+	system.id_to_entity = {}
+
 	return system
 end
 
@@ -50,12 +54,14 @@ end
 
 ---@param entity entity
 function M:onAdd(entity)
+	self.id_to_entity[entity.id] = entity
 	self:add_children(entity)
 end
 
 
 ---@param entity entity
 function M:onRemove(entity)
+	self.id_to_entity[entity.id] = nil
 	self:remove_children(entity)
 	self:remove_from_parent(entity)
 end
@@ -66,7 +72,7 @@ function M:add_children(entity)
 	-- Create real chilnd entities from prefab data
 	local child_entities = entity.child_instancies
 	if child_entities then
-		entity.children = {}
+		entity.children_ids = {}
 		for index = 1, #child_entities do
 			local child_entity = child_entities[index]
 			local child = self.decore.create_entity(child_entity.prefab_id, child_entity.pack_id, child_entity.components)
@@ -78,8 +84,12 @@ function M:add_children(entity)
 				child.transform.position_y = child.transform.position_y + entity.transform.position_y
 			end
 
-			child.parent = entity
-			table.insert(entity.children, child)
+			if child.tiled_id and entity.tiled_id then
+				child.tiled_id = entity.tiled_id .. "/" .. child.tiled_id
+			end
+
+			child.parent_id = entity.id
+			table.insert(entity.children_ids, child.id)
 			self.world:addEntity(child)
 		end
 	end
@@ -88,36 +98,37 @@ end
 
 ---@param entity entity
 function M:remove_children(entity)
-	local children = entity.children
-	if children then
-		for index = 1, #children do
-			local child = children[index]
-			self.world:removeEntity(child)
+	local children_ids = entity.children_ids
+	if children_ids then
+		for index = 1, #children_ids do
+			local child_id = children_ids[index]
+			local child = self.id_to_entity[child_id]
+			if child then
+				self.world:removeEntity(child)
+			end
 		end
 	end
 
-	entity.children = nil
+	entity.children_ids = nil
 end
 
 
 ---@param entity entity
 function M:remove_from_parent(entity)
-	local parent = entity.parent
-	if not parent then
-		return
-	end
+	local parent_id = entity.parent_id
+	local parent = self.id_to_entity[parent_id]
 
-	local children = parent.children
-	if children then
-		for index = #children, 1, -1 do
-			local child = children[index]
-			if child == entity then
-				table.remove(children, index)
+	local children_ids = parent.children_ids
+	if children_ids then
+		for index = #children_ids, 1, -1 do
+			local child_id = children_ids[index]
+			if child_id == entity.id then
+				table.remove(children_ids, index)
 			end
 		end
 	end
 
-	entity.parent = nil
+	entity.parent_id = nil
 end
 
 

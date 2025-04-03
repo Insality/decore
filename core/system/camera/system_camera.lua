@@ -30,6 +30,9 @@ decore.register_component("camera", {
 	camera_url = "",
 })
 
+---@class system.camera.event
+---@field entity entity.camera
+
 ---@class system.camera: system
 ---@field entities (entity.camera)[]
 ---@field camera entity.camera|nil @Current camera entity
@@ -102,6 +105,7 @@ end
 function M:onAdd(entity)
 	msg.post("@render:", "use_camera_projection")
 	self.camera = entity
+	self.is_camera_changed = true
 
 	local camera_url = msg.url(entity.game_object.root)
 	camera_url.fragment = hash("camera")
@@ -124,6 +128,11 @@ end
 
 
 function M:update(dt)
+	if self.is_camera_changed then
+		self.world.event_bus:trigger("camera_event", self.camera)
+		self.is_camera_changed = false
+	end
+
 	if self.shake_time > 0 then
 		self.shake_max_time = math.max(self.shake_max_time, self.shake_time)
 
@@ -147,6 +156,38 @@ function M:update(dt)
 		local size_y = go.get(sprite_url, HASH_SIZE_Y)
 		if size_x ~= camera.transform.size_x or size_y ~= camera.transform.size_y then
 			self.world.command_transform:set_size(camera, size_x, size_y)
+		end
+	end
+end
+
+
+---Move camera to the specified position
+---@param position_x number
+---@param position_y number
+---@param animate_time number|nil
+---@param easing userdata|nil
+function M:move_to(position_x, position_y, animate_time, easing)
+	local entity = self.camera
+	if entity then
+		self.world.command_transform:set_position(entity, position_x, position_y)
+		if animate_time then
+			self.world.command_transform:set_animate_time(entity, animate_time, easing)
+		end
+	end
+end
+
+
+---Move camera to the specified size
+---@param size_x number
+---@param size_y number
+---@param animate_time number|nil
+---@param easing userdata|nil
+function M:size_to(size_x, size_y, animate_time, easing)
+	local entity = self.camera
+	if entity then
+		self.world.command_transform:set_size(entity, size_x, size_y)
+		if animate_time then
+			self.world.command_transform:set_animate_time(entity, animate_time, easing)
 		end
 	end
 end
