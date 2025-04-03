@@ -1,5 +1,6 @@
 local M = {}
 
+local file_creator = require("decore.editor_scripts.file_creator")
 
 local function ends_with(str, ending)
 	return ending == "" or str:sub(-#ending) == ending
@@ -18,6 +19,60 @@ local function save_file_from_dependency(dependency_file_path, output_file_path)
 
 	print("Write file at", output_file_path)
 	return true
+end
+
+
+local function get_forge_integration_info()
+    -- Get game project path
+    local project_path = editor.external_file_attributes(".").path
+    local game_project_path = project_path .. editor.get("/game.project", "path")
+
+    local info = {
+        has_systems_path = false,
+        has_entities_path = false,
+        has_tests_path = false,
+        has_spawner_path = false,
+        systems_path = "",
+        entities_path = "",
+        tests_path = "",
+        spawner_path = ""
+    }
+
+    -- Try to read the file
+    local file = io.open(game_project_path, "r")
+    if not file then
+        print("Error: Could not open game.project file")
+        return info
+    end
+
+    local in_decore_section = false
+    for line in file:lines() do
+        if line == "[decore]" then
+            in_decore_section = true
+        elseif line:match("^%[") then
+            in_decore_section = false
+        elseif in_decore_section then
+            local key, value = line:match("([%w_]+)%s*=%s*(.*)")
+            if key and value then
+                if key == "forge_systems_path" then
+                    info.has_systems_path = true
+                    info.systems_path = value
+                elseif key == "forge_entities_path" then
+                    info.has_entities_path = true
+                    info.entities_path = value
+                elseif key == "forge_tests_path" then
+                    info.has_tests_path = true
+                    info.tests_path = value
+                elseif key == "forge_spawner_path" then
+                    info.has_spawner_path = true
+                    info.spawner_path = value
+                end
+            end
+        end
+    end
+
+    file:close()
+    return info
 end
 
 
@@ -188,7 +243,7 @@ function M.get_commands()
 			-- Type: Entity
 			-- subtype: collection, go, gui
 
-			label = "[Decore] Assistent",
+			label = "[Decore] Assistant",
 			locations = { "Assets" },
 			query = { selection = { type = "resource", cardinality = "one" } },
 			active = function(opts)
@@ -204,42 +259,254 @@ function M.get_commands()
 				local folder_path = path:match("(.*/)") -- Example: /gui/window_animation/
 				local folder_name = folder_path:match(".*/(.*)/") -- Example: window_animation
 
-				--local create_file =
+				-- Get information about integration points
+				local forge_info = get_forge_integration_info()
+				local integration_info = ""
+				if forge_info.has_systems_path or forge_info.has_entities_path or
+				   forge_info.has_tests_path or forge_info.has_spawner_path then
+				    integration_info = "Integration paths found in game.project:\n"
+				    if forge_info.has_systems_path then
+				        integration_info = integration_info .. "- Systems: " .. forge_info.systems_path .. "\n"
+				    end
+				    if forge_info.has_entities_path then
+				        integration_info = integration_info .. "- Entities: " .. forge_info.entities_path .. "\n"
+				    end
+				    if forge_info.has_tests_path then
+				        integration_info = integration_info .. "- Tests: " .. forge_info.tests_path .. "\n"
+				    end
+				    if forge_info.has_spawner_path then
+				        integration_info = integration_info .. "- Spawner: " .. forge_info.spawner_path .. "\n"
+				    end
+				else
+				    integration_info = "No integration paths found. Add a [decore] section to game.project with these keys to enable auto-integration:\n" ..
+				                       "- forge_systems_path\n" ..
+				                       "- forge_entities_path\n" ..
+				                       "- forge_tests_path\n" ..
+				                       "- forge_spawner_path"
+				end
+
 				local dialog = editor.ui.component(function(props)
 					local target_folder_name, set_target_folder_name = editor.ui.use_state(folder_name)
+					local selected_type, set_selected_type = editor.ui.use_state("Create Entity")
+					local include_command, set_include_command = editor.ui.use_state(false)
+					local include_postwrap, set_include_postwrap = editor.ui.use_state(false)
+					local include_test, set_include_test = editor.ui.use_state(false)
+					local include_entity_lua, set_include_entity_lua = editor.ui.use_state(true)
+					local is_gui, set_is_gui = editor.ui.use_state(false)
+					local is_druid_widget, set_is_druid_widget = editor.ui.use_state(false)
+					local is_collection, set_is_collection = editor.ui.use_state(false)
+					local add_system, set_add_system = editor.ui.use_state(false)
+
+					-- Function to get system options based on selected type
+					local function get_system_options()
+						if selected_type == "Create System" then
+							return editor.ui.vertical({
+								padding = editor.ui.PADDING.SMALL,
+								spacing = editor.ui.SPACING.SMALL,
+								children = {
+									editor.ui.horizontal({
+										children = {
+											editor.ui.check_box({
+												value = include_command,
+												on_value_changed = set_include_command
+											}),
+											editor.ui.label({
+												text = "Include Command System",
+												alignment = editor.ui.ALIGNMENT.LEFT
+											})
+										}
+									}),
+									editor.ui.horizontal({
+										children = {
+											editor.ui.check_box({
+												value = include_postwrap,
+												on_value_changed = set_include_postwrap
+											}),
+											editor.ui.label({
+												text = "Include PostWrap",
+												alignment = editor.ui.ALIGNMENT.LEFT
+											})
+										}
+									}),
+									editor.ui.horizontal({
+										children = {
+											editor.ui.check_box({
+												value = include_test,
+												on_value_changed = set_include_test
+											}),
+											editor.ui.label({
+												text = "Include Test",
+												alignment = editor.ui.ALIGNMENT.LEFT
+											})
+										}
+									}),
+									editor.ui.horizontal({
+										children = {
+											editor.ui.check_box({
+												value = include_entity_lua,
+												on_value_changed = set_include_entity_lua
+											}),
+											editor.ui.label({
+												text = "Add Entity Lua",
+												alignment = editor.ui.ALIGNMENT.LEFT
+											})
+										}
+									})
+								}
+							})
+						else
+							return editor.ui.vertical({
+								padding = editor.ui.PADDING.SMALL,
+								spacing = editor.ui.SPACING.SMALL,
+								children = {
+									editor.ui.horizontal({
+										children = {
+											editor.ui.check_box({
+												value = is_gui,
+												on_value_changed = set_is_gui
+											}),
+											editor.ui.label({
+												text = "Is GUI Entity",
+												alignment = editor.ui.ALIGNMENT.LEFT
+											})
+										}
+									}),
+									editor.ui.horizontal({
+										children = {
+											editor.ui.check_box({
+												value = is_druid_widget,
+												on_value_changed = set_is_druid_widget
+											}),
+											editor.ui.label({
+												text = "Is Druid Widget",
+												alignment = editor.ui.ALIGNMENT.LEFT
+											})
+										}
+									}),
+									editor.ui.horizontal({
+										children = {
+											editor.ui.check_box({
+												value = is_collection,
+												on_value_changed = set_is_collection
+											}),
+											editor.ui.label({
+												text = "Is Collection",
+												alignment = editor.ui.ALIGNMENT.LEFT
+											})
+										}
+									}),
+									editor.ui.horizontal({
+										children = {
+											editor.ui.check_box({
+												value = add_system,
+												on_value_changed = set_add_system
+											}),
+											editor.ui.label({
+												text = "Add System",
+												alignment = editor.ui.ALIGNMENT.LEFT
+											})
+										}
+									}),
+									editor.ui.horizontal({
+										children = {
+											editor.ui.check_box({
+												value = include_test,
+												on_value_changed = set_include_test
+											}),
+											editor.ui.label({
+												text = "Include Test",
+												alignment = editor.ui.ALIGNMENT.LEFT
+											})
+										}
+									})
+								}
+							})
+						end
+					end
 
 					return editor.ui.dialog({
-						title = "Decore Assistent",
-						content = editor.ui.horizontal({
-							padding = editor.ui.PADDING.MEDIUM,
-							columns = {{}, {grow = true}, {}},
+						title = "Decore Assistant",
+						content = editor.ui.vertical({
+							padding = editor.ui.PADDING.SMALL,
+							spacing = editor.ui.SPACING.SMALL,
 							children = {
-								editor.ui.label({
-									text = "Action",
-									alignment = editor.ui.ALIGNMENT.CENTER
-								}),
-								editor.ui.select_box({
-									grow = true,
-									value = "Create Entity",
-									on_value_changed = function(value)
-										print(value)
-									end,
-									options = {
-										"Create System",
-										"Create Entity",
+								editor.ui.horizontal({
+									padding = editor.ui.PADDING.SMALL,
+									children = {
+										editor.ui.label({
+											text = "Action",
+											alignment = editor.ui.ALIGNMENT.CENTER
+										}),
+										editor.ui.select_box({
+											grow = true,
+											value = selected_type,
+											on_value_changed = set_selected_type,
+											options = {
+												"Create System",
+												"Create Entity",
+											}
+										})
 									}
+								}),
+								editor.ui.horizontal({
+									padding = editor.ui.PADDING.SMALL,
+									children = {
+										editor.ui.label({
+											text = "Name",
+											alignment = editor.ui.ALIGNMENT.CENTER
+										}),
+										editor.ui.string_field({
+											grow = true,
+											value = target_folder_name,
+											on_value_changed = set_target_folder_name
+										})
+									}
+								}),
+								get_system_options(),
+								editor.ui.label({
+								    text = integration_info,
+								    color = editor.ui.COLOR.HINT
 								})
 							}
 						}),
 						buttons = {
 							editor.ui.dialog_button({ text = "Cancel", cancel = true, result = false }),
-							editor.ui.dialog_button({ text = "Create", default = true, result = true })
+							editor.ui.dialog_button({
+								text = "Create",
+								default = true,
+								result = {
+									type = selected_type,
+									name = target_folder_name,
+									include_command = include_command,
+									include_postwrap = include_postwrap,
+									include_test = include_test,
+									include_entity_lua = include_entity_lua,
+									is_gui = is_gui,
+									is_druid_widget = is_druid_widget,
+									is_collection = is_collection,
+									add_system = add_system
+								}
+							})
 						}
 					})
 				end)
 
-				local target_file_name = editor.ui.show_dialog(dialog({}))
-				print("Result", target_file_name)
+				local result = editor.ui.show_dialog(dialog({}))
+				if result then
+					-- Create the target folder
+					local target_folder = folder_path:match("(.*/).*/") .. result.name .. "/"
+					editor.create_directory(target_folder)
+					if result.include_test then
+						editor.create_directory(target_folder .. "test")
+					end
+
+					-- Create files based on type
+					if result.type == "Create System" then
+						file_creator.create_system_files(result.name, result, target_folder)
+					else
+						file_creator.create_entity_files(result.name, result, target_folder)
+					end
+				end
 			end
 		}
 	}
