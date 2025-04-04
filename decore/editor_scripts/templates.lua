@@ -33,8 +33,9 @@ end
         template = template .. [[
 
 function M:postWrap()
-    -- Add post wrap logic here
+    -- self.world.event_bus:process("transform_event", self.on_transform_event, self)
 end
+
 
 ]]
     end
@@ -51,22 +52,11 @@ end
 ---@return string
 function M.get_entity_template(name, options)
     local template = [[
-local decore = require("decore.decore")
-
----@class entity.{NAME_LOWER}: entity
-local M = {}
-
-
----@param world world
----@return entity.{NAME_LOWER}
-function M.create(world)
-    local entity = decore.create_entity("{NAME_LOWER}")
-    world:addEntity(entity)
-    return entity
-end
-
-
-return M
+---@return entity
+return {
+	transform = {},
+	{NAME_LOWER} = {},
+}
 ]]
     return template:gsub("{NAME_LOWER}", name:lower())
 end
@@ -79,26 +69,25 @@ function M.get_gui_script_template(name, options)
     local template = [[
 local druid = require("druid.druid")
 
----@class {NAME_LOWER}: druid.widget
-local M = {}
-
-
-function M:init()
-    -- Initialize your widget here
+function init(self)
+    self.druid = druid.new(self)
 end
 
-
-function M:final()
-    -- Clean up here
+function final(self)
+    self.druid:final()
 end
 
-
-function M:update(dt)
-    -- Update logic here
+function update(self, dt)
+    self.druid:update(dt)
 end
 
+function on_message(self, message_id, message, sender)
+    self.druid:on_message(message_id, message, sender)
+end
 
-return M
+function on_input(self, action_id, action)
+    return self.druid:on_input(action_id, action)
+end
 ]]
     return template:gsub("{NAME_LOWER}", name:lower())
 end
@@ -109,77 +98,25 @@ end
 ---@return string
 function M.get_gui_template(name, options)
     local template = [[
-script: "/druid/druid_widget.gui_script"
-fonts {
-  name: "druid_text_normal"
-  font: "/druid/fonts/druid_text_normal.font"
-}
-textures {
-  name: "druid"
-  texture: "/druid/druid.atlas"
-}
 nodes {
   position {
-    x: 0.0
-    y: 0.0
+    x: 960.0
+    y: 540.0
   }
   size {
-    x: 200.0
-    y: 200.0
+    x: 1920.0
+    y: 1080.0
   }
   type: TYPE_BOX
   id: "root"
-  pivot: PIVOT_CENTER
+  adjust_mode: ADJUST_MODE_STRETCH
   inherit_alpha: true
   size_mode: SIZE_MODE_AUTO
   visible: false
 }
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT
 ]]
-
-    -- If this is a druid widget, add more specific template
-    if options.is_druid_widget then
-        template = template .. [[
-nodes {
-  position {
-    x: 0.0
-    y: 0.0
-  }
-  size {
-    x: 200.0
-    y: 50.0
-  }
-  type: TYPE_BOX
-  id: "background"
-  parent: "root"
-  inherit_alpha: true
-  size_mode: SIZE_MODE_MANUAL
-}
-nodes {
-  position {
-    x: 0.0
-    y: 0.0
-  }
-  size {
-    x: 180.0
-    y: 40.0
-  }
-  color {
-    x: 1.0
-    y: 1.0
-    z: 1.0
-    w: 1.0
-  }
-  type: TYPE_TEXT
-  text: "{NAME}"
-  font: "druid_text_normal"
-  id: "text"
-  parent: "root"
-  align: ALIGN_CENTER
-  valign: VALIGN_MIDDLE
-  inherit_alpha: true
-}
-]]
-    end
 
     return template:gsub("{NAME_LOWER}", name:lower()):gsub("{NAME}", name)
 end
@@ -297,10 +234,8 @@ end
 ---@param name string
 ---@return string
 function M.get_system_registration_code(name)
-    local template = [[    {
-        id = "{NAME_LOWER}",
-        file = require("sys.{NAME_LOWER}"),
-    },]]
+    local template = "require(\"system.{NAME_LOWER}.system_{NAME_LOWER}\").create_system(),"
+
     return template:gsub("{NAME_LOWER}", name:lower())
 end
 
@@ -308,10 +243,7 @@ end
 ---@param name string
 ---@return string
 function M.get_test_registration_code(name)
-    local template = [[    {
-        id = "test_{NAME_LOWER}",
-        file = require("test_{NAME_LOWER}"),
-    },]]
+	local template = "deftest.add(require(\"system.{NAME_LOWER}/test_{NAME_LOWER}\"))"
     return template:gsub("{NAME_LOWER}", name:lower())
 end
 
@@ -319,10 +251,7 @@ end
 ---@param name string
 ---@return string
 function M.get_entity_registration_code(name)
-    local template = [[    {
-        id = "{NAME_LOWER}",
-        file = require("{NAME_LOWER}"),
-    },]]
+	local template = "[\"{NAME_LOWER}\"] = require(\"entity.{NAME_LOWER}.entity_{NAME_LOWER}\"),"
     return template:gsub("{NAME_LOWER}", name:lower())
 end
 
@@ -332,21 +261,38 @@ end
 ---@return string
 function M.get_command_template(name, options)
     local template = [[
-local decore = require("decore.decore")
+---@class world
+---@field command_{NAME_LOWER} command.{NAME_LOWER}
 
----@class command.{NAME_LOWER}: command
+---@class command.{NAME_LOWER}
+---@field {NAME_LOWER} system.{NAME_LOWER}
 local M = {}
 
 
-function M:execute()
-    -- Implement command execution logic here
+---@param {NAME_LOWER} system.{NAME_LOWER}
+---@return command.{NAME_LOWER}
+function M.create({NAME_LOWER})
+	return setmetatable({ {NAME_LOWER} = {NAME_LOWER} }, { __index = M })
 end
 
 
-function M:undo()
-    -- Implement undo logic here
+return M
+]]
+    return template:gsub("{NAME_LOWER}", name:lower())
 end
 
+
+---@param name string
+---@param options table
+---@return string
+function M.get_druid_widget_template(name, options)
+    local template = [[
+---@class widget.{NAME_LOWER}: druid.widget
+local M = {}
+
+function M:init()
+	self.root = self:get_node("root")
+end
 
 return M
 ]]

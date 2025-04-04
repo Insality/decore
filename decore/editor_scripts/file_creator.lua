@@ -19,103 +19,90 @@ end
 
 
 ---@param path string
----@param content string
-local function append_to_file(path, content)
-    local file = io.open(path, "a")
-    if not file then
-        print("Error: Could not append to file at", path)
-        return false
-    end
-    file:write(content)
-    file:close()
-    print("Appended to file at", path)
-    return true
-end
+---@param placeholder string
+---@param insert_code string
+local function insert_at_placeholder(path, placeholder, insert_code)
+    local absolute_path = editor.external_file_attributes(".").path .. path
 
-
----@param path string
----@param pattern string
----@param replacement string
-local function replace_in_file(path, pattern, replacement)
     -- Read the file
-    local file = io.open(path, "r")
+    local file = io.open(absolute_path, "r")
     if not file then
-        print("Error: Could not read file at", path)
+        print("Error: Could not read file at", absolute_path)
         return false
     end
 
     local content = file:read("*a")
     file:close()
 
-    -- Replace the pattern
-    local new_content, replacements = content:gsub(pattern, replacement)
-    if replacements == 0 then
-        print("Warning: Pattern not found in file", path)
+    -- Find the placeholder and extract its indentation
+    local lines = {}
+    local indentation = ""
+    local placeholder_found = false
+    
+    for line in content:gmatch("([^\n]*)\n?") do
+        table.insert(lines, line)
+        
+        if line:find(placeholder, 1, true) then
+            indentation = line:match("^(%s*)")
+            placeholder_found = true
+        end
+    end
+    
+    if not placeholder_found then
+        print("Warning: Placeholder '" .. placeholder .. "' not found in file", absolute_path)
         return false
     end
-
+    
+    -- Add indentation to the insert code
+    local indented_code = indentation .. insert_code
+    
+    -- Create new content with the insert code before the placeholder
+    local new_content = ""
+    placeholder_found = false
+    
+    for i, line in ipairs(lines) do
+        if not placeholder_found and line:find(placeholder, 1, true) then
+            -- Add the new code before the placeholder
+            new_content = new_content .. indented_code .. "\n" .. line .. "\n"
+            placeholder_found = true
+        else
+            new_content = new_content .. line
+            if i < #lines then
+                new_content = new_content .. "\n"
+            end
+        end
+    end
+    
     -- Write the file
-    file = io.open(path, "w")
+    file = io.open(absolute_path, "w")
     if not file then
-        print("Error: Could not write file at", path)
+        print("Error: Could not write file at", absolute_path)
         return false
     end
-
+    
     file:write(new_content)
     file:close()
-    print("Updated file at", path)
+    print("Updated file at", absolute_path)
     return true
-end
-
-
----@param path string
----@param placeholder string
----@param insert_code string
-local function insert_at_placeholder(path, placeholder, insert_code)
-	local absolute_path = editor.external_file_attributes(".").path .. path
-    return replace_in_file(absolute_path, placeholder, placeholder .. "\n" .. insert_code)
 end
 
 
 ---@return table
 local function load_game_project_config()
-    -- Load the game.project file to get the forge paths
-    local project_path = editor.external_file_attributes(".").path
-    local game_project_path = project_path .. editor.get("/game.project", "path")
-
     local config = {}
-    local file = io.open(game_project_path, "r")
-    if not file then
-        print("Error: Could not open game.project file")
-        return config
-    end
 
-    local in_decore_section = false
-    for line in file:lines() do
-        if line == "[decore]" then
-            in_decore_section = true
-        elseif line:match("^%[") then
-            in_decore_section = false
-        elseif in_decore_section then
-            local key, value = line:match("([%w_]+)%s*=%s*(.*)")
-            if key and value then
-                config[key] = value
-            end
-        end
-    end
+    -- Directly get values from game.project using editor.get()
+    config.assistant_systems_path = editor.get("/game.project", "decore.assistant_systems_path")
+    config.assistant_entities_path = editor.get("/game.project", "decore.assistant_entities_path")
+    config.assistant_tests_path = editor.get("/game.project", "decore.assistant_tests_path")
+    config.assistant_spawner_path = editor.get("/game.project", "decore.assistant_spawner_path")
 
-    file:close()
+    -- Get placeholders
+    config.assistant_systems_placeholder = editor.get("/game.project", "decore.assistant_systems_placeholder") or "{NEW_SYSTEMS_HERE}"
+    config.assistant_entities_placeholder = editor.get("/game.project", "decore.assistant_entities_placeholder") or "{NEW_ENTITIES_HERE}"
+    config.assistant_tests_placeholder = editor.get("/game.project", "decore.assistant_tests_placeholder") or "{NEW_TESTS_HERE}"
+
     return config
-end
-
-
----@param template string
----@param name string
----@return string
-local function process_template(template, name)
-    return template:gsub("{NAME_LOWER}", name:lower())
-                  :gsub("{NAME}", name)
-                  :gsub("{NAME_UPPER}", name:upper())
 end
 
 
@@ -139,7 +126,7 @@ function M.create_system_files(name, options, folder_path)
 
     -- Create entity file if needed
     if options.include_entity_lua then
-        local entity_path = absolute_folder_path .. name:lower() .. ".lua"
+        local entity_path = absolute_folder_path .. "entity_" .. name:lower() .. ".lua"
         local entity_template = templates.get_entity_template(name, options)
         write_file(entity_path, entity_template)
     end
@@ -153,29 +140,29 @@ function M.create_system_files(name, options, folder_path)
         write_file(test_path, test_template)
     end
 
-    -- Register in the appropriate files
+    -- Register in the appropriate files if integration is enabled
     local config = load_game_project_config()
 
-    -- Register system
-    local systems_path = config.forge_systems_path
-    if systems_path then
+    -- Register system if system registration is enabled
+    local systems_path = config.assistant_systems_path
+    if options.register_in_systems and systems_path then
         local registration_code = templates.get_system_registration_code(name)
-        local placeholder = config.forge_systems_placeholder or "{NEW_SYSTEMS_HERE}"
+        local placeholder = config.assistant_systems_placeholder or "{NEW_SYSTEMS_HERE}"
         insert_at_placeholder(systems_path, placeholder, registration_code)
     end
 
-    -- Register test
-    if options.include_test and config.forge_tests_path then
+    -- Register test if test registration is enabled
+    if options.register_in_tests and options.include_test and config.assistant_tests_path then
         local test_registration = templates.get_test_registration_code(name)
-        local test_placeholder = config.forge_tests_placeholder or "{NEW_TESTS_HERE}"
-        insert_at_placeholder(config.forge_tests_path, test_placeholder, test_registration)
+        local test_placeholder = config.assistant_tests_placeholder or "{NEW_TESTS_HERE}"
+        insert_at_placeholder(config.assistant_tests_path, test_placeholder, test_registration)
     end
 
-    -- Register entity
-    if options.include_entity_lua and config.forge_entities_path then
+    -- Register entity if entity registration is enabled
+    if options.register_in_entities and options.include_entity_lua and config.assistant_entities_path then
         local entity_registration = templates.get_entity_registration_code(name)
-        local entity_placeholder = config.forge_entities_placeholder or "{NEW_ENTITIES_HERE}"
-        insert_at_placeholder(config.forge_entities_path, entity_placeholder, entity_registration)
+        local entity_placeholder = config.assistant_entities_placeholder or "{NEW_ENTITIES_HERE}"
+        insert_at_placeholder(config.assistant_entities_path, entity_placeholder, entity_registration)
     end
 end
 
@@ -186,7 +173,7 @@ end
 function M.create_entity_files(name, options, folder_path)
     -- Create entity file
     local absolute_folder_path = editor.external_file_attributes(".").path .. folder_path
-    local entity_path = absolute_folder_path .. name:lower() .. ".lua"
+    local entity_path = absolute_folder_path .. "entity_" .. name:lower() .. ".lua"
     local entity_template = templates.get_entity_template(name, options)
     write_file(entity_path, entity_template)
 
@@ -197,10 +184,16 @@ function M.create_entity_files(name, options, folder_path)
         local gui_template = templates.get_gui_template(name, options)
         write_file(gui_path, gui_template)
 
-        -- Create GUI script
-        local gui_script_path = absolute_folder_path .. name:lower() .. ".gui_script"
-        local gui_script_template = templates.get_gui_script_template(name, options)
-        write_file(gui_script_path, gui_script_template)
+        -- Create GUI script only if it's not a Druid widget (widget uses druid_widget.gui_script)
+        if not options.is_druid_widget then
+            local gui_script_path = absolute_folder_path .. name:lower() .. ".gui_script"
+            local gui_script_template = templates.get_gui_script_template(name, options)
+            write_file(gui_script_path, gui_script_template)
+		else
+			local gui_script_path = absolute_folder_path .. name:lower() .. ".lua"
+            local gui_script_template = templates.get_druid_widget_template(name, options)
+            write_file(gui_script_path, gui_script_template)
+		end
     end
 
     -- Create collection file if needed
@@ -240,34 +233,34 @@ function M.create_entity_files(name, options, folder_path)
         end
     end
 
-    -- Register in the appropriate files
+    -- Register in the appropriate files if integration is enabled
     local config = load_game_project_config()
 
-    -- Register entity
-    if config.forge_entities_path then
+    -- Register entity if entity registration is enabled
+    if options.register_in_entities and config.assistant_entities_path then
         local entity_registration = templates.get_entity_registration_code(name)
-        local entity_placeholder = config.forge_entities_placeholder or "{NEW_ENTITIES_HERE}"
-        insert_at_placeholder(config.forge_entities_path, entity_placeholder, entity_registration)
+        local entity_placeholder = config.assistant_entities_placeholder or "{NEW_ENTITIES_HERE}"
+        insert_at_placeholder(config.assistant_entities_path, entity_placeholder, entity_registration)
     end
 
-    -- Register system
-    if options.add_system and config.forge_systems_path then
+    -- Register system if system registration is enabled
+    if options.register_in_systems and options.add_system and config.assistant_systems_path then
         local registration_code = templates.get_system_registration_code(name)
-        local placeholder = config.forge_systems_placeholder or "{NEW_SYSTEMS_HERE}"
-        insert_at_placeholder(config.forge_systems_path, placeholder, registration_code)
+        local placeholder = config.assistant_systems_placeholder or "{NEW_SYSTEMS_HERE}"
+        insert_at_placeholder(config.assistant_systems_path, placeholder, registration_code)
     end
 
-    -- Register test
-    if options.include_test and config.forge_tests_path then
+    -- Register test if test registration is enabled
+    if options.register_in_tests and options.include_test and config.assistant_tests_path then
         local test_registration = templates.get_test_registration_code(name)
-        local test_placeholder = config.forge_tests_placeholder or "{NEW_TESTS_HERE}"
-        insert_at_placeholder(config.forge_tests_path, test_placeholder, test_registration)
+        local test_placeholder = config.assistant_tests_placeholder or "{NEW_TESTS_HERE}"
+        insert_at_placeholder(config.assistant_tests_path, test_placeholder, test_registration)
     end
 
-    -- If we have a spawner path for game objects/collections
-    if (options.is_collection or not options.is_gui) and config.forge_spawner_path then
+    -- If we have a spawner path for game objects/collections and spawner registration is enabled
+    if options.register_in_spawner and (options.is_collection or not options.is_gui) and config.assistant_spawner_path then
         -- TODO: Add more sophisticated integration with the spawner
-        print("Note: You might need to manually register the entity in the spawner at " .. config.forge_spawner_path)
+        print("Note: You might need to manually register the entity in the spawner at " .. config.assistant_spawner_path)
     end
 end
 
