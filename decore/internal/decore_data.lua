@@ -1,3 +1,5 @@
+local decore_internal = require("decore.internal.decore_internal")
+
 local M = {}
 
 local TYPE_TABLE = "table"
@@ -41,7 +43,7 @@ function M.get_component(component_id, component_pack_id)
 
 		if prefab ~= nil and (not component_pack_id or component_pack_id == pack_id) then
 			if type(prefab) == TYPE_TABLE then
-				return sys.deserialize(sys.serialize(prefab))
+				return decore_internal.deepcopy(prefab)
 			else
 				return prefab
 			end
@@ -109,6 +111,11 @@ function M.get_entity(prefab_id, pack_id)
 			return entity
 		end
 	end
+
+	decore_internal.logger:warn("Entity not found", {
+		prefab_id = prefab_id,
+		pack_id = pack_id,
+	})
 
 	return nil
 end

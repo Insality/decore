@@ -130,13 +130,19 @@ end
 ---@return string
 function M.get_collection_template(name, options)
     local template = [[
-embedded_components {
-  id: "sprite"
-  type: "sprite"
-  data: "tile_set: \"/druid/druid.atlas\"\n"
-  "default_animation: \"squircle\"\n"
-  "material: \"/builtins/materials/sprite.material\"\n"
-  "blend_mode: BLEND_MODE_ALPHA\n"
+name: "{NAME_LOWER}"
+scale_along_z: 0
+embedded_instances {
+  id: "go"
+  data: "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"tile_set: \\\"/druid/druid.atlas\\\"\\n"
+  "default_animation: \\\"ui_circle_64\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "blend_mode: BLEND_MODE_ALPHA\\n"
+  "\"\n"
+  "}\n"
   ""
   position {
     x: 0.0
@@ -148,6 +154,11 @@ embedded_components {
     y: 0.0
     z: 0.0
     w: 1.0
+  }
+  scale3 {
+    x: 1.0
+    y: 1.0
+    z: 1.0
   }
 }
 ]]

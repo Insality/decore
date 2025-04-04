@@ -86,16 +86,24 @@ function M.clamp(value, v1, v2)
 end
 
 
-
 ---Create a copy of lua table
----@param orig table The table to copy
----@return table
-function M.deepcopy(orig)
-	local copy = orig
-
-	if type(orig) == TYPE_TABLE then
-		-- It's faster than copying or JSON serialization
-		copy = sys.deserialize(sys.serialize(orig))
+---@param value_to_copy any
+---@return any
+function M.deepcopy(value_to_copy)
+	local orig_type = type(value_to_copy)
+	local copy
+	if orig_type == 'table' then
+		copy = {}
+		for orig_key, orig_value in next, value_to_copy, nil do
+			copy[M.deepcopy(orig_key)] = M.deepcopy(orig_value)
+		end
+		-- Copy metatable if it exists
+		local mt = getmetatable(value_to_copy)
+		if mt then
+			setmetatable(copy, mt)
+		end
+	else -- number, string, boolean, etc
+		copy = value_to_copy
 	end
 
 	return copy
@@ -107,8 +115,12 @@ end
 ---@param t2 any
 function M.merge_tables(t1, t2)
 	for k, v in pairs(t2) do
-		if type(v) == TYPE_TABLE and type(t1[k]) == TYPE_TABLE then
-			M.merge_tables(t1[k], v)
+		if type(v) == TYPE_TABLE then
+			if not t1[k] then
+				t1[k] = M.deepcopy(v)
+			else
+				M.merge_tables(t1[k], v)
+			end
 		else
 			t1[k] = v
 		end

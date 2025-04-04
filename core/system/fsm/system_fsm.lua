@@ -18,7 +18,7 @@ decore.register_component("fsm")
 ---@field entity entity
 ---@field event string
 ---@field state_before string
----@field state_after string
+---@field state_new string
 
 ---@class system.fsm: system
 ---@field entities entity.fsm[]
@@ -48,14 +48,14 @@ function M:trigger(entity, event)
 			entity = entity,
 			event = event,
 			state_before = state_before,
-			state_after = next_state,
+			state_new = next_state,
 		})
 
 		logger:info("FSM event triggered", {
 			entity = entity,
 			event = event,
 			state_before = state_before,
-			next_state = next_state,
+			state_new = next_state,
 		})
 	end
 end

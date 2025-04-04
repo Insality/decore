@@ -244,6 +244,7 @@ end
 function M.apply_component(entity, component_id, component_data)
 	-- The component data can be false and this is valid
 	if component_data == nil then
+		-- TODO: Do I need this?
 		component_data = {}
 	end
 
