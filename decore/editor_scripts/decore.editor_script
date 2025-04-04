@@ -5,15 +5,15 @@ local file_creator = require("decore.editor_scripts.file_creator")
 -- Define preference schema for the Decore Assistant
 function M.get_prefs_schema()
 	return {
-		["decore.assistant.selected_type"] = editor.prefs.schema.string({default = "Create Entity", scope = editor.prefs.SCOPE.PROJECT}),
-		["decore.assistant.include_command"] = editor.prefs.schema.boolean({default = false, scope = editor.prefs.SCOPE.PROJECT}),
+		["decore.assistant.create_entity"] = editor.prefs.schema.boolean({default = true, scope = editor.prefs.SCOPE.PROJECT}),
+		["decore.assistant.create_system"] = editor.prefs.schema.boolean({default = false, scope = editor.prefs.SCOPE.PROJECT}),
+		["decore.assistant.create_command"] = editor.prefs.schema.boolean({default = false, scope = editor.prefs.SCOPE.PROJECT}),
 		["decore.assistant.include_postwrap"] = editor.prefs.schema.boolean({default = false, scope = editor.prefs.SCOPE.PROJECT}),
-		["decore.assistant.include_test"] = editor.prefs.schema.boolean({default = false, scope = editor.prefs.SCOPE.PROJECT}),
-		["decore.assistant.include_entity_lua"] = editor.prefs.schema.boolean({default = true, scope = editor.prefs.SCOPE.PROJECT}),
+		["decore.assistant.add_test"] = editor.prefs.schema.boolean({default = false, scope = editor.prefs.SCOPE.PROJECT}),
+		["decore.assistant.add_test_system"] = editor.prefs.schema.boolean({default = false, scope = editor.prefs.SCOPE.PROJECT}),
 		["decore.assistant.is_gui"] = editor.prefs.schema.boolean({default = false, scope = editor.prefs.SCOPE.PROJECT}),
 		["decore.assistant.is_druid_widget"] = editor.prefs.schema.boolean({default = false, scope = editor.prefs.SCOPE.PROJECT}),
 		["decore.assistant.is_collection"] = editor.prefs.schema.boolean({default = false, scope = editor.prefs.SCOPE.PROJECT}),
-		["decore.assistant.add_system"] = editor.prefs.schema.boolean({default = false, scope = editor.prefs.SCOPE.PROJECT}),
 		["decore.assistant.register_in_systems"] = editor.prefs.schema.boolean({default = true, scope = editor.prefs.SCOPE.PROJECT}),
 		["decore.assistant.register_in_entities"] = editor.prefs.schema.boolean({default = true, scope = editor.prefs.SCOPE.PROJECT}),
 		["decore.assistant.register_in_tests"] = editor.prefs.schema.boolean({default = true, scope = editor.prefs.SCOPE.PROJECT}),
@@ -260,15 +260,15 @@ function M.get_commands()
 					local target_folder_name, set_target_folder_name = editor.ui.use_state(folder_name)
 
 					-- Load saved preferences for UI options
-					local selected_type, set_selected_type = editor.ui.use_state(editor.prefs.get("decore.assistant.selected_type"))
-					local include_command, set_include_command = editor.ui.use_state(editor.prefs.get("decore.assistant.include_command"))
+					local create_entity, set_create_entity = editor.ui.use_state(editor.prefs.get("decore.assistant.create_entity"))
+					local create_system, set_create_system = editor.ui.use_state(editor.prefs.get("decore.assistant.create_system"))
+					local create_command, set_create_command = editor.ui.use_state(editor.prefs.get("decore.assistant.create_command"))
 					local include_postwrap, set_include_postwrap = editor.ui.use_state(editor.prefs.get("decore.assistant.include_postwrap"))
-					local include_test, set_include_test = editor.ui.use_state(editor.prefs.get("decore.assistant.include_test"))
-					local include_entity_lua, set_include_entity_lua = editor.ui.use_state(editor.prefs.get("decore.assistant.include_entity_lua"))
+					local add_test, set_add_test = editor.ui.use_state(editor.prefs.get("decore.assistant.add_test"))
+					local add_test_system, set_add_test_system = editor.ui.use_state(editor.prefs.get("decore.assistant.add_test_system"))
 					local is_gui, set_is_gui = editor.ui.use_state(editor.prefs.get("decore.assistant.is_gui"))
 					local is_druid_widget, set_is_druid_widget = editor.ui.use_state(editor.prefs.get("decore.assistant.is_druid_widget"))
 					local is_collection, set_is_collection = editor.ui.use_state(editor.prefs.get("decore.assistant.is_collection"))
-					local add_system, set_add_system = editor.ui.use_state(editor.prefs.get("decore.assistant.add_system"))
 
 					-- Integration checkboxes
 					local register_in_systems, set_register_in_systems = editor.ui.use_state(editor.prefs.get("decore.assistant.register_in_systems"))
@@ -280,213 +280,178 @@ function M.get_commands()
 					local target_folder_path = folder_path:match("(.*/).*/") .. target_folder_name .. "/"
 
 					-- Calculate number of files that will be created
-					local function count_files_to_create()
-						local count = 0
+					local file_count = file_creator.count_files_to_create({
+						create_entity = create_entity,
+						create_system = create_system,
+						include_command = create_command,
+						is_gui = is_gui,
+						is_druid_widget = is_druid_widget,
+						is_collection = is_collection,
+						include_test = add_test,
+						add_test_system = add_test_system
+					})
 
-						if selected_type == "Create System" then
-							-- System file is always created
-							count = count + 1
+					-- Function to generate all creation options
+					local function get_creation_options()
+						return editor.ui.vertical({
+							padding = editor.ui.PADDING.SMALL,
+							spacing = editor.ui.SPACING.SMALL,
+							children = {
+								editor.ui.horizontal({
+									children = {
+										editor.ui.check_box({
+											value = is_collection,
+											on_value_changed = function(value)
+												set_is_collection(value)
+												editor.prefs.set("decore.assistant.is_collection", value)
+											end
+										}),
+										editor.ui.label({
+											text = "Is Collection",
+											alignment = editor.ui.ALIGNMENT.LEFT
+										})
+									}
+								}),
+								editor.ui.horizontal({
+									children = {
+										editor.ui.check_box({
+											value = is_gui,
+											on_value_changed = function(value)
+												set_is_gui(value)
+												editor.prefs.set("decore.assistant.is_gui", value)
 
-							-- Command file
-							if include_command then
-								count = count + 1
-							end
-
-							-- Entity file
-							if include_entity_lua then
-								count = count + 1
-							end
-
-							-- Test file
-							if include_test then
-								count = count + 1
-							end
-						else -- Create Entity
-							-- Entity file is always created
-							count = count + 1
-
-							-- GUI files (script + layout)
-							if is_gui then
-								count = count + 2
-							end
-
-							-- Collection file
-							if is_collection then
-								count = count + 1
-							end
-
-							-- System file
-							if add_system then
-								count = count + 1
-							end
-
-							-- Test files
-							if include_test then
-								if is_gui then
-									count = count + 2 -- Test GUI script + layout
-								else
-									count = count + 1 -- Regular test file
-								end
-							end
-						end
-
-						return count
-					end
-
-					local file_count = count_files_to_create()
-
-					-- Function to get system options based on selected type
-					local function get_system_options()
-						if selected_type == "Create System" then
-							return editor.ui.vertical({
-								padding = editor.ui.PADDING.SMALL,
-								spacing = editor.ui.SPACING.SMALL,
-								children = {
-									editor.ui.horizontal({
-										children = {
-											editor.ui.check_box({
-												value = include_command,
-												on_value_changed = function(value)
-													set_include_command(value)
-													editor.prefs.set("decore.assistant.include_command", value)
+												-- Automatically disable druid widget if GUI is disabled
+												if not value and is_druid_widget then
+													set_is_druid_widget(false)
+													editor.prefs.set("decore.assistant.is_druid_widget", false)
 												end
-											}),
-											editor.ui.label({
-												text = "Include Command System",
-												alignment = editor.ui.ALIGNMENT.LEFT
-											})
-										}
-									}),
-									editor.ui.horizontal({
-										children = {
-											editor.ui.check_box({
-												value = include_postwrap,
-												on_value_changed = function(value)
-													set_include_postwrap(value)
-													editor.prefs.set("decore.assistant.include_postwrap", value)
+											end
+										}),
+										editor.ui.label({
+											text = "Is GUI",
+											alignment = editor.ui.ALIGNMENT.LEFT
+										})
+									}
+								}),
+								editor.ui.horizontal({
+									children = {
+										editor.ui.check_box({
+											value = is_druid_widget,
+											enabled = is_gui,
+											on_value_changed = function(value)
+												set_is_druid_widget(value)
+												editor.prefs.set("decore.assistant.is_druid_widget", value)
+											end
+										}),
+										editor.ui.label({
+											text = "Is Druid Widget",
+											alignment = editor.ui.ALIGNMENT.LEFT,
+											color = is_gui and editor.ui.COLOR.NORMAL or editor.ui.COLOR.DISABLED
+										})
+									}
+								}),
+								editor.ui.horizontal({
+									children = {
+										editor.ui.check_box({
+											value = create_entity,
+											on_value_changed = function(value)
+												set_create_entity(value)
+												editor.prefs.set("decore.assistant.create_entity", value)
+											end
+										}),
+										editor.ui.label({
+											text = "Create Entity",
+											alignment = editor.ui.ALIGNMENT.LEFT
+										})
+									}
+								}),
+								editor.ui.horizontal({
+									children = {
+										editor.ui.check_box({
+											value = create_system,
+											on_value_changed = function(value)
+												set_create_system(value)
+												editor.prefs.set("decore.assistant.create_system", value)
+
+												-- Automatically disable command if system is disabled
+												if not value and create_command then
+													set_create_command(false)
+													editor.prefs.set("decore.assistant.create_command", false)
 												end
-											}),
-											editor.ui.label({
-												text = "Include PostWrap",
-												alignment = editor.ui.ALIGNMENT.LEFT
-											})
-										}
-									}),
-									editor.ui.horizontal({
-										children = {
-											editor.ui.check_box({
-												value = include_test,
-												on_value_changed = function(value)
-													set_include_test(value)
-													editor.prefs.set("decore.assistant.include_test", value)
-												end
-											}),
-											editor.ui.label({
-												text = "Include Test",
-												alignment = editor.ui.ALIGNMENT.LEFT
-											})
-										}
-									}),
-									editor.ui.horizontal({
-										children = {
-											editor.ui.check_box({
-												value = include_entity_lua,
-												on_value_changed = function(value)
-													set_include_entity_lua(value)
-													editor.prefs.set("decore.assistant.include_entity_lua", value)
-												end
-											}),
-											editor.ui.label({
-												text = "Add Entity Lua",
-												alignment = editor.ui.ALIGNMENT.LEFT
-											})
-										}
-									})
-								}
-							})
-						else
-							return editor.ui.vertical({
-								padding = editor.ui.PADDING.SMALL,
-								spacing = editor.ui.SPACING.SMALL,
-								children = {
-									editor.ui.horizontal({
-										children = {
-											editor.ui.check_box({
-												value = is_gui,
-												on_value_changed = function(value)
-													set_is_gui(value)
-													editor.prefs.set("decore.assistant.is_gui", value)
-												end
-											}),
-											editor.ui.label({
-												text = "Is GUI Entity",
-												alignment = editor.ui.ALIGNMENT.LEFT
-											})
-										}
-									}),
-									editor.ui.horizontal({
-										children = {
-											editor.ui.check_box({
-												value = is_druid_widget,
-												on_value_changed = function(value)
-													set_is_druid_widget(value)
-													editor.prefs.set("decore.assistant.is_druid_widget", value)
-												end
-											}),
-											editor.ui.label({
-												text = "Is Druid Widget",
-												alignment = editor.ui.ALIGNMENT.LEFT
-											})
-										}
-									}),
-									editor.ui.horizontal({
-										children = {
-											editor.ui.check_box({
-												value = is_collection,
-												on_value_changed = function(value)
-													set_is_collection(value)
-													editor.prefs.set("decore.assistant.is_collection", value)
-												end
-											}),
-											editor.ui.label({
-												text = "Is Collection",
-												alignment = editor.ui.ALIGNMENT.LEFT
-											})
-										}
-									}),
-									editor.ui.horizontal({
-										children = {
-											editor.ui.check_box({
-												value = add_system,
-												on_value_changed = function(value)
-													set_add_system(value)
-													editor.prefs.set("decore.assistant.add_system", value)
-												end
-											}),
-											editor.ui.label({
-												text = "Add System",
-												alignment = editor.ui.ALIGNMENT.LEFT
-											})
-										}
-									}),
-									editor.ui.horizontal({
-										children = {
-											editor.ui.check_box({
-												value = include_test,
-												on_value_changed = function(value)
-													set_include_test(value)
-													editor.prefs.set("decore.assistant.include_test", value)
-												end
-											}),
-											editor.ui.label({
-												text = "Include Test",
-												alignment = editor.ui.ALIGNMENT.LEFT
-											})
-										}
-									})
-								}
-							})
-						end
+											end
+										}),
+										editor.ui.label({
+											text = "Create System",
+											alignment = editor.ui.ALIGNMENT.LEFT
+										})
+									}
+								}),
+								editor.ui.horizontal({
+									children = {
+										editor.ui.check_box({
+											value = create_command,
+											enabled = create_system,
+											on_value_changed = function(value)
+												set_create_command(value)
+												editor.prefs.set("decore.assistant.create_command", value)
+											end
+										}),
+										editor.ui.label({
+											text = "Create System Command",
+											alignment = editor.ui.ALIGNMENT.LEFT,
+											color = create_system and editor.ui.COLOR.NORMAL or editor.ui.COLOR.DISABLED
+										})
+									}
+								}),
+								editor.ui.horizontal({
+									children = {
+										editor.ui.check_box({
+											value = include_postwrap,
+											enabled = create_system,
+											on_value_changed = function(value)
+												set_include_postwrap(value)
+												editor.prefs.set("decore.assistant.include_postwrap", value)
+											end
+										}),
+										editor.ui.label({
+											text = "Include PostWrap",
+											alignment = editor.ui.ALIGNMENT.LEFT,
+											color = create_system and editor.ui.COLOR.NORMAL or editor.ui.COLOR.DISABLED
+										})
+									}
+								}),
+								editor.ui.horizontal({
+									children = {
+										editor.ui.check_box({
+											value = add_test,
+											on_value_changed = function(value)
+												set_add_test(value)
+												editor.prefs.set("decore.assistant.add_test", value)
+											end
+										}),
+										editor.ui.label({
+											text = "Create Test Collection",
+											alignment = editor.ui.ALIGNMENT.LEFT
+										})
+									}
+								}),
+								editor.ui.horizontal({
+									children = {
+										editor.ui.check_box({
+											value = add_test_system,
+											on_value_changed = function(value)
+												set_add_test_system(value)
+												editor.prefs.set("decore.assistant.add_test_system", value)
+											end
+										}),
+										editor.ui.label({
+											text = "Create Test System",
+											alignment = editor.ui.ALIGNMENT.LEFT
+										})
+									}
+								})
+							}
+						})
 					end
 
 					-- Function to generate integration options
@@ -495,14 +460,13 @@ function M.get_commands()
 						local children = {
 							editor.ui.label({
 								text = "Integration Options:",
-								color = editor.ui.COLOR.NORMAL,
+								color = editor.ui.COLOR.TEXT,
 								alignment = editor.ui.ALIGNMENT.LEFT
 							})
 						}
 
 						-- Only show systems integration checkbox if relevant for the selected type
-						if (selected_type == "Create System" or
-						   (selected_type == "Create Entity" and add_system)) and integration_info.has_systems_path then
+						if create_system and integration_info.has_systems_path then
 							table.insert(children, editor.ui.horizontal({
 								children = {
 									editor.ui.check_box({
@@ -521,8 +485,7 @@ function M.get_commands()
 						end
 
 						-- Only show entities integration checkbox if relevant
-						if (selected_type == "Create Entity" or
-						   (selected_type == "Create System" and include_entity_lua)) and integration_info.has_entities_path then
+						if create_entity and integration_info.has_entities_path then
 							table.insert(children, editor.ui.horizontal({
 								children = {
 									editor.ui.check_box({
@@ -541,7 +504,7 @@ function M.get_commands()
 						end
 
 						-- Only show tests integration checkbox if including tests
-						if include_test and integration_info.has_tests_path then
+						if add_test and integration_info.has_tests_path then
 							table.insert(children, editor.ui.horizontal({
 								children = {
 									editor.ui.check_box({
@@ -560,7 +523,7 @@ function M.get_commands()
 						end
 
 						-- Only show spawner integration checkbox for collections or non-GUI entities
-						if selected_type == "Create Entity" and (is_collection or not is_gui) and integration_info.has_spawner_path then
+						if create_entity and (is_collection or not is_gui) and integration_info.has_spawner_path then
 							table.insert(children, editor.ui.horizontal({
 								children = {
 									editor.ui.check_box({
@@ -581,27 +544,7 @@ function M.get_commands()
 						-- If no integration paths are available, show help text
 						if #children == 1 then
 							table.insert(children, editor.ui.label({
-								text = "No integration paths configured. Add a [decore] section to game.project with these keys:",
-								color = editor.ui.COLOR.HINT,
-								alignment = editor.ui.ALIGNMENT.LEFT
-							}))
-							table.insert(children, editor.ui.label({
-								text = "decore.assistant_systems_path = path/to/systems_registry.lua",
-								color = editor.ui.COLOR.HINT,
-								alignment = editor.ui.ALIGNMENT.LEFT
-							}))
-							table.insert(children, editor.ui.label({
-								text = "decore.assistant_entities_path = path/to/entities_registry.lua",
-								color = editor.ui.COLOR.HINT,
-								alignment = editor.ui.ALIGNMENT.LEFT
-							}))
-							table.insert(children, editor.ui.label({
-								text = "decore.assistant_tests_path = path/to/tests_registry.lua",
-								color = editor.ui.COLOR.HINT,
-								alignment = editor.ui.ALIGNMENT.LEFT
-							}))
-							table.insert(children, editor.ui.label({
-								text = "decore.assistant_spawner_path = path/to/spawner.lua",
+								text = "No integration paths configured.",
 								color = editor.ui.COLOR.HINT,
 								alignment = editor.ui.ALIGNMENT.LEFT
 							}))
@@ -620,27 +563,6 @@ function M.get_commands()
 							padding = editor.ui.PADDING.SMALL,
 							spacing = editor.ui.SPACING.SMALL,
 							children = {
-								editor.ui.horizontal({
-									padding = editor.ui.PADDING.SMALL,
-									children = {
-										editor.ui.label({
-											text = "Action",
-											alignment = editor.ui.ALIGNMENT.CENTER
-										}),
-										editor.ui.select_box({
-											grow = true,
-											value = selected_type,
-											on_value_changed = function(value)
-												set_selected_type(value)
-												editor.prefs.set("decore.assistant.selected_type", value)
-											end,
-											options = {
-												"Create System",
-												"Create Entity",
-											}
-										})
-									}
-								}),
 								editor.ui.horizontal({
 									padding = editor.ui.PADDING.SMALL,
 									children = {
@@ -669,7 +591,7 @@ function M.get_commands()
 										})
 									}
 								}),
-								get_system_options(),
+								get_creation_options(),
 								get_integration_options()
 							}
 						}),
@@ -679,16 +601,16 @@ function M.get_commands()
 								text = "Create",
 								default = true,
 								result = {
-									type = selected_type,
 									name = target_folder_name,
-									include_command = include_command,
+									create_entity = create_entity,
+									create_system = create_system,
+									include_command = create_command,
 									include_postwrap = include_postwrap,
-									include_test = include_test,
-									include_entity_lua = include_entity_lua,
+									include_test = add_test,
+									add_test_system = add_test_system,
 									is_gui = is_gui,
 									is_druid_widget = is_druid_widget,
 									is_collection = is_collection,
-									add_system = add_system,
 									register_in_systems = register_in_systems,
 									register_in_entities = register_in_entities,
 									register_in_tests = register_in_tests,
@@ -708,12 +630,8 @@ function M.get_commands()
 						editor.create_directory(target_folder .. "test")
 					end
 
-					-- Create files based on type
-					if result.type == "Create System" then
-						file_creator.create_system_files(result.name, result, target_folder)
-					else
-						file_creator.create_entity_files(result.name, result, target_folder)
-					end
+					-- Create files based on the selected options
+					file_creator.create_entity_files(result.name, result, target_folder)
 				end
 			end
 		}
