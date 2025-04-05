@@ -43,11 +43,12 @@ function M:play(entity, animation_id, speed, is_loop)
 		is_loop = is_loop or false,
 		speed = speed or 1,
 		callback = function(animation_path)
-			for index = 1, #p.detached_animations do
-				if p.detached_animations[index] == p.animation_state then
-					table.remove(p.detached_animations, index)
-					break
-				end
+			-- If default animation, run it after the current animation
+			if p.default_animation then
+				panthera.play(p.animation_state, p.default_animation, {
+					is_loop = p.is_loop or false,
+					speed = p.speed or 1,
+				})
 			end
 		end
 	})

@@ -13,14 +13,14 @@ return function()
 		end)
 
 		it("Should set current health", function()
-			local entity = world:add({ health = { health = 100 } })
+			local entity = world:add({ health = { max_health = 100 } })
 			world:refresh()
 
 			assert(entity.health.current_health == 100)
 		end)
 
 		it("Should catch health command", function()
-			local entity = world:add({ health = { health = 100 } })
+			local entity = world:add({ health = { max_health = 100 } })
 			world:refresh()
 
 			world.command_health:apply_damage(entity, 10)
@@ -28,7 +28,7 @@ return function()
 		end)
 
 		it("Should produce health_event", function()
-			local entity = world:add({ health = { health = 100 } })
+			local entity = world:add({ health = { max_health = 100 } })
 			world:refresh()
 
 			world.command_health:apply_damage(entity, 10)

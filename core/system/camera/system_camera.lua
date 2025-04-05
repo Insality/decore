@@ -146,18 +146,6 @@ function M:update(dt)
 			self:shake(power)
 		end
 	end
-
-	-- Read size of sprite to apply as transform
-	local camera = self.camera
-	local root = camera and camera.game_object.root
-	if camera and root then
-		local sprite_url = msg.url(nil, root, HASH_SPRITE)
-		local size_x = go.get(sprite_url, HASH_SIZE_X)
-		local size_y = go.get(sprite_url, HASH_SIZE_Y)
-		if size_x ~= camera.transform.size_x or size_y ~= camera.transform.size_y then
-			self.world.command_transform:set_size(camera, size_x, size_y)
-		end
-	end
 end
 
 

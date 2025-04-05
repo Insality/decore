@@ -18,7 +18,6 @@ local command_panthera = require("core.system.panthera.command_panthera")
 ---@field speed number
 ---@field is_loop boolean|nil
 ---@field play_on_start boolean|nil
----@field detached_animations panthera.animation[]
 ---@field play_on_remove string|nil Play animation on entity remove
 decore.register_component("panthera", {
 	default_animation = "default",
@@ -52,7 +51,6 @@ end
 ---@param entity entity.panthera
 function M:onAdd(entity)
 	local p = entity.panthera
-	p.detached_animations = {}
 
 	local animation_state
 	if entity.game_object.object then
@@ -80,13 +78,6 @@ end
 function M:onRemove(entity)
 	local p = entity.panthera
 	panthera.stop(p.animation_state)
-
-	for index = 1, #p.detached_animations do
-		local state = p.detached_animations[index]
-		if panthera.is_playing(state) then
-			panthera.stop(state)
-		end
-	end
 
 	if p.play_on_remove then
 		panthera.play(p.animation_state, p.play_on_remove)

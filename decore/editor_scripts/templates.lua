@@ -246,7 +246,7 @@ end
 ---@param name string
 ---@return string
 function M.get_test_registration_code(name)
-	local template = "deftest.add(require(\"system.{NAME_LOWER}/test_{NAME_LOWER}\"))"
+	local template = "deftest.add(require(\"system.{NAME_LOWER}.test_{NAME_LOWER}\"))"
     return template:gsub("{NAME_LOWER}", name:lower())
 end
 

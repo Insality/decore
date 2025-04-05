@@ -34,7 +34,7 @@ embedded_components {
 embedded_components {
   id: "sprite"
   type: "sprite"
-  data: "default_animation: \"camera\"\n"
+  data: "default_animation: \"empty\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
   "size {\n"
   "  x: 1920.0\n"
@@ -43,7 +43,7 @@ embedded_components {
   "size_mode: SIZE_MODE_MANUAL\n"
   "textures {\n"
   "  sampler: \"texture_sampler\"\n"
-  "  texture: \"/core/system/camera/camera.atlas\"\n"
+  "  texture: \"/core/atlas/core.atlas\"\n"
   "}\n"
   ""
   position {
