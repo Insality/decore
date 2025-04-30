@@ -26,19 +26,7 @@ dependencies#3 = https://github.com/Insality/defold-log/archive/refs/tags/4.zip
 dependencies#4 = https://github.com/AGulev/drawpixels/archive/refs/tags/2.0.1.zip
 
 [library]
-include_dirs = decore,core
-
-[log]
-level = ERROR
-level_release = WARN
-time_tracking = 1
-memory_tracking = 1
-info_block_length = 18
-info_block = %levelshort[%logger
-message_block = ]: %message %context %tab<%function>
-level = DEBUG
-level_release = WARN
-info_block_length = 10
+include_dirs = decore
 
 [test]
 report = 0

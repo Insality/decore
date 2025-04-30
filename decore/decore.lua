@@ -145,8 +145,12 @@ end
 ---@param data table|nil additional data to merge with prefab
 ---@return entity
 function M.create_entity(prefab_id, pack_id, data)
-	if prefab_id == EMPTY_HASH and not data then
-		decore_internal.logger:error("The entity_id is empty", {
+	if prefab_id == EMPTY_HASH then
+		prefab_id = nil
+	end
+
+	if not prefab_id and not data then
+		decore_internal.logger:warn("The entity_id is empty", {
 			prefab_id = prefab_id,
 			pack_id = pack_id,
 		})

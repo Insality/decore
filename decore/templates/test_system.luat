@@ -6,7 +6,7 @@ return function()
 
 		before(function()
 			decore = require("decore.decore")
-			system_TEMPLATE = require("core.system.TEMPLATE.system_TEMPLATE")
+			system_TEMPLATE = require("system.TEMPLATE.system_TEMPLATE")
 
 			world = decore.world()
 			world:add(system_TEMPLATE.create_system())

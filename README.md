@@ -29,41 +29,46 @@ Add in your `game.project` dependencies:
 https://github.com/Insality/decore/archive/refs/tags/1.zip
 ```
 
-## Basic Usage
-
-Here's a basic example of how to use the Decore library:
+## Quick API Reference
 
 ```lua
 local decore = require("decore.decore")
 
-function init(self)
-    -- Create a new entity
-    local entity = decore.create_entity("player")
+decore.world(...)
+decore.on_input(world, action_id, action)
+decore.on_message(world, message_id, [message], [sender])
+decore.final([world])
 
-    -- Add a component to the entity
-    local movement = decore.create_component("movement")
-    decore.apply_component(entity, "movement", movement)
-end
-```
+decore.system(system_module, system_id, [require_all_filters])
+decore.processing_system(system_module, system_id, [require_all_filters])
+decore.sorted_system(system_module, system_id, [require_all_filters])
+decore.sorted_processing_system(system_module, system_id, [require_all_filters])
 
-## Quick API Reference
+decore.register_entity(entity_id, entity_data, [pack_id])
+decore.register_entities(pack_id, entities)
+decore.unregister_entities(pack_id)
 
-```lua
--- Entity Management
-decore.create_entity(prefab_id)
+decore.register_component(component_id, [component_data], [pack_id])
+decore.register_components(components_data_or_path)
+decore.unregister_components(pack_id)
+
+decore.create_entity([prefab_id], [pack_id], [data])
+decore.create_component(component_id, [component_pack_id])
+decore.apply_component(entity, component_id, [component_data])
+decore.apply_components(entity, [components])
+
 decore.get_entity_by_id(world, id)
-decore.get_entities_with_name(world, entity_name)
-decore.get_entities_by_prefab_id(world, prefab_id)
+decore.find_entities_by_component_value(world, component_id, [component_value])
+decore.is_alive(world_or_system, entity)
 
--- Component Management
-decore.create_component(component_id)
-decore.apply_component(entity, component_id, component_data)
-decore.apply_components(entity, components)
+decore.print_loaded_packs_debug_info()
+decore.print_loaded_systems_debug_info(world)
+decore.parse_command(command)
+decore.call_command(world, [command])
+
+decore.set_logger([logger_instance])
+decore.get_logger(name, [level])
 ```
-
-## Game Example
-
-Look at [Shooting Circles](https://github.com/Insality/shooting_circles) game example to see how to use the Decore library in a real game project.
 
 ## License
 

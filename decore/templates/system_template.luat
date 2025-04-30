@@ -1,5 +1,5 @@
 local decore = require("decore.decore")
-local command_TEMPLATE = require("core.system.TEMPLATE.command_TEMPLATE")
+local command_TEMPLATE = require("system.TEMPLATE.command_TEMPLATE")
 
 ---@class entity
 ---@field TEMPLATE component.TEMPLATE|nil

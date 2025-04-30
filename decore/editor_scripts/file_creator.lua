@@ -225,7 +225,7 @@ function M.create_entity_files(name, options, folder_path)
 	-- Create test files if needed
 	if options.include_test then
 		-- Create test directory
-		editor.create_directory(absolute_folder_path .. "test")
+		editor.create_directory(folder_path .. "/test")
 
 		local config = load_game_project_config()
 
@@ -267,7 +267,7 @@ function M.create_entity_files(name, options, folder_path)
 	-- Create test system if requested (now independent from options.include_test)
 	if options.add_test_system then
 		-- Ensure the test directory exists (even if options.include_test is false)
-		editor.create_directory(absolute_folder_path .. "test")
+		editor.create_directory(folder_path .. "/test")
 
 		local config = load_game_project_config()
 		local test_system_path = absolute_folder_path .. "test/test_system_" .. name:lower() .. ".lua"
