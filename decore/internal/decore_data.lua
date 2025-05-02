@@ -2,8 +2,6 @@ local decore_internal = require("decore.internal.decore_internal")
 
 local M = {}
 
-local TYPE_TABLE = "table"
-
 function M.clear()
 	---@type table<string, table<string, entity>> @Key: pack_id, Value: <prefab_id, entity>
 	M.entities = {}
@@ -42,7 +40,7 @@ function M.get_component(component_id, component_pack_id)
 		local prefab = components_pack[component_id]
 
 		if prefab ~= nil and (not component_pack_id or component_pack_id == pack_id) then
-			if type(prefab) == TYPE_TABLE then
+			if type(prefab) == "table" then
 				return decore_internal.deepcopy(prefab)
 			else
 				return prefab
@@ -112,7 +110,7 @@ function M.get_entity(prefab_id, pack_id)
 		end
 	end
 
-	decore_internal.logger:warn("Entity not found", {
+	decore_internal.logger:warn("Entity is not registered in Decore to spawn", {
 		prefab_id = prefab_id,
 		pack_id = pack_id,
 	})

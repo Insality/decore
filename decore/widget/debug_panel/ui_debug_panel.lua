@@ -1,4 +1,4 @@
-	local helper = require("druid.helper")
+local helper = require("druid.helper")
 local decore = require("decore.decore")
 local panthera = require("panthera.panthera")
 local decore_data = require("decore.internal.decore_data")
@@ -206,7 +206,7 @@ function M:draw_page_systems(context, page_name)
 		local system_name = i .. ". " .. system_id .. " (" .. #system.entities .. ")"
 
 		self.properties_panel:add_widget(function()
-			local widget = self.druid:new_widget(property_system, "property_system", self.prefab_property_system)
+			local widget = self.druid:new_widget(property_system, "property_system", "root")
 			widget:set_system(system)
 			widget:set_text(system_name)
 			widget.button_inspect.on_click:subscribe(function()
