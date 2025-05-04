@@ -2,16 +2,17 @@
 
 ## Setup
 
-Open Tilen
+Open Tiled
 New Project
-Create /tiled folder (can use other folder name)
+Create `/tiled` folder (can use other folder name)
 Name project with the project name to easier find it inside Tiled (it uses filename as a project name)
 
 ### Create First Map
 
 Create new map, any settings
 Save at /tiled/maps folder
-Select Export as JSON (/resources/maps/level_name.json)
+Select Export as JSON (/tiled/exported_maps/level_name.json)
+I keep other folder to separate include in game project, but seems more convinient to keep it in the same folder.
 
 ### Create first tileset
 
