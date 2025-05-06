@@ -5,7 +5,7 @@ local decore_data = require("decore.internal.decore_data")
 
 local property_prefab = require("decore.widget.debug_panel.properties.property_prefab")
 local property_system = require("decore.widget.debug_panel.properties.property_system")
-
+local properties_panel = require("druid.widget.properties_panel.properties_panel")
 local save_state_path = sys.get_save_file(sys.get_config_string("project.title", ""), "ui_debug_panel")
 local save_state = sys.load(save_state_path) or {
 	is_hidden = false,
@@ -25,9 +25,9 @@ local PAGES = {
 	PROFILE = "profile", -- Profile
 }
 
----@param properties_panel druid.widget.properties_panel
-function M:init(properties_panel)
-	self.properties_panel = properties_panel
+
+function M:init()
+	self.properties_panel = self.druid:new_widget(properties_panel, "properties_panel")
 	self.properties_panel.paginator.button_left:set_key_trigger("key_minus")
 	self.properties_panel.paginator.button_right:set_key_trigger("key_equals")
 
