@@ -384,7 +384,7 @@ end
 ---@param druid druid.instance
 ---@param properties_panel druid.widget.properties_panel
 function M.render_properties_panel(world, druid, properties_panel)
-	decore_debug_page.render_properties_panel(world, druid, properties_panel)
+	decore_debug_page.render_properties_panel(M, world, druid, properties_panel)
 end
 
 

@@ -1,3 +1,5 @@
+---@diagnostic disable: inject-field
+---@
 local decore_data = require("decore.internal.decore_data")
 
 local property_entity_prefab = require("decore.properties_panel.property_entity_prefab")
@@ -5,10 +7,11 @@ local property_system = require("decore.properties_panel.property_system")
 local M = {}
 
 
+---@param decore decore
 ---@param world world
 ---@param druid druid.instance
 ---@param properties_panel druid.widget.properties_panel
-function M.render_properties_panel(world, druid, properties_panel)
+function M.render_properties_panel(decore, world, druid, properties_panel)
 	properties_panel:next_scene()
 	properties_panel:set_header("Decore Panel")
 
@@ -43,6 +46,7 @@ function M.render_properties_panel(world, druid, properties_panel)
 end
 
 
+---@param decore decore
 ---@param world world
 ---@param druid druid.instance
 ---@param properties_panel druid.widget.properties_panel
