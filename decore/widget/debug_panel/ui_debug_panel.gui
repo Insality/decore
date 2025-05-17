@@ -30,7 +30,7 @@ nodes {
   id: "property_system"
   parent: "root"
   inherit_alpha: true
-  template: "/decore/widget/debug_panel/properties/property_system.gui"
+  template: "/decore/properties_panel/property_system.gui"
   enabled: false
 }
 nodes {
@@ -155,7 +155,7 @@ nodes {
   id: "property_prefab"
   parent: "root"
   inherit_alpha: true
-  template: "/decore/widget/debug_panel/properties/property_prefab.gui"
+  template: "/decore/properties_panel/property_entity_prefab.gui"
   enabled: false
 }
 nodes {
@@ -437,6 +437,18 @@ nodes {
 nodes {
   type: TYPE_BOX
   id: "properties_panel/icon_drag"
+  parent: "properties_panel/header"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "properties_panel/icon_refresh"
+  parent: "properties_panel/header"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "properties_panel/icon_back"
   parent: "properties_panel/header"
   template_node_child: true
 }

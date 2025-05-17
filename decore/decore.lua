@@ -1,6 +1,7 @@
 local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
 local decore_commands = require("decore.internal.decore_commands")
+local decore_debug_page = require("decore.internal.decore_debug_page")
 
 local EMPTY_HASH = hash("")
 local TYPE_TABLE = "table"
@@ -376,6 +377,14 @@ end
 ---@return decore.logger
 function M.get_logger(name, level)
 	return setmetatable({ name = name, level = level }, { __index = decore_internal.logger })
+end
+
+
+---@param world world
+---@param druid druid.instance
+---@param properties_panel druid.widget.properties_panel
+function M.render_properties_panel(world, druid, properties_panel)
+	decore_debug_page.render_properties_panel(world, druid, properties_panel)
 end
 
 
