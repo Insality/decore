@@ -2,7 +2,7 @@ local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
 local decore_commands = require("decore.internal.decore_commands")
 local decore_debug_page = require("decore.internal.decore_debug_page")
-
+local events = require("event.events")
 local EMPTY_HASH = hash("")
 local TYPE_TABLE = "table"
 
@@ -103,6 +103,11 @@ end
 function M.final(world)
 	world:clearEntities()
 	world:clearSystems()
+end
+
+
+function M.on_window_callback(window_event)
+	events.trigger("decore.window_event", window_event)
 end
 
 

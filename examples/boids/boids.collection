@@ -1,7 +1,7 @@
 name: "basic_platformer_controller"
 instances {
   id: "entity_camera"
-  prototype: "/core/system/camera/entity_camera.go"
+  prototype: "/system/camera/entity_camera.go"
   position {
     z: 10.0
   }
@@ -37,10 +37,6 @@ instances {
     x: 931.0
     y: -518.0
   }
-}
-collection_instances {
-  id: "entity_debug_panel"
-  collection: "/decore/widget/debug_panel/entity_debug_panel.collection"
 }
 scale_along_z: 0
 embedded_instances {

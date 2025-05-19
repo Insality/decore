@@ -54,7 +54,7 @@ function M:process_drag_camera(input_event)
 		end
 	end
 
-	if self.is_hold then
+	if self.is_hold and action_id == nil then
 		local entity = self.world.command_camera:get_current_camera()
 		local zoom = entity.camera.zoom * 0.5
 		local koef = 1 / zoom * 0.1

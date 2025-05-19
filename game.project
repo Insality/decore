@@ -1,5 +1,5 @@
 [bootstrap]
-main_collection = /examples/nested_entities/nested_entities.collectionc
+main_collection = /examples/boids/boids.collectionc
 
 [script]
 shared_state = 1

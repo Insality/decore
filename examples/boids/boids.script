@@ -25,19 +25,17 @@ function init(self)
 
 		require("examples.boids.system_boid.system_boid").create_system(),
 
-		require("decore.widget.debug_panel.system_debug_panel").create_system(),
 		require("system.debug_draw_transform.system_debug_draw_transform").create_system(),
 
 		require("system.debug_draw.system_debug_draw").create_system()
 	)
 
 	decore.register_entity("boid", require("examples.boids.boid.entity_boid"))
-	decore.register_entity("camera", require("system.camera.entity_camera"))
 	decore.register_entity("coin", require("examples.basic_collision.entity.entity_coin"))
 
 	--for index = 1, 4000 do
 	--for index = 1, 16000 do
-	for index = 1, 2000 do
+	for index = 1, 200 do
 		local boid = decore.create_entity("boid")
 		boid.transform_border.random_position = true
 		self.world:addEntity(boid)
