@@ -69,7 +69,7 @@
 ---@field add fun(self: world, ...): ...
 ---@field addEntity fun(self: world, entity: entity): entity
 ---@field addSystem fun(self: world, system: system): system
----@field remove fun(self: world)
+---@field remove fun(self: world, ...)
 ---@field removeEntity fun(self: world, entity: entity): entity
 ---@field removeSystem fun(self: world, system: system): system
 ---@field refresh fun(self: world)

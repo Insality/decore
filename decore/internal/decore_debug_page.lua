@@ -60,7 +60,7 @@ function M.render_entities_page(decore, world, druid, properties_panel)
 	for i = 1, #entities do
 		properties_panel:add_widget(function()
 			local entity = entities[i]
-			local entity_prefab_id = entity.prefab_id or "No Prefab"
+			local entity_prefab_id = entity.prefab_id or "Entity"
 			local entity_name = entity.id .. ". " .. entity_prefab_id
 
 			local widget = druid:new_widget(property_entity_prefab, "property_entity_prefab", "root")
