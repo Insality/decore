@@ -23,7 +23,6 @@ decore.register_component("{NAME_LOWER}", {})
 local M = {}
 
 
----@static
 ---@return system.{NAME_LOWER}
 function M.create_system()
 	return decore.system(M, "{NAME_LOWER}", { "{NAME_LOWER}" })

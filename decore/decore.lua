@@ -32,6 +32,8 @@ function M.world(...)
 	-- Set Last World. Should be used to ease debug from different places?
 	M.last_world = world
 
+	decore_internal.logger:debug("World created", { systems = #world.systems })
+
 	return world
 end
 
@@ -172,6 +174,8 @@ function M.create_entity(prefab_id, pack_id, data)
 	entity = entity or {}
 	M.apply_components(entity, prefab)
 	M.apply_components(entity, data)
+
+	decore_internal.logger:trace("Entity created", prefab_id)
 
 	return entity
 end
@@ -355,10 +359,10 @@ end
 
 
 ---Grab a command in text format to provide a way to call functions from the system
----@param command string Example: "system_name.function_name, arg1, arg2". Separators can be: " ", "," and "\n"
+---@param command_string string Example: "system_name.function_name, arg1, arg2". Separators can be: " ", "," and "\n"
 ---@return any[]
-function M.parse_command(command)
-	return decore_commands.parse_command(command)
+function M.parse_command(command_string)
+	return decore_commands.parse_command(command_string)
 end
 
 
