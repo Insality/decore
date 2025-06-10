@@ -108,6 +108,7 @@ function M.final(world)
 end
 
 
+---@param window_event constant
 function M.on_window_callback(window_event)
 	events.trigger("decore.window_event", window_event)
 end
@@ -381,11 +382,21 @@ function M.set_logger(logger_instance)
 end
 
 
----@param name string
+---@param name string?
 ---@param level string|nil
 ---@return decore.logger
 function M.get_logger(name, level)
+	name = name or M.get_default_logger_name()
 	return setmetatable({ name = name, level = level }, { __index = decore_internal.logger })
+end
+
+
+---Return the basename of the current file
+function M.get_default_logger_name()
+	local current_script_path = debug.getinfo(3).short_src
+	local basename = string.match(current_script_path, "([^/\\]+)$")
+	basename = string.match(basename, "(.*)%..*$")
+	return basename
 end
 
 

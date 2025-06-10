@@ -63,26 +63,15 @@ function M.split_by_several_separators(s, sep)
 end
 
 
----Clamp value, can be in any order and with one or two limits
+---Clamp value between min and max (either can be nil)
 ---@param value number
----@param v1 number|nil
----@param v2 number|nil
-function M.clamp(value, v1, v2)
-	if v1 and v2 then
-		if v1 > v2 then
-			v1, v2 = v2, v1
-		end
+---@param min number|nil
+---@param max number|nil
+function M.clamp(value, min, max)
+	if min and max and min > max then
+		min, max = max, min
 	end
-
-	if v1 and value < v1 then
-		return v1
-	end
-
-	if v2 and value > v2 then
-		return v2
-	end
-
-	return value
+	return math.min(max or value, math.max(min or value, value))
 end
 
 
