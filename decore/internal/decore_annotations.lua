@@ -38,29 +38,7 @@
 ---All subclasses are a component types for entity in the Decore ECS
 ---@class component
 
----@class system
----@field id string
----@field active boolean
----@field filter fun(self: system, entity: entity)|nil
----@field world world
----@field entities entity[]
----@field indices table<entity, number> Entity index in entities table
----@field nocache boolean
----@field index number
----@field modified boolean
----@field interval number|nil
----@field onAdd fun(self: system, entity:entity)|nil
----@field onRemove fun(self: system, entity:entity)|nil
----@field onModify fun(dt:number)|nil
----@field onAddToWorld fun(self: system, world:world)|nil
----@field onRemoveFromWorld fun(self: system, world:world)|nil
----@field preWrap fun(system: system, dt:number)|nil
----@field postWrap fun(system: system, dt:number)|nil
----@field update fun(system: system, dt:number)|nil
----@field preProcess fun(system: system, dt:number)|nil
----@field process fun(system: system, entity:entity, dt:number)|nil
----@field postProcess fun(system: system, dt:number)|nil
----@field compare fun(e1:entity, e2:entity)|nil
+---@class system evolved.id
 
 ---@class world
 ---@field entities entity[]

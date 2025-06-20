@@ -1,20 +1,27 @@
-local decore = require("decore.decore")
+local evolved = require("decore.evolved")
 local command_input = require("system.input.command_input")
 
 ---@class system.input.event: action
 
----@class system.input: system
----@field entities entity[]
+---@class system.input: evolved.id
 local M = {}
 
 
----@return system.input
+---@return evolved.id
 function M.create_system()
-	return decore.system(M, "input")
+	return evolved.builder()
+		:include()
+		:execute(function(chunk, entity_list, entity_count)
+			for i = 1, entity_count do
+				local entity = entity_list[i]
+
+			end
+		end)
+		:spawn()
 end
 
 
-function M:onAddToWorld()
+function M:update(chunk, entity_list, entity_count)
 	msg.post(".", "acquire_input_focus")
 	self.world.command_input = command_input.create(self)
 end

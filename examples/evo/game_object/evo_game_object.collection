@@ -1,0 +1,34 @@
+name: "evo_game_object"
+instances {
+  id: "object"
+  prototype: "/examples/evo/game_object/object/object.go"
+  position {
+    x: 168.8588
+    y: 76.573296
+  }
+}
+scale_along_z: 0
+embedded_instances {
+  id: "go"
+  data: "components {\n"
+  "  id: \"evo_game_object\"\n"
+  "  component: \"/examples/evo/game_object/evo_game_object.script\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "spawner"
+  data: "embedded_components {\n"
+  "  id: \"object\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/examples/evo/game_object/object/object.go\\\"\\n"
+  "\"\n"
+  "}\n"
+  "embedded_components {\n"
+  "  id: \"gui_menu\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/examples/evo/game_object/gui_menu/gui_menu.go\\\"\\n"
+  "\"\n"
+  "}\n"
+  ""
+}

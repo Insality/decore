@@ -5,6 +5,8 @@ local decore_debug_page = require("decore.internal.decore_debug_page")
 local events = require("event.events")
 local EMPTY_HASH = hash("")
 local TYPE_TABLE = "table"
+local evolved = require("decore.evolved")
+local ecs = require("decore.ecs")
 
 ---@class world
 ---@field event_bus decore.event_bus
@@ -12,7 +14,8 @@ local TYPE_TABLE = "table"
 ---@class decore
 local M = {}
 M.clamp = decore_internal.clamp
-M.ecs = require("decore.ecs")
+M.ecs = ecs
+M.evolved = evolved
 M.last_world = nil
 
 
@@ -183,9 +186,10 @@ end
 
 
 ---Register component to decore components
----@param component_id string
+---@param component_id evolved.id
 ---@param component_data any
 ---@param pack_id string|nil default "decore"
+---@return evolved.id
 function M.register_component(component_id, component_data, pack_id)
 	decore_data.register_component(component_id, component_data, pack_id)
 end
@@ -405,6 +409,12 @@ end
 ---@param properties_panel druid.widget.properties_panel
 function M.render_properties_panel(world, druid, properties_panel)
 	decore_debug_page.render_properties_panel(M, world, druid, properties_panel)
+end
+
+
+
+function M.decore_evolved()
+	local world = evolved.id()
 end
 
 

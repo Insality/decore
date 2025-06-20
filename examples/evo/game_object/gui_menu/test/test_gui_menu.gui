@@ -1,0 +1,81 @@
+script: "/entity/gui_menu/test/test_gui_menu.gui_script"
+nodes {
+  type: TYPE_TEMPLATE
+  id: "gui_menu"
+  inherit_alpha: true
+  template: "/entity/gui_menu/gui_menu.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "gui_menu/root"
+  parent: "gui_menu"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "gui_menu/logo"
+  parent: "gui_menu/root"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEMPLATE
+  id: "gui_menu/button_play"
+  parent: "gui_menu/root"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "gui_menu/button_play/root"
+  parent: "gui_menu/button_play"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "gui_menu/button_play/back"
+  parent: "gui_menu/button_play/root"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "gui_menu/button_play/button"
+  parent: "gui_menu/button_play/root"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "gui_menu/button_play/group_text"
+  parent: "gui_menu/button_play/button"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEMPLATE
+  id: "gui_menu/button_play/text_shadow"
+  parent: "gui_menu/button_play/group_text"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "gui_menu/button_play/text_shadow/root"
+  parent: "gui_menu/button_play/text_shadow"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "gui_menu/button_play/text_shadow/shadow"
+  parent: "gui_menu/button_play/text_shadow/root"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  id: "gui_menu/button_play/text_shadow/text"
+  parent: "gui_menu/button_play/text_shadow/root"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_BOX
+  id: "gui_menu/button_play/highlight"
+  parent: "gui_menu/button_play/root"
+  template_node_child: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

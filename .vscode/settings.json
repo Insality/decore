@@ -57,7 +57,8 @@
 		"~/Library/Application Support/Code/User/globalStorage/astronachos.defold",
 		"~/Library/Application Support/Code/User/workspaceStorage/d5f9bf017bc262ec86a14da3c3f3032d/astronachos.defold",
 		"~/Library/Application Support/Cursor/User/globalStorage/astronachos.defold",
-		"~/Library/Application Support/Cursor/User/workspaceStorage/d5f9bf017bc262ec86a14da3c3f3032d/astronachos.defold"
+		"~/Library/Application Support/Cursor/User/workspaceStorage/d5f9bf017bc262ec86a14da3c3f3032d/astronachos.defold",
+		"~/Library/Application Support/Cursor/User/workspaceStorage/98e90effb1b63af519b5132f34e59df1/astronachos.defold"
 	],
 	"Lua.workspace.ignorePatterns": [
 		"**/*.md"

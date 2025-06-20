@@ -109,7 +109,7 @@ instances {
 }
 instances {
   id: "entity_camera"
-  prototype: "/core/system/camera/entity_camera.go"
+  prototype: "/system/camera/entity_camera.go"
   position {
     x: 480.0
     y: 320.0
