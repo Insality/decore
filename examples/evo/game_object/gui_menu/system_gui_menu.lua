@@ -1,6 +1,6 @@
 local evolved = require("decore.evolved")
 local druid = require("druid.druid")
-local components = require("examples.evo.components")
+local components = require("decore.components")
 
 local gui_menu_widget = require("examples.evo.game_object.gui_menu.gui_menu")
 

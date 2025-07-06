@@ -45,24 +45,11 @@ instances {
 }
 instances {
   id: "entity_camera"
-  prototype: "/core/system/camera/entity_camera.go"
+  prototype: "/system/camera/entity_camera.go"
   position {
     x: 480.0
     y: 320.0
     z: 10.0
-  }
-  component_properties {
-    id: "entity"
-    properties {
-      id: "size_x"
-      value: "960.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
-    properties {
-      id: "size_y"
-      value: "540.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
   }
 }
 instances {
@@ -111,6 +98,70 @@ instances {
   rotation {
     z: -0.70710677
     w: 0.70710677
+  }
+}
+instances {
+  id: "player1"
+  prototype: "/examples/basic_movement_with_walls/entity/player.go"
+  position {
+    x: 327.0
+    y: 338.0
+  }
+}
+instances {
+  id: "player2"
+  prototype: "/examples/basic_movement_with_walls/entity/player.go"
+  position {
+    x: 331.0
+    y: 218.0
+  }
+}
+instances {
+  id: "player3"
+  prototype: "/examples/basic_movement_with_walls/entity/player.go"
+  position {
+    x: 672.0
+    y: 207.0
+  }
+}
+instances {
+  id: "player4"
+  prototype: "/examples/basic_movement_with_walls/entity/player.go"
+  position {
+    x: 864.0
+    y: 312.0
+  }
+}
+instances {
+  id: "player5"
+  prototype: "/examples/basic_movement_with_walls/entity/player.go"
+  position {
+    x: 512.0
+    y: 642.0
+  }
+}
+instances {
+  id: "player6"
+  prototype: "/examples/basic_movement_with_walls/entity/player.go"
+  position {
+    x: 232.0
+    y: 642.0
+  }
+}
+instances {
+  id: "player7"
+  prototype: "/examples/basic_movement_with_walls/entity/player.go"
+  position {
+    x: 232.0
+    y: 493.0
+  }
+}
+instances {
+  id: "player8"
+  prototype: "/examples/basic_movement_with_walls/entity/player.go"
+  position {
+    x: 319.0
+    y: 638.0
   }
 }
 scale_along_z: 0

@@ -1,6 +1,6 @@
 local events = require("event.events")
 local evolved = require("decore.evolved")
-local components = require("examples.evo.components")
+local components = require("decore.components")
 
 ---@class components
 ---@field movement_controller evolved.id
@@ -54,11 +54,20 @@ events.subscribe("input_event", function(action_id, action)
 	end
 end)
 
-return evolved.builder()
+local query = evolved.builder()
 	:include(components.velocity_x, components.velocity_y)
 	:include(components.movement_controller)
+	:spawn()
+
+return evolved.builder()
+	:query(query)
 	:execute(function(chunk, entity_list, entity_count)
 		local movement_controller = chunk:components(components.movement_controller)
+		local velocity_x = chunk:components(components.velocity_x)
+		local velocity_y = chunk:components(components.velocity_y)
+
+		--evolved.batch_set(query, components.velocity_x, direction_x * 250)
+		--evolved.batch_set(query, components.velocity_y, direction_y * 250)
 
 		for index = 1, entity_count do
 			local speed = movement_controller[index]

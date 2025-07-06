@@ -1,12 +1,4 @@
 name: "evo_game_object"
-instances {
-  id: "object"
-  prototype: "/examples/evo/game_object/object/object.go"
-  position {
-    x: 168.8588
-    y: 76.573296
-  }
-}
 scale_along_z: 0
 embedded_instances {
   id: "go"

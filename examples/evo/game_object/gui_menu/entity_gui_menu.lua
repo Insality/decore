@@ -1,5 +1,5 @@
 local evolved = require("decore.evolved")
-local components = require("examples.evo.components")
+local components = require("decore.components")
 
 ---@return evolved.builder
 return evolved.builder()

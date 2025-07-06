@@ -1,6 +1,9 @@
 local decore = require("decore.decore")
 
 function init(self)
+	profiler.enable_ui(true)
+	profiler.set_ui_view_mode(profiler.VIEW_MODE_MINIMIZED)
+
 	self.world = decore.world(
 		require("system.transform.system_transform").create_system(),
 		require("system.transform_border.system_transform_border").create_system(),
@@ -11,7 +14,6 @@ function init(self)
 	)
 
 	decore.register_entity("player", require("examples.basic_movement_with_walls.entity.player"))
-	decore.register_entity("camera", require("system.camera.entity_camera"))
 end
 
 

@@ -38,7 +38,7 @@ M.DEBUG_PANEL_UPDATE_MEMORY_LIMIT = 2048
 M.DEBUG_PANEL_POSTWRAP_MEMORY_LIMIT = 2048
 
 local TEMP_VECTOR = vmath.vector3(0, 0, 0)
-local TEMP_QUAT = vmath.quat(0, 0, 0, 1)
+local TEMP_QUAT = vmath.quat(0, 0,  0, 1)
 local VECTOR3_ONE = vmath.vector3(1, 1, 1)
 local ROOT_URL = hash("/root")
 local HASH_POSITION = hash("position")

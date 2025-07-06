@@ -1,5 +1,5 @@
 local evolved = require("decore.evolved")
-local components = require("examples.evo.components")
+local components = require("decore.components")
 
 ---@class components
 ---@field velocity_x evolved.id

@@ -1,24 +1,45 @@
+local profi = require("examples.profi")
 local evolved = require("decore.evolved")
 local systems = require("examples.evo.systems")
 local entities = require("examples.evo.entities")
-local components = require("examples.evo.components")
+local components = require("decore.components")
 local events = require("event.events")
 
 
 function init(self)
+	--profi:start()
+
+	--timer.delay(4, false, function()
+	--	profi:stop()
+	--	profi:writeReport("evo_game_object.txt")
+	--end)
+
 	evolved.debug_mode(true)
 	profiler.enable_ui(true)
 	profiler.set_ui_view_mode(profiler.VIEW_MODE_MINIMIZED)
 
-	for index = 1, 20 do
-		entities.player
-			:set(components.position_x, math.random(0, 900))
-			:set(components.position_y, math.random(0, 900))
-			:spawn()
+	local amount = 3000
+	local ids = {}
+	for index = 1, amount do
+		local max_speed = 500
+		local speed = math.random(350, max_speed)
+		local color = vmath.vector4(speed / max_speed, speed / max_speed, speed / max_speed, 1)
+		table.insert(ids, entities.player
+			:set(components.position_x, math.random(200, 900))
+			:set(components.position_y, math.random(200, 900))
+			:set(components.position_z, speed/max_speed)
+			:set(components.movement_controller, speed)
+			:set(components.color, color)
+			:spawn())
+	end
+
+	for index = 1, amount do
+		timer.delay((index / amount) * 10, false, function()
+			evolved.destroy(ids[index])
+		end)
 	end
 
 	entities.gui_menu:spawn()
-
 
 	msg.post(".", "acquire_input_focus")
 end
