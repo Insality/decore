@@ -4199,6 +4199,7 @@ function __evolved_get(entity, ...)
     return __chunk_get_components(chunk, place, ...)
 end
 
+
 ---@param entity evolved.entity
 ---@param fragment evolved.fragment
 ---@param component evolved.component

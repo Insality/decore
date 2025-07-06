@@ -239,7 +239,7 @@ return {
             fps = 60,
             gizmo_steps = {
             },
-            gui_path = "/decore/widget/debug_panel/properties/property_prefab.gui",
+            gui_path = "decore/properties_panel/property_entity_prefab.gui",
             layers = {
             },
             settings = {
