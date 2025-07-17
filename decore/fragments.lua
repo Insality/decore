@@ -1,4 +1,4 @@
-local evolved = require("evolved")
+local evolved = require("decore.evolved")
 
 ---@class fragments: table<string, evolved.id>
 local M = {
