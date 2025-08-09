@@ -1,7 +1,6 @@
 local log = require("log.log")
-local ecs = require("decore.ecs")
 local nakama_core = require("system.nakama.nakama_core")
-local decore      = require("decore.decore")
+local decore = require("decore.decore")
 
 local logger = log.get_logger("system.nakama")
 
@@ -35,7 +34,7 @@ local M = {}
 ---@static
 ---@return system.nakama
 function M.create_system()
-	return decore.processing_system(M, "nakama", { "nakama" })
+	return decore.system(M, "nakama", "nakama")
 end
 
 

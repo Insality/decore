@@ -13,13 +13,13 @@ local TYPE_TABLE = "table"
 local M = {}
 M.clamp = decore_internal.clamp
 M.ecs = require("decore.ecs")
-M.last_world = nil
+M.world = nil
 
 
 ---Create a new world instance
 ---@param ... system[]|nil
 ---@return world
-function M.world(...)
+function M.new_world(...)
 	local world = M.ecs.world(
 		-- Always included systems
 		require("decore.internal.system_decore").create_system(M),
@@ -30,7 +30,7 @@ function M.world(...)
 	world:add(...)
 
 	-- Set Last World. Should be used to ease debug from different places?
-	M.last_world = world
+	M.world = world
 
 	decore_internal.logger:debug("World created", { systems = #world.systems })
 
@@ -145,6 +145,14 @@ function M.unregister_entities(pack_id)
 
 	decore_data.entities[pack_id] = nil
 	decore_internal.remove_by_value(decore_data.entities_order, pack_id)
+end
+
+
+---Create entity instance from table
+---@param data table
+---@return entity
+function M.create(data)
+	return M.create_entity(nil, nil, data)
 end
 
 
