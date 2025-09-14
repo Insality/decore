@@ -2,9 +2,10 @@ local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
 local decore_commands = require("decore.internal.decore_commands")
 local decore_debug_page = require("decore.internal.decore_debug_page")
-local events = require("event.events")
+local decore_world = require("decore.world")
 local EMPTY_HASH = hash("")
 local TYPE_TABLE = "table"
+local NEXT_ENTITY_ID = 0
 
 ---@class world
 ---@field event_bus decore.event_bus
@@ -31,10 +32,43 @@ function M.new_world(...)
 
 	-- Set Last World. Should be used to ease debug from different places?
 	M.world = world
+	decore_world.set_world(world)
 
 	decore_internal.logger:debug("World created", { systems = #world.systems })
 
+	world:refresh()
+
 	return world
+end
+
+
+---Add input event to the world queue
+---@param world world
+---@param action_id hash
+---@param action action
+---@return boolean
+function M.on_input(world, action_id, action)
+	return world.command_input:on_input(action_id, action)
+end
+
+
+---Add window event to the world event bus
+---@param world world
+---@param message_id hash
+---@param message table|nil
+---@param sender url|nil
+function M.on_message(world, message_id, message, sender)
+	world.event_bus:trigger("on_message", {
+		message_id = message_id,
+		message = message,
+		sender = sender,
+	})
+end
+
+
+function M.final(world)
+	world:clearEntities()
+	world:clearSystems()
 end
 
 
@@ -75,42 +109,6 @@ end
 ---@return T
 function M.sorted_processing_system(system_module, system_id, require_all_filters)
 	return decore_internal.create_system(M.ecs.sortedProcessingSystem(), system_module, system_id, require_all_filters)
-end
-
-
----Add input event to the world queue
----@param world world
----@param action_id hash
----@param action action
----@return boolean
-function M.on_input(world, action_id, action)
-	return world.command_input:on_input(action_id, action)
-end
-
-
----Add window event to the world event bus
----@param world world
----@param message_id hash
----@param message table|nil
----@param sender url|nil
-function M.on_message(world, message_id, message, sender)
-	world.event_bus:trigger("on_message", {
-		message_id = message_id,
-		message = message,
-		sender = sender,
-	})
-end
-
-
-function M.final(world)
-	world:clearEntities()
-	world:clearSystems()
-end
-
-
----@param window_event constant
-function M.on_window_callback(window_event)
-	events.trigger("decore.window_event", window_event)
 end
 
 
@@ -162,6 +160,8 @@ end
 ---@param data table|nil additional data to merge with prefab
 ---@return entity
 function M.create_entity(prefab_id, pack_id, data)
+	NEXT_ENTITY_ID = NEXT_ENTITY_ID + 1
+
 	if prefab_id == EMPTY_HASH then
 		prefab_id = nil
 	end
@@ -171,7 +171,7 @@ function M.create_entity(prefab_id, pack_id, data)
 			prefab_id = prefab_id,
 			pack_id = pack_id,
 		})
-		return {}
+		return { id = NEXT_ENTITY_ID }
 	end
 
 	local entity = nil
@@ -183,8 +183,21 @@ function M.create_entity(prefab_id, pack_id, data)
 	entity = entity or {}
 	M.apply_components(entity, prefab)
 	M.apply_components(entity, data)
+	entity.id = NEXT_ENTITY_ID
 
-	decore_internal.logger:trace("Entity created", prefab_id)
+	local transform = entity.transform
+	local position_x = transform and transform.position_x or 0
+	local position_y = transform and transform.position_y or 0
+	local position_z = transform and transform.position_z or 0
+
+	decore_internal.logger:trace("Entity created", {
+		id = entity.id,
+		prefab_id = prefab_id,
+		parent_prefab_id = prefab and prefab.parent_prefab_id,
+		x = position_x,
+		y = position_y,
+		z = position_z,
+	})
 
 	return entity
 end
@@ -308,7 +321,7 @@ end
 ---@param id number
 ---@return entity|nil
 function M.get_entity_by_id(world, id)
-	return M.find_entities_by_component_value(world, "id", id)[1]
+	return M.find_entities(world, "id", id)[1]
 end
 
 
@@ -318,19 +331,11 @@ end
 ---@param component_id string
 ---@param component_value any|nil if nil, return all entities with component_id
 ---@return entity[]
-function M.find_entities_by_component_value(world, component_id, component_value)
+function M.find_entities(world, component_id, component_value)
 	local entities = {}
 
 	for index = 1, #world.entities do
 		local entity = world.entities[index]
-		if entity[component_id] and (not component_value or entity[component_id] == component_value) then
-			table.insert(entities, entity)
-		end
-	end
-
-	-- TODO: Should we search in entitiesToChange?
-	for index = 1, #world.entitiesToChange do
-		local entity = world.entitiesToChange[index]
 		if entity[component_id] and (not component_value or entity[component_id] == component_value) then
 			table.insert(entities, entity)
 		end
@@ -350,6 +355,18 @@ function M.is_alive(world_or_system, entity)
 		return world_or_system.indices[entity] ~= nil
 	else
 		return world_or_system.entities[entity] ~= nil
+	end
+end
+
+local MSG_INIT_ENTITY = hash("init_entity")
+
+---@param context userdata
+---@param message_id hash
+---@param callback function
+function M.init_entity(context, message_id, callback)
+	if message_id == MSG_INIT_ENTITY then
+		local entity = decore_world.command_game_object:get_entity(go.get_id())
+		callback(context, entity)
 	end
 end
 

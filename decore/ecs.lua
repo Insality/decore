@@ -609,7 +609,6 @@ function tiny_manageSystems(world)
 	end
 end
 
-local NEXT_ENTITY_ID = 1
 -- Adds, removes, and changes Entities that have been marked.
 function tiny_manageEntities(world)
 	local e2r = world.entitiesToRemove
@@ -634,10 +633,6 @@ function tiny_manageEntities(world)
 			local index = #entities + 1
 			entities[entity] = index
 			entities[index] = entity
-		end
-		if not entity.id then
-			entity.id = NEXT_ENTITY_ID
-			NEXT_ENTITY_ID = NEXT_ENTITY_ID + 1
 		end
 		for j = 1, #systems do
 			local system = systems[j]

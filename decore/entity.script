@@ -21,12 +21,18 @@ function init(self)
 	self.entity = nil
 	self.components = {}
 
-	msg.post(".", MSG_INIT_ENTITY)
-	msg.post(".", MSG_ADD_ENTITY)
+	if self.is_spawn_by_entity then
+		msg.post(".", MSG_INIT_ENTITY)
+		msg.post(".", MSG_ADD_ENTITY)
+	end
 end
 
 
 function on_message(self, message_id, message)
+	if not self.is_spawn_by_entity then
+		return
+	end
+
 	if message_id == MSG_INIT_ENTITY then
 		local data = nil
 		if self.prefab_id == HASH_EMPTY then

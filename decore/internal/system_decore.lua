@@ -32,7 +32,7 @@ local M = {}
 ---@return system.decore
 function M.create_system(decore)
 	local system = setmetatable(ecs.system({ id = "decore" }), { __index = M })
-	system.filter = ecs.requireAll("child_instancies")
+	system.filter = ecs.rejectAny("")
 	system.decore = decore
 	system.id_to_entity = {}
 
@@ -92,20 +92,20 @@ end
 ---@param entity entity
 function M:onAdd(entity)
 	self.id_to_entity[entity.id] = entity
-	self:add_children(entity)
+	self:spawn_children(entity)
 end
 
 
 ---@param entity entity
 function M:onRemove(entity)
-	self.id_to_entity[entity.id] = nil
 	self:remove_children(entity)
 	self:remove_from_parent(entity)
+	self.id_to_entity[entity.id] = nil
 end
 
 
 ---@param entity entity
-function M:add_children(entity)
+function M:spawn_children(entity)
 	-- Create real chilnd entities from prefab data
 	local child_entities = entity.child_instancies
 	if child_entities then
@@ -155,8 +155,8 @@ end
 function M:remove_from_parent(entity)
 	local parent_id = entity.parent_id
 	local parent = self.id_to_entity[parent_id]
+	local children_ids = parent and parent.children_ids
 
-	local children_ids = parent.children_ids
 	if children_ids then
 		for index = #children_ids, 1, -1 do
 			local child_id = children_ids[index]

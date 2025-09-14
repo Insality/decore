@@ -52,6 +52,7 @@ decore.register_component(component_id, [component_data], [pack_id])
 decore.register_components(components_data_or_path)
 decore.unregister_components(pack_id)
 
+decore.create(data)
 decore.create_entity([prefab_id], [pack_id], [data])
 decore.create_component(component_id, [component_pack_id])
 decore.apply_component(entity, component_id, [component_data])
