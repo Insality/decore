@@ -86,7 +86,7 @@ function M.deepcopy(value_to_copy)
 		for orig_key, orig_value in next, value_to_copy, nil do
 			copy[M.deepcopy(orig_key)] = M.deepcopy(orig_value)
 		end
-		-- Copy metatable if it exists
+
 		local mt = getmetatable(value_to_copy)
 		if mt then
 			setmetatable(copy, mt)
@@ -101,7 +101,7 @@ end
 
 --- Merge one table into another recursively
 ---@param t1 table
----@param t2 any
+---@param t2 table
 function M.merge_tables(t1, t2)
 	for k, v in pairs(t2) do
 		if type(v) == TYPE_TABLE then
@@ -114,39 +114,6 @@ function M.merge_tables(t1, t2)
 			t1[k] = v
 		end
 	end
-end
-
-
----Load JSON file from game resources folder (by relative path to game.project)
----Return nil if file not found or error
----@param json_path string
----@return table|nil
-function M.load_json(json_path)
-	local resource, is_error = sys.load_resource(json_path)
-	if is_error or not resource then
-		return nil
-	end
-
-	return json.decode(resource)
-end
-
-
----@generic T
----@param config_or_path T|table|string
----@return T|table|nil
-function M.load_config(config_or_path)
-	if type(config_or_path) == TYPE_STRING then
-		local entities_path = config_or_path --[[@as string]]
-		local entities_data = M.load_json(entities_path)
-		if not entities_data then
-			M.logger:error("Can't load config at path", config_or_path)
-			return nil
-		end
-
-		return entities_data
-	end
-
-	return config_or_path --[[@as table]]
 end
 
 

@@ -59,6 +59,8 @@ function M.on_message(world, message_id, message, sender)
 end
 
 
+---Clear all entities and systems from the world
+---@param world world
 function M.final(world)
 	world:clearEntities()
 	world:clearSystems()
@@ -105,7 +107,7 @@ function M.sorted_processing_system(system_module, system_id, require_all_filter
 end
 
 
----Register entity to decore entities
+---Register entity to create it with `create_prefab` function
 ---@param entity_id string
 ---@param entity_data table
 ---@param pack_id string|nil default "decore"
@@ -116,7 +118,7 @@ end
 
 ---Add entities pack to decore entities
 ---If entities pack with same id already loaded, do nothing.
----If the same id is used in different packs, the last one will be used in M.create_entity
+---If the same id is used in different packs, the last one will be used in `create_prefab` function
 ---@param pack_id string
 ---@param entities table<string, table>
 function M.register_entities(pack_id, entities)
@@ -206,22 +208,17 @@ end
 
 
 ---Register components pack to decore components
----@param components_data_or_path decore.components_pack_data|string if string, load data from JSON file from custom resources
+---@param components_data decore.components_pack_data
 ---@return boolean
-function M.register_components(components_data_or_path)
-	local components_pack_data = decore_internal.load_config(components_data_or_path)
-	if not components_pack_data then
-		return false
-	end
-
-	local pack_id = components_pack_data.pack_id
+function M.register_components(components_data)
+	local pack_id = components_data.pack_id
 
 	if decore_data.components[pack_id] then
 		decore_internal.logger:info("The components pack with the same id already loaded", pack_id)
 		return false
 	end
 
-	for component_id, component_data in pairs(components_pack_data.components) do
+	for component_id, component_data in pairs(components_data.components) do
 		decore_data.register_component(component_id, component_data, pack_id)
 	end
 
@@ -271,21 +268,16 @@ end
 ---@param component_data any|nil if nil, create component with default values
 ---@return entity
 function M.apply_component(entity, component_id, component_data)
-	-- The component data can be false and this is valid
-	if component_data == nil then
-		-- TODO: Do I need this?
-		component_data = {}
-	end
-
 	if entity[component_id] == nil then
-		-- Create default component with default values if not exists
 		entity[component_id] = M.create_component(component_id)
 	end
 
-	if type(component_data) == TYPE_TABLE then
-		decore_internal.merge_tables(entity[component_id], component_data)
-	else
-		entity[component_id] = component_data
+	if component_data then
+		if type(component_data) == TYPE_TABLE then
+			decore_internal.merge_tables(entity[component_id], component_data)
+		else
+			entity[component_id] = component_data
+		end
 	end
 
 	return entity
@@ -338,32 +330,6 @@ function M.find_entities(world, component_id, component_value)
 end
 
 
----Return if entity is alive in the system
----@param world_or_system world|system If world, return if entity is alive in the world, if system, return if entity is alive in the system
----@param entity entity The entity to check
----@return boolean is_alive Is entity exists in the system or in the world
-function M.is_alive(world_or_system, entity)
-	local is_system = world_or_system.indices
-	if is_system then
-		return world_or_system.indices[entity] ~= nil
-	else
-		return world_or_system.entities[entity] ~= nil
-	end
-end
-
-local MSG_INIT_ENTITY = hash("init_entity")
-
----@param context userdata
----@param message_id hash
----@param callback function
-function M.init_entity(context, message_id, callback)
-	if message_id == MSG_INIT_ENTITY then
-		local entity = M.world.command_game_object:get_entity(go.get_id())
-		callback(context, entity)
-	end
-end
-
-
 ---Log all loaded packs for entities, components and worlds
 function M.print_loaded_packs_debug_info()
 	decore_data.print_loaded_packs_debug_info(decore_internal.logger)
@@ -404,17 +370,14 @@ end
 ---@param level string|nil
 ---@return decore.logger
 function M.get_logger(name, level)
-	name = name or M.get_default_logger_name()
+	if not name then
+		local current_script_path = debug.getinfo(3).short_src
+		local basename = string.match(current_script_path, "([^/\\]+)$")
+		basename = string.match(basename, "(.*)%..*$")
+		name = basename
+	end
+
 	return setmetatable({ name = name, level = level }, { __index = decore_internal.logger })
-end
-
-
----Return the basename of the current file
-function M.get_default_logger_name()
-	local current_script_path = debug.getinfo(3).short_src
-	local basename = string.match(current_script_path, "([^/\\]+)$")
-	basename = string.match(basename, "(.*)%..*$")
-	return basename
 end
 
 
