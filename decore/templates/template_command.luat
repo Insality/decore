@@ -1,0 +1,15 @@
+---@class world
+---@field TEMPLATE system.TEMPLATE.command
+
+---@class system.TEMPLATE.command
+---@field private TEMPLATE system.TEMPLATE
+local M = {}
+
+
+---@return system.TEMPLATE.command
+function M.create(TEMPLATE)
+	return setmetatable({ TEMPLATE = TEMPLATE }, { __index = M })
+end
+
+
+return M

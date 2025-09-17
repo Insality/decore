@@ -1,5 +1,5 @@
 local decore = require("decore.decore")
-local command_TEMPLATE = require("system.TEMPLATE.command_TEMPLATE")
+local TEMPLATE_command = require("system.TEMPLATE.TEMPLATE_command")
 
 ---@class entity
 ---@field TEMPLATE component.TEMPLATE|nil
@@ -22,7 +22,7 @@ end
 
 
 function M:onAddToWorld()
-	self.world.command_TEMPLATE = command_TEMPLATE.create(self)
+	self.world.TEMPLATE = command_TEMPLATE.create(self)
 end
 
 

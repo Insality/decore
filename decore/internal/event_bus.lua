@@ -87,5 +87,4 @@ function M:get_stash(event_name)
 end
 
 
-local global_queue = M.create()
-return global_queue
+return M

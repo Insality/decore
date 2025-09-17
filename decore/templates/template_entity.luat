@@ -2,8 +2,6 @@
 ---@class entity.TEMPLATE: entity
 return {
 	transform = {},
-	game_object = {
-		factory_url = "/spawner#TEMPLATE"
-	},
+	game_object = { factory_url = "/entities#TEMPLATE" },
 	TEMPLATE = {}
 }

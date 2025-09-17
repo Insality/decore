@@ -1,5 +1,4 @@
--- Used to register a component to an entity
--- Usage
+-- Use it to register a component to an entity.script
 --[[
 go.property("delay", 0.5)
 

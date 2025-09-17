@@ -2,7 +2,6 @@ local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
 local decore_commands = require("decore.internal.decore_commands")
 local decore_debug_page = require("decore.internal.decore_debug_page")
-local decore_world = require("decore.world")
 local EMPTY_HASH = hash("")
 local TYPE_TABLE = "table"
 local NEXT_ENTITY_ID = 0
@@ -32,7 +31,6 @@ function M.new_world(...)
 
 	-- Set Last World. Should be used to ease debug from different places?
 	M.world = world
-	decore_world.set_world(world)
 
 	decore_internal.logger:debug("World created", { systems = #world.systems })
 
@@ -365,7 +363,7 @@ local MSG_INIT_ENTITY = hash("init_entity")
 ---@param callback function
 function M.init_entity(context, message_id, callback)
 	if message_id == MSG_INIT_ENTITY then
-		local entity = decore_world.command_game_object:get_entity(go.get_id())
+		local entity = M.world.command_game_object:get_entity(go.get_id())
 		callback(context, entity)
 	end
 end
