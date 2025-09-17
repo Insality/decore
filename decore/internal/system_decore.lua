@@ -112,7 +112,7 @@ function M:spawn_children(entity)
 		entity.children_ids = {}
 		for index = 1, #child_entities do
 			local child_entity = child_entities[index]
-			local child = self.decore.create_entity(child_entity.prefab_id, child_entity.pack_id, child_entity.components)
+			local child = self.decore.create_prefab(child_entity.prefab_id, child_entity.pack_id, child_entity.components)
 			self.decore.apply_component(child, "transform")
 
 			-- Add my position to child

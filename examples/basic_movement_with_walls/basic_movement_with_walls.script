@@ -1,17 +1,19 @@
 local decore = require("decore.decore")
 
 function init(self)
-	self.world = decore.world(
-		require("system.transform.system_transform").create_system(),
-		require("system.transform_border.system_transform_border").create_system(),
-		require("system.game_object.system_game_object").create_system(),
-		require("system.input.system_input").create_system(),
-		require("system.camera.system_camera").create_system(),
-		require("system.movement_controller.system_movement_controller").create_system()
+	self.world = decore.new_world(
+		require("system.transform.system_transform").create(),
+		require("system.transform_border.system_transform_border").create(),
+		require("system.game_object.system_game_object").create(),
+		require("system.input.input_system").create(),
+		require("system.camera.system_camera").create(),
+		require("system.movement_controller.system_movement_controller").create()
 	)
 
-	decore.register_entity("player", require("examples.basic_movement_with_walls.entity.player"))
-	decore.register_entity("camera", require("system.camera.entity_camera"))
+	decore.register_entities("game", {
+		["player"] = require("examples.basic_movement_with_walls.entity.player"),
+		["camera"] = require("system.camera.camera_entity")
+	})
 end
 
 

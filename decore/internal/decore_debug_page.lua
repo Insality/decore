@@ -174,7 +174,7 @@ function M.render_entity_prefabs_page(decore, world, druid, properties_panel)
 					local drag_n_drop_entity = nil
 
 					widget.on_drag_start:subscribe(function()
-						entity_to_create = decore.create_entity(prefab_id, pack_id)
+						entity_to_create = decore.create_prefab(prefab_id, pack_id)
 						local visual_entity_to_create = {
 							game_object = entity_to_create.game_object,
 							transform = entity_to_create.transform or {},
@@ -187,7 +187,7 @@ function M.render_entity_prefabs_page(decore, world, druid, properties_panel)
 							for index = 1, #entity_to_create.child_instancies do
 								local child = entity_to_create.child_instancies[index]
 								local components = child.components
-								local created_child = decore.create_entity(child.prefab_id, child.pack_id, child.components)
+								local created_child = decore.create_prefab(child.prefab_id, child.pack_id, child.components)
 								if components then
 									table.insert(child_instancies, {
 										game_object = created_child.game_object,
@@ -199,7 +199,7 @@ function M.render_entity_prefabs_page(decore, world, druid, properties_panel)
 							visual_entity_to_create.child_instancies = child_instancies
 						end
 
-						drag_n_drop_entity = decore.create_entity(nil, nil, visual_entity_to_create)
+						drag_n_drop_entity = decore.create_prefab(nil, nil, visual_entity_to_create)
 						world:addEntity(drag_n_drop_entity)
 					end)
 

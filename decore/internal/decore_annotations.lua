@@ -9,28 +9,28 @@
 ---@class component
 
 ---@class system
----@field id string
----@field active boolean
----@field filter fun(self: system, entity: entity)|nil
----@field world world
----@field entities entity[]
----@field indices table<entity, number> Entity index in entities table
----@field nocache boolean
----@field index number
----@field modified boolean
----@field interval number|nil
----@field onAdd fun(self: system, entity:entity)|nil
----@field onRemove fun(self: system, entity:entity)|nil
----@field onModify fun(dt:number)|nil
----@field onAddToWorld fun(self: system, world:world)|nil
----@field onRemoveFromWorld fun(self: system, world:world)|nil
----@field preWrap fun(system: system, dt:number)|nil
----@field postWrap fun(system: system, dt:number)|nil
----@field update fun(system: system, dt:number)|nil
----@field preProcess fun(system: system, dt:number)|nil
----@field process fun(system: system, entity:entity, dt:number)|nil
----@field postProcess fun(system: system, dt:number)|nil
----@field compare fun(e1:entity, e2:entity)|nil
+---@field protected id string
+---@field protected active boolean
+---@field protected filter fun(self: system, entity: entity)|nil
+---@field protected world world
+---@field protected entities entity[]
+---@field protected indices table<entity, number> Entity index in entities table
+---@field protected nocache boolean
+---@field protected index number
+---@field protected modified boolean
+---@field protected interval number|nil
+---@field protected onAdd fun(self: system, entity:entity)|nil
+---@field protected onRemove fun(self: system, entity:entity)|nil
+---@field protected onModify fun(dt:number)|nil
+---@field protected onAddToWorld fun(self: system, world:world)|nil
+---@field protected onRemoveFromWorld fun(self: system, world:world)|nil
+---@field protected preWrap fun(system: system, dt:number)|nil
+---@field protected postWrap fun(system: system, dt:number)|nil
+---@field protected update fun(system: system, dt:number)|nil
+---@field protected preProcess fun(system: system, dt:number)|nil
+---@field protected process fun(system: system, entity:entity, dt:number)|nil
+---@field protected postProcess fun(system: system, dt:number)|nil
+---@field protected compare fun(e1:entity, e2:entity)|nil
 
 ---@class world
 ---@field entities entity[]

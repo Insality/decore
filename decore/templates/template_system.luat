@@ -1,14 +1,16 @@
 local decore = require("decore.decore")
-local TEMPLATE_command = require("system.TEMPLATE.TEMPLATE_command")
+
+---@class world
+---@field TEMPLATE system.TEMPLATE
 
 ---@class entity
----@field TEMPLATE component.TEMPLATE|nil
+---@field TEMPLATE component.TEMPLATE?
 
 ---@class entity.TEMPLATE: entity
 ---@field TEMPLATE component.TEMPLATE
 
 ---@class component.TEMPLATE
-decore.register_component("TEMPLATE", {})
+decore.register_component("TEMPLATE")
 
 ---@class system.TEMPLATE: system
 ---@field entities entity.TEMPLATE[]
@@ -16,13 +18,8 @@ local M = {}
 
 
 ---@return system.TEMPLATE
-function M.create_system()
+function M.create()
 	return decore.system(M, "TEMPLATE", { "TEMPLATE" })
-end
-
-
-function M:onAddToWorld()
-	self.world.TEMPLATE = command_TEMPLATE.create(self)
 end
 
 

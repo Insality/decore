@@ -3,7 +3,7 @@ components {
   component: "/decore/entity.script"
   properties {
     id: "prefab_id"
-    value: ""
+    value: "camera"
     type: PROPERTY_TYPE_HASH
   }
   properties {
@@ -16,10 +16,6 @@ components {
     value: "1080.0"
     type: PROPERTY_TYPE_NUMBER
   }
-}
-components {
-  id: "component_camera"
-  component: "/system/camera/component_camera.script"
 }
 embedded_components {
   id: "camera"

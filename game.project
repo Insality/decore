@@ -1,5 +1,5 @@
 [bootstrap]
-main_collection = /examples/boids/boids.collectionc
+main_collection = /examples/basic_movement_with_walls/basic_movement_with_walls.collectionc
 
 [script]
 shared_state = 1

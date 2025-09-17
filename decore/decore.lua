@@ -13,8 +13,6 @@ local NEXT_ENTITY_ID = 0
 local M = {}
 M.clamp = decore_internal.clamp
 M.ecs = require("decore.ecs")
-M.world = nil
-
 
 ---Create a new world instance
 ---@param ... system[]|nil
@@ -28,9 +26,6 @@ function M.new_world(...)
 
 	-- Add systems passed to world constructor
 	world:add(...)
-
-	-- Set Last World. Should be used to ease debug from different places?
-	M.world = world
 
 	decore_internal.logger:debug("World created", { systems = #world.systems })
 
@@ -46,7 +41,7 @@ end
 ---@param action action
 ---@return boolean
 function M.on_input(world, action_id, action)
-	return world.command_input:on_input(action_id, action)
+	return world.input:on_input(action_id, action)
 end
 
 
@@ -144,27 +139,27 @@ function M.unregister_entities(pack_id)
 end
 
 
----Create entity instance from table
----@param data table
+---Create new entity instance
+---@param components table<string, any>
 ---@return entity
-function M.create(data)
-	return M.create_entity(nil, nil, data)
+function M.create(components)
+	return M.create_prefab(nil, nil, components)
 end
 
 
----Create entity instance from prefab
+---Create new entity instance from prefab
 ---@param prefab_id string|hash|nil
 ---@param pack_id string|nil
----@param data table|nil additional data to merge with prefab
+---@param components table<string, any>|nil additional components to merge with prefab
 ---@return entity
-function M.create_entity(prefab_id, pack_id, data)
+function M.create_prefab(prefab_id, pack_id, components)
 	NEXT_ENTITY_ID = NEXT_ENTITY_ID + 1
 
 	if prefab_id == EMPTY_HASH then
 		prefab_id = nil
 	end
 
-	if not prefab_id and not data then
+	if not prefab_id and not components then
 		decore_internal.logger:warn("The entity_id is empty", {
 			prefab_id = prefab_id,
 			pack_id = pack_id,
@@ -175,12 +170,12 @@ function M.create_entity(prefab_id, pack_id, data)
 	local entity = nil
 	local prefab = decore_data.get_entity(prefab_id, pack_id)
 	if prefab and prefab.parent_prefab_id then
-		entity = M.create_entity(prefab.parent_prefab_id)
+		entity = M.create_prefab(prefab.parent_prefab_id)
 	end
 
 	entity = entity or {}
 	M.apply_components(entity, prefab)
-	M.apply_components(entity, data)
+	M.apply_components(entity, components)
 	entity.id = NEXT_ENTITY_ID
 
 	local transform = entity.transform

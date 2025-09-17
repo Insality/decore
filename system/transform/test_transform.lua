@@ -9,7 +9,7 @@ return function()
 			system_transform = require("system.transform.system_transform")
 
 			world = decore.world()
-			world:add(system_transform.create_system())
+			world:add(system_transform.create())
 		end)
 
 		it("Should init correctly", function()

@@ -46,7 +46,7 @@ local M = {}
 M.DEFAULT_SIZE = math.min(sys.get_config_int("display.width"), sys.get_config_int("display.height"))
 
 ---@return system.camera
-function M.create_system()
+function M.create()
 	local system = decore.system(M, "camera", "camera")
 
 	system.interval = 0.03

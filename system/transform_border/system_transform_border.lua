@@ -24,7 +24,7 @@ local M = {}
 
 
 ---@return system.transform_border
-function M.create_system()
+function M.create()
 	return decore.system(M, "transform_border", { "transform_border", "transform" })
 end
 
