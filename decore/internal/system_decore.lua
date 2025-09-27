@@ -31,12 +31,14 @@ local M = {}
 ---@param decore decore
 ---@return system.decore
 function M.create_system(decore)
-	local system = setmetatable(ecs.system({ id = "decore" }), { __index = M })
-	system.filter = ecs.rejectAny("")
-	system.decore = decore
-	system.id_to_entity = {}
+	local self = setmetatable(ecs.system(), { __index = M }) --[[@as system.decore]]
+	self.id = "decore"
+	self.filter = ecs.rejectAny("")
 
-	return system
+	self.decore = decore
+	self.id_to_entity = {}
+
+	return self
 end
 
 

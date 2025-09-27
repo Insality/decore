@@ -1,8 +1,5 @@
 local decore = require("decore.decore")
 
----@class world
----@field TEMPLATE system.TEMPLATE
-
 ---@class entity
 ---@field TEMPLATE component.TEMPLATE?
 

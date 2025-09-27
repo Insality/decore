@@ -96,6 +96,7 @@ function on_message(self, message_id, message)
 					object[hash(object_path)] = component_url --[[@as userdata]]
 				end
 			end
+
 			self.entity.game_object.object = object
 		end
 

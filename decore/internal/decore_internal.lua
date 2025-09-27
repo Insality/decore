@@ -105,9 +105,14 @@ end
 function M.merge_tables(t1, t2)
 	for k, v in pairs(t2) do
 		if type(v) == TYPE_TABLE then
-			if not t1[k] then
+			-- If value has metatable, deep copy it (like event objects)
+			if getmetatable(v) then
 				t1[k] = M.deepcopy(v)
+			elseif not t1[k] then
+				-- No metatable, create new table and merge recursively
+				t1[k] = v
 			else
+				-- Merge into existing table
 				M.merge_tables(t1[k], v)
 			end
 		else

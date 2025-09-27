@@ -14,7 +14,7 @@ The library in development stage. May be not fully tested and README may be not 
 
 # Decore
 
-**Decore** - a Defold library for managing ECS game entities and components in a data-driven way. It provides functionality for creating and managing game entities with their components.
+**Decore** - a Defold library for managing ECS game entities and components in a data-driven way. The ECS is based on tiny ECS library.
 
 ## Features
 
@@ -29,15 +29,50 @@ Add in your `game.project` dependencies:
 https://github.com/Insality/decore/archive/refs/tags/1.zip
 ```
 
+### Basic Usage
+
+```lua
+local decore = require("decore.decore")
+
+function init(self)
+	local world = decore.new_world(
+		require("system.input.system_input").create(),
+		require("system.transform.system_transform").create(),
+		require("system.game_object.system_game_object").create(),
+	)
+
+	decore.register_entities("game", {
+		["camera"] = require("system.camera.camera_entity")
+	})
+
+	world:addEntity(decore.create_prefab("player"))
+end
+
+function update(self, dt)
+	self.world:update(dt)
+end
+
+
+function on_input(self, action_id, action)
+	return decore.on_input(self.world, action_id, action)
+end
+
+
+function final(self)
+	decore.final(self.world)
+end
+```
+
+
 ## Quick API Reference
 
 ```lua
 local decore = require("decore.decore")
 
-decore.world(...)
+decore.new_world(...)
 decore.on_input(world, action_id, action)
 decore.on_message(world, message_id, [message], [sender])
-decore.final([world])
+decore.final(world)
 
 decore.system(system_module, system_id, [require_all_filters])
 decore.processing_system(system_module, system_id, [require_all_filters])
@@ -48,27 +83,30 @@ decore.register_entity(entity_id, entity_data, [pack_id])
 decore.register_entities(pack_id, entities)
 decore.unregister_entities(pack_id)
 
+decore.create([components])
+decore.create_prefab([prefab_id], [pack_id], [components])
+
 decore.register_component(component_id, [component_data], [pack_id])
-decore.register_components(components_data_or_path)
+decore.register_components(components_data)
 decore.unregister_components(pack_id)
 
-decore.create(data)
-decore.create_entity([prefab_id], [pack_id], [data])
 decore.create_component(component_id, [component_pack_id])
 decore.apply_component(entity, component_id, [component_data])
 decore.apply_components(entity, [components])
 
 decore.get_entity_by_id(world, id)
-decore.find_entities_by_component_value(world, component_id, [component_value])
-decore.is_alive(world_or_system, entity)
+decore.find_entities(world, component_id, [component_value])
 
 decore.print_loaded_packs_debug_info()
 decore.print_loaded_systems_debug_info(world)
-decore.parse_command(command)
+
+decore.parse_command(command_string)
 decore.call_command(world, [command])
 
 decore.set_logger([logger_instance])
-decore.get_logger(name, [level])
+decore.get_logger([name], [level])
+
+decore.render_properties_panel(world, druid, properties_panel)
 ```
 
 ## License

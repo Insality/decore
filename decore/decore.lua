@@ -26,22 +26,11 @@ function M.new_world(...)
 
 	-- Add systems passed to world constructor
 	world:add(...)
+	world:refresh()
 
 	decore_internal.logger:debug("World created", { systems = #world.systems })
 
-	world:refresh()
-
 	return world
-end
-
-
----Add input event to the world queue
----@param world world
----@param action_id hash
----@param action action
----@return boolean
-function M.on_input(world, action_id, action)
-	return world.input:on_input(action_id, action)
 end
 
 
@@ -59,18 +48,10 @@ function M.on_message(world, message_id, message, sender)
 end
 
 
----Clear all entities and systems from the world
----@param world world
-function M.final(world)
-	world:clearEntities()
-	world:clearSystems()
-end
-
-
 ---@generic T
 ---@param system_module T The module with system functions
 ---@param system_id string The system id
----@param require_all_filters string|string[]|nil The required components. Example: {"transform", "game_object"} or "transform"
+---@param require_all_filters string|string[]|nil The required components. Example: {"transform", "game_object"} or "transform". If nil - system will contain no entities
 ---@return T
 function M.system(system_module, system_id, require_all_filters)
 	return decore_internal.create_system(M.ecs.system(), system_module, system_id, require_all_filters)
@@ -272,7 +253,7 @@ function M.apply_component(entity, component_id, component_data)
 		entity[component_id] = M.create_component(component_id)
 	end
 
-	if component_data then
+	if component_data ~= nil then
 		if type(component_data) == TYPE_TABLE then
 			decore_internal.merge_tables(entity[component_id], component_data)
 		else

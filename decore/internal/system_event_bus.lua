@@ -8,7 +8,10 @@ local M = {}
 
 ---@return system.bus.event
 function M.create_system()
-	return setmetatable(ecs.system({ id = "event_bus" }), { __index = M })
+	local self = setmetatable(ecs.system(), { __index = M }) --[[@as system.bus.event]]
+	self.id = "event_bus"
+
+	return self
 end
 
 
