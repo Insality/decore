@@ -1,11 +1,5 @@
 local decore = require("decore.decore")
 
----@class entity
----@field TEMPLATE component.TEMPLATE?
-
----@class entity.TEMPLATE: entity
----@field TEMPLATE component.TEMPLATE
-
 ---@class component.TEMPLATE
 decore.register_component("TEMPLATE")
 

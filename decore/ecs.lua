@@ -73,6 +73,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ---@field systemsToChange system[]
 ---@field systemsToAdd system[]
 ---@field systemsToRemove system[]
+---@field findEntities fun(world: world, component_id: string, component_value: any|nil): entity[]
+---@field findEntity fun(world: world, component_id: string, component_value: any|nil): entity|nil
 
 ---@class tiny_ecs Tiny ECS module
 ---@field requireAll fun(...): ... Returns a filter function that requires all of the specified components
@@ -948,6 +950,31 @@ function tiny.setSystemIndex(world, system, index)
 	return oldIndex
 end
 
+---@param world world
+---@param component_id string
+---@param component_value any|nil
+---@return entity[]
+function tiny.findEntities(world, component_id, component_value)
+	local entities = {}
+	for i = 1, #world.entities do
+		local entity = world.entities[i]
+		if entity[component_id] and (not component_value or entity[component_id] == component_value) then
+			table.insert(entities, entity)
+		end
+	end
+	return entities
+end
+
+
+---@param world world
+---@param component_id string
+---@param component_value any|nil
+---@return entity|nil
+function tiny.findEntity(world, component_id, component_value)
+	return tiny.findEntities(world, component_id, component_value)[1]
+end
+
+
 -- Construct world metatable.
 worldMetaTable = {
 	__index = {
@@ -965,7 +992,9 @@ worldMetaTable = {
 		clearSystems = tiny.clearSystems,
 		getEntityCount = tiny.getEntityCount,
 		getSystemCount = tiny.getSystemCount,
-		setSystemIndex = tiny.setSystemIndex
+		setSystemIndex = tiny.setSystemIndex,
+		findEntities = tiny.findEntities,
+		findEntity = tiny.findEntity
 	},
 	__tostring = function()
 		return "<tiny-ecs_World>"
