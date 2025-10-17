@@ -8,7 +8,7 @@ local M = {}
 
 ---@return system.TEMPLATE.command
 function M.create(TEMPLATE)
-	return setmetatable({ TEMPLATE = TEMPLATE }, { __index = M })
+	return setmetatable({ TEMPLATE = TEMPLATE, world = TEMPLATE.world }, { __index = M })
 end
 
 

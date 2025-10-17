@@ -1,4 +1,4 @@
-local ecs = require("decore.ecs")
+local ecs = require("decore.internal.ecs")
 
 local TYPE_STRING = "string"
 local TYPE_TABLE = "table"
@@ -65,13 +65,17 @@ end
 
 ---Clamp value between min and max (either can be nil)
 ---@param value number
----@param min number|nil
----@param max number|nil
-function M.clamp(value, min, max)
-	if min and max and min > max then
-		min, max = max, min
+---@param v1 number
+---@param v2 number
+---@return number
+function M.clamp(value, v1, v2)
+	v1 = v1 or -math.huge
+	v2 = v2 or math.huge
+	if v1 > v2 then
+		v1, v2 = v2, v1
 	end
-	return math.min(max or value, math.max(min or value, value))
+
+	return math.max(v1, math.min(value, v2))
 end
 
 

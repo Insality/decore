@@ -3,11 +3,11 @@ local decore_internal = require("decore.internal.decore_internal")
 local M = {}
 
 function M.clear()
-	---@type table<string, table<string, entity>> @Key: pack_id, Value: <prefab_id, entity>
+	---@type table<string, table<string, entity>> Key: pack_id, Value: <prefab_id, entity>
 	M.entities = {}
 	M.entities_order = {}
 
-	---@type table<string, table<string, any>> @Key: pack_id, Value: <component_id, component>
+	---@type table<string, table<string, any>> Key: pack_id, Value: <component_id, component>
 	M.components = {}
 	M.components_order = {}
 end

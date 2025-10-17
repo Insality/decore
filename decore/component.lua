@@ -9,16 +9,16 @@ function init(self)
 end
 --]]
 
-local HASH_SET_COMPONENT = hash("set_component")
-local HASH_PROPERTY = hash("components_to_register")
+local SET_COMPONENT = hash("set_component")
+local COMPONENTS_TO_REGISTER = hash("components_to_register")
 
 local M = {}
 
 function M.init(component_id, component_data)
-	local entity_count = go.get("#entity", HASH_PROPERTY)
-	go.set("#entity", HASH_PROPERTY, entity_count + 1)
+	local entity_count = go.get("#entity", COMPONENTS_TO_REGISTER)
+	go.set("#entity", COMPONENTS_TO_REGISTER, entity_count + 1)
 
-	msg.post(".", HASH_SET_COMPONENT, {
+	msg.post(".", SET_COMPONENT, {
 		id = component_id,
 		data = component_data
 	})

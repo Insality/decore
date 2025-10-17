@@ -1,7 +1,12 @@
 local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
 local decore_commands = require("decore.internal.decore_commands")
-local decore_debug_page = require("decore.internal.decore_debug_page")
+local decore_debug_page = require("decore.decore_debug_page")
+
+local ecs = require("decore.internal.ecs")
+local system_decore = require("decore.internal.system_decore")
+local system_event_bus = require("decore.internal.system_event_bus")
+
 local EMPTY_HASH = hash("")
 local TYPE_TABLE = "table"
 local NEXT_ENTITY_ID = 0
@@ -12,7 +17,7 @@ local NEXT_ENTITY_ID = 0
 ---@class decore
 local M = {}
 M.clamp = decore_internal.clamp
-M.ecs = require("decore.ecs")
+M.ecs = ecs
 
 ---Create a new world instance
 ---@param ... system[]|nil
@@ -20,8 +25,8 @@ M.ecs = require("decore.ecs")
 function M.new_world(...)
 	local world = M.ecs.world(
 		-- Always included systems
-		require("decore.internal.system_decore").create_system(M),
-		require("decore.internal.system_event_bus").create_system()
+		system_decore.create_system(M),
+		system_event_bus.create_system()
 	)
 
 	-- Add systems passed to world constructor
@@ -162,17 +167,12 @@ function M.create_prefab(prefab_id, pack_id, components)
 	entity.id = NEXT_ENTITY_ID
 
 	local transform = entity.transform
-	local position_x = transform and transform.position_x or 0
-	local position_y = transform and transform.position_y or 0
-	local position_z = transform and transform.position_z or 0
-
 	decore_internal.logger:trace("Entity created", {
 		id = entity.id,
 		prefab_id = prefab_id,
 		parent_prefab_id = prefab and prefab.parent_prefab_id,
-		x = position_x,
-		y = position_y,
-		z = position_z,
+		x = transform and transform.position_x or 0,
+		y = transform and transform.position_y or 0,
 	})
 
 	return entity

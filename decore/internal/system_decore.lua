@@ -1,7 +1,7 @@
 local events = require("event.events")
 local decore_data = require("decore.internal.decore_data")
 
-local ecs = require("decore.ecs")
+local ecs = require("decore.internal.ecs")
 
 ---@class entity
 ---@field id number|nil Unique entity id, autofilled by decore.create_entity

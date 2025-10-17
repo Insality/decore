@@ -1,5 +1,3 @@
----Download Defold annotations from here: https://github.com/astrochili/defold-annotations/releases/
-
 ---@class action
 ---@field action_id hash|nil
 
