@@ -1,9 +1,10 @@
+local ecs = require("decore.internal.ecs")
+local logger = require("decore.internal.decore_logger")
+
 local decore_data = require("decore.internal.decore_data")
 local decore_internal = require("decore.internal.decore_internal")
-local decore_commands = require("decore.internal.decore_commands")
 local decore_debug_page = require("decore.decore_debug_page")
 
-local ecs = require("decore.internal.ecs")
 local system_decore = require("decore.internal.system_decore")
 local system_event_bus = require("decore.internal.system_event_bus")
 
@@ -33,7 +34,7 @@ function M.new_world(...)
 	world:add(...)
 	world:refresh()
 
-	decore_internal.logger:debug("World created", { systems = #world.systems })
+	logger:debug("World created", { systems = #world.systems })
 
 	return world
 end
@@ -118,7 +119,7 @@ end
 ---@param pack_id string
 function M.unregister_entities(pack_id)
 	if not decore_data.entities[pack_id] then
-		decore_internal.logger:warn("No entities pack with id to unload", pack_id)
+		logger:warn("No entities pack with id to unload", pack_id)
 		return
 	end
 
@@ -148,7 +149,7 @@ function M.create_prefab(prefab_id, pack_id, components)
 	end
 
 	if not prefab_id and not components then
-		decore_internal.logger:warn("The entity_id is empty", {
+		logger:warn("The entity_id is empty", {
 			prefab_id = prefab_id,
 			pack_id = pack_id,
 		})
@@ -167,7 +168,7 @@ function M.create_prefab(prefab_id, pack_id, components)
 	entity.id = NEXT_ENTITY_ID
 
 	local transform = entity.transform
-	decore_internal.logger:trace("Entity created", {
+	logger:trace("Entity created", {
 		id = entity.id,
 		prefab_id = prefab_id,
 		parent_prefab_id = prefab and prefab.parent_prefab_id,
@@ -195,7 +196,7 @@ function M.register_components(components_data)
 	local pack_id = components_data.pack_id
 
 	if decore_data.components[pack_id] then
-		decore_internal.logger:info("The components pack with the same id already loaded", pack_id)
+		logger:info("The components pack with the same id already loaded", pack_id)
 		return false
 	end
 
@@ -211,7 +212,7 @@ end
 ---@param pack_id string
 function M.unregister_components(pack_id)
 	if not decore_data.components[pack_id] then
-		decore_internal.logger:warn("No components pack with id to unload", pack_id)
+		logger:warn("No components pack with id to unload", pack_id)
 		return
 	end
 
@@ -228,7 +229,7 @@ function M.create_component(component_id, component_pack_id)
 	local component_instance = decore_data.get_component(component_id, component_pack_id)
 
 	if component_instance == nil then
-		decore_internal.logger:warn("No component_id in components data", {
+		logger:warn("No component_id in components data", {
 			component_id = component_id,
 			component_pack_id = component_pack_id
 		})
@@ -313,37 +314,20 @@ end
 
 ---Log all loaded packs for entities, components and worlds
 function M.print_loaded_packs_debug_info()
-	decore_data.print_loaded_packs_debug_info(decore_internal.logger)
+	decore_data.print_loaded_packs_debug_info()
 end
 
 
 ---Log all loaded systems
 ---@param world world
 function M.print_loaded_systems_debug_info(world)
-	decore_data.print_loaded_systems_debug_info(world, decore_internal.logger)
-end
-
-
----Grab a command in text format to provide a way to call functions from the system
----@param command_string string Example: "system_name.function_name, arg1, arg2". Separators can be: " ", "," and "\n"
----@return any[]
-function M.parse_command(command_string)
-	return decore_commands.parse_command(command_string)
-end
-
-
----Call command from params array. Example: {"system_name", "function_name", "arg1", "arg2", ...}
----@param world world
----@param command any[] Example: [ "command_debug", "toggle_profiler", true ],
-function M.call_command(world, command)
-	return decore_commands.call_command(world, command)
+	decore_data.print_loaded_systems_debug_info(world)
 end
 
 
 ---@param logger_instance decore.logger|table|nil
 function M.set_logger(logger_instance)
-	decore_internal.logger = logger_instance or decore_internal.empty_logger
-	M.logger = decore_internal.logger
+	logger.set_logger(logger_instance)
 end
 
 
@@ -358,7 +342,7 @@ function M.get_logger(name, level)
 		name = basename
 	end
 
-	return setmetatable({ name = name, level = level }, { __index = decore_internal.logger })
+	return setmetatable({ name = name, level = level }, { __index = logger })
 end
 
 

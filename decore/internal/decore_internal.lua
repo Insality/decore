@@ -1,38 +1,8 @@
 local ecs = require("decore.internal.ecs")
 
-local TYPE_STRING = "string"
 local TYPE_TABLE = "table"
 
 local M = {}
-
----Logger interface
----@class decore.logger
----@field trace fun(logger: decore.logger, message: string, data: any|nil)
----@field debug fun(logger: decore.logger, message: string, data: any|nil)
----@field info fun(logger: decore.logger, message: string, data: any|nil)
----@field warn fun(logger: decore.logger, message: string, data: any|nil)
----@field error fun(logger: decore.logger, message: string, data: any|nil)
-
---- Use empty function to save a bit of memory
-local EMPTY_FUNCTION = function(_, message, context) end
-
----@type decore.logger
-M.empty_logger = {
-	trace = EMPTY_FUNCTION,
-	debug = EMPTY_FUNCTION,
-	info = EMPTY_FUNCTION,
-	warn = EMPTY_FUNCTION,
-	error = EMPTY_FUNCTION,
-}
-
----@type decore.logger
-M.logger = {
-	trace = function(_, msg) print("TRACE: " .. msg) end,
-	debug = function(_, msg, data) print("DEBUG: " .. msg, data) end,
-	info = function(_, msg, data) print("INFO: " .. msg, data) end,
-	warn = function(_, msg, data) print("WARN: " .. msg, data) end,
-	error = function(_, msg, data) print(data) error("ERROR: " .. msg) end
-}
 
 
 ---Split string by separator
@@ -163,5 +133,6 @@ function M.create_system(ecs_system, system_module, system_id, require_all_filte
 
 	return system
 end
+
 
 return M
