@@ -124,6 +124,7 @@ function M:spawn_children(entity)
 				M.apply_parent_transform(child_transform, parent_transform)
 			end
 
+			-- Is in need to be here?
 			if child.tiled_id and entity.tiled_id then
 				child.tiled_id = entity.tiled_id .. "/" .. child.tiled_id
 			end

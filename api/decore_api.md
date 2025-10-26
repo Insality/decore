@@ -1,13 +1,11 @@
 # decore API
 
-> at decore.lua
+> at decore/decore.lua
 
 ## Functions
 
 - [new_world](#new_world)
-- [on_input](#on_input)
 - [on_message](#on_message)
-- [final](#final)
 - [system](#system)
 - [processing_system](#processing_system)
 - [sorted_system](#sorted_system)
@@ -27,11 +25,14 @@
 - [find_entities](#find_entities)
 - [print_loaded_packs_debug_info](#print_loaded_packs_debug_info)
 - [print_loaded_systems_debug_info](#print_loaded_systems_debug_info)
-- [parse_command](#parse_command)
-- [call_command](#call_command)
 - [set_logger](#set_logger)
 - [get_logger](#get_logger)
 - [render_properties_panel](#render_properties_panel)
+
+## Fields
+
+- [clamp](#clamp)
+- [ecs](#ecs)
 
 
 
@@ -50,23 +51,6 @@ Create a new world instance
 - **Returns:**
 	- `` *(world)*:
 
-### on_input
-
----
-```lua
-decore.on_input(world, action_id, action)
-```
-
-Add input event to the world queue
-
-- **Parameters:**
-	- `world` *(world)*:
-	- `action_id` *(hash)*:
-	- `action` *(action)*:
-
-- **Returns:**
-	- `` *(boolean)*:
-
 ### on_message
 
 ---
@@ -77,22 +61,10 @@ decore.on_message(world, message_id, [message], [sender])
 Add window event to the world event bus
 
 - **Parameters:**
-	- `world` *(world)*:
+	- `world` *(world)*:  command_velocity.lua
 	- `message_id` *(hash)*:
 	- `[message]` *(table|nil)*:
 	- `[sender]` *(url|nil)*:
-
-### final
-
----
-```lua
-decore.final(world)
-```
-
-Clear all entities and systems from the world
-
-- **Parameters:**
-	- `world` *(world)*:
 
 ### system
 
@@ -104,7 +76,7 @@ decore.system(system_module, system_id, [require_all_filters])
 - **Parameters:**
 	- `system_module` *(<T>)*: The module with system functions
 	- `system_id` *(string)*: The system id
-	- `[require_all_filters]` *(string|string[]|nil)*: The required components. Example: {"transform", "game_object"} or "transform"
+	- `[require_all_filters]` *(string|string[]|nil)*: The required components. Example: {"transform", "game_object"} or "transform". If nil - system will contain no entities
 
 - **Returns:**
 	- `` *(<T>)*:
@@ -329,7 +301,7 @@ decore.get_entity_by_id(world, id)
 ```
 
 - **Parameters:**
-	- `world` *(world)*:
+	- `world` *(world)*:  command_velocity.lua
 	- `id` *(number)*:
 
 - **Returns:**
@@ -346,7 +318,7 @@ Return all entities with component_id equal to component_value or all entities w
 It looks for component_id in entity and entityToChange tables
 
 - **Parameters:**
-	- `world` *(world)*:
+	- `world` *(world)*:  command_velocity.lua
 	- `component_id` *(string)*:
 	- `[component_value]` *(any)*: if nil, return all entities with component_id
 
@@ -372,35 +344,7 @@ decore.print_loaded_systems_debug_info(world)
 Log all loaded systems
 
 - **Parameters:**
-	- `world` *(world)*:
-
-### parse_command
-
----
-```lua
-decore.parse_command(command_string)
-```
-
-Grab a command in text format to provide a way to call functions from the system
-
-- **Parameters:**
-	- `command_string` *(string)*: Example: "system_name.function_name, arg1, arg2". Separators can be: " ", "," and "\n"
-
-- **Returns:**
-	- `` *(any[])*:
-
-### call_command
-
----
-```lua
-decore.call_command(world, [command])
-```
-
-Call command from params array. Example: {"system_name", "function_name", "arg1", "arg2", ...}
-
-- **Parameters:**
-	- `world` *(world)*:
-	- `[command]` *(any[])*: Example: [ "command_debug", "toggle_profiler", true ],
+	- `world` *(world)*:  command_velocity.lua
 
 ### set_logger
 
@@ -410,7 +354,7 @@ decore.set_logger([logger_instance])
 ```
 
 - **Parameters:**
-	- `[logger_instance]` *(table|decore.logger|nil)*: Logger interface
+	- `[logger_instance]` *(table|decore.logger|nil)*:
 
 ### get_logger
 
@@ -434,6 +378,15 @@ decore.render_properties_panel(world, druid, properties_panel)
 ```
 
 - **Parameters:**
-	- `world` *(world)*:
+	- `world` *(world)*:  command_velocity.lua
 	- `druid` *(druid.instance)*:
 	- `properties_panel` *(druid.widget.properties_panel)*:
+
+
+## Fields
+<a name="clamp"></a>
+- **clamp** (_function_)
+
+<a name="ecs"></a>
+- **ecs** (_tiny_ecs_)
+

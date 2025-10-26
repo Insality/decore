@@ -2,7 +2,7 @@ local ecs = require("decore.internal.ecs")
 local logger = require("decore.internal.decore_logger")
 
 local decore_data = require("decore.internal.decore_data")
-local decore_internal = require("decore.internal.decore_internal")
+local decore_utils = require("decore.internal.decore_utils")
 local decore_debug_page = require("decore.decore_debug_page")
 
 local system_decore = require("decore.internal.system_decore")
@@ -17,8 +17,9 @@ local NEXT_ENTITY_ID = 0
 
 ---@class decore
 local M = {}
-M.clamp = decore_internal.clamp
+M.clamp = decore_utils.clamp
 M.ecs = ecs
+
 
 ---Create a new world instance
 ---@param ... system[]|nil
@@ -60,7 +61,7 @@ end
 ---@param require_all_filters string|string[]|nil The required components. Example: {"transform", "game_object"} or "transform". If nil - system will contain no entities
 ---@return T
 function M.system(system_module, system_id, require_all_filters)
-	return decore_internal.create_system(M.ecs.system(), system_module, system_id, require_all_filters)
+	return decore_utils.create_system(M.ecs.system(), system_module, system_id, require_all_filters)
 end
 
 
@@ -70,7 +71,7 @@ end
 ---@param require_all_filters string|string[]|nil The required components. Example: {"transform", "game_object"} or "transform"
 ---@return T
 function M.processing_system(system_module, system_id, require_all_filters)
-	return decore_internal.create_system(M.ecs.processingSystem(), system_module, system_id, require_all_filters)
+	return decore_utils.create_system(M.ecs.processingSystem(), system_module, system_id, require_all_filters)
 end
 
 
@@ -80,7 +81,7 @@ end
 ---@param require_all_filters string|string[]|nil The required components. Example: {"transform", "game_object"} or "transform"
 ---@return T
 function M.sorted_system(system_module, system_id, require_all_filters)
-	return decore_internal.create_system(M.ecs.sortedSystem(), system_module, system_id, require_all_filters)
+	return decore_utils.create_system(M.ecs.sortedSystem(), system_module, system_id, require_all_filters)
 end
 
 
@@ -90,7 +91,7 @@ end
 ---@param require_all_filters string|string[]|nil The required components. Example: {"transform", "game_object"} or "transform"
 ---@return T
 function M.sorted_processing_system(system_module, system_id, require_all_filters)
-	return decore_internal.create_system(M.ecs.sortedProcessingSystem(), system_module, system_id, require_all_filters)
+	return decore_utils.create_system(M.ecs.sortedProcessingSystem(), system_module, system_id, require_all_filters)
 end
 
 
@@ -124,7 +125,7 @@ function M.unregister_entities(pack_id)
 	end
 
 	decore_data.entities[pack_id] = nil
-	decore_internal.remove_by_value(decore_data.entities_order, pack_id)
+	decore_utils.remove_by_value(decore_data.entities_order, pack_id)
 end
 
 
@@ -217,7 +218,7 @@ function M.unregister_components(pack_id)
 	end
 
 	decore_data.components[pack_id] = nil
-	decore_internal.remove_by_value(decore_data.components_order, pack_id)
+	decore_utils.remove_by_value(decore_data.components_order, pack_id)
 end
 
 
@@ -256,7 +257,7 @@ function M.apply_component(entity, component_id, component_data)
 
 	if component_data ~= nil then
 		if type(component_data) == TYPE_TABLE then
-			decore_internal.merge_tables(entity[component_id], component_data)
+			decore_utils.merge_tables(entity[component_id], component_data)
 		else
 			entity[component_id] = component_data
 		end

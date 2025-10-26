@@ -1,5 +1,5 @@
 local logger = require("decore.internal.decore_logger")
-local decore_internal = require("decore.internal.decore_internal")
+local decore_internal = require("decore.internal.decore_utils")
 
 local M = {}
 M.entities = nil
