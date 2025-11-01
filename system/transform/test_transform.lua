@@ -8,15 +8,16 @@ return function()
 			decore = require("decore.decore")
 			system_transform = require("system.transform.system_transform")
 
-			world = decore.world()
-			world:add(system_transform.create_system())
+			world = decore.new_world()
+			world:add(system_transform.create())
 		end)
 
 		it("Should init correctly", function()
-			local entity = world:add({ transform = {
+			local entity = decore.create({ transform = {
 				position_x = 10,
 				position_y = 20,
 			}})
+			world:add(entity)
 			world:refresh()
 
 			assert(entity.transform.position_x == 10)
@@ -28,10 +29,11 @@ return function()
 		end)
 
 		it("Should trigger transform_event on position change", function()
-			local entity = world:add({ transform = {
+			local entity = decore.create({ transform = {
 				position_x = 10,
 				position_y = 20,
 			}})
+			world:add(entity)
 			world:refresh()
 
 			world.command_transform:set_position(entity, 20, 30)
@@ -43,10 +45,11 @@ return function()
 		end)
 
 		it("Should trigger transform_event on scale change", function()
-			local entity = world:add({ transform = {
+			local entity = decore.create({ transform = {
 				scale_x = 1,
 				scale_y = 1,
 			}})
+			world:add(entity)
 			world:refresh()
 
 			world.command_transform:set_scale(entity, 2, 2)
@@ -58,10 +61,11 @@ return function()
 		end)
 
 		it("Should trigger transform_event on size change", function()
-			local entity = world:add({ transform = {
+			local entity = decore.create({ transform = {
 				size_x = 1,
 				size_y = 1,
 			}})
+			world:add(entity)
 			world:refresh()
 
 			world.command_transform:set_size(entity, 2, 2)
@@ -73,9 +77,10 @@ return function()
 		end)
 
 		it("Should trigger transform_event on rotation change", function()
-			local entity = world:add({ transform = {
+			local entity = decore.create({ transform = {
 				rotation = 0,
 			}})
+			world:add(entity)
 			world:refresh()
 
 			world.command_transform:set_rotation(entity, 90)

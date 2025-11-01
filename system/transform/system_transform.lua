@@ -49,7 +49,7 @@ local M = {}
 
 
 ---@return system.transform
-function M.create_system()
+function M.create()
 	return decore.system(M, "transform", "transform")
 end
 

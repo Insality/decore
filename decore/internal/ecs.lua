@@ -23,6 +23,83 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -- @author Calvin Rose
 -- @license MIT
 -- @copyright 2016
+
+---@class entity
+
+---@class system
+---@field indices table<entity, number> Entity index in entities table
+---@field id string
+---@field filter fun(self: system, entity: entity)|nil
+---@field active boolean
+---@field world world
+---@field entities entity[]
+---@field nocache boolean
+---@field index number
+---@field modified boolean
+---@field interval number|nil
+---@field bufferedTime number|nil
+---@field onAdd fun(self: system, entity:entity)|nil
+---@field onRemove fun(self: system, entity:entity)|nil
+---@field onModify fun(self: system, dt:number)|nil
+---@field onAddToWorld fun(self: system, world:world)|nil
+---@field onRemoveFromWorld fun(self: system, world:world)|nil
+---@field preWrap fun(system: system, dt:number)|nil
+---@field postWrap fun(system: system, dt:number)|nil
+---@field update fun(system: system, dt:number)|nil
+---@field preProcess fun(system: system, dt:number)|nil
+---@field process fun(system: system, entity:entity, dt:number)|nil
+---@field postProcess fun(system: system, dt:number)|nil
+---@field compare fun(e1:entity, e2:entity)|nil
+
+---@class world
+---@field entities entity[]
+---@field systems system[]
+---@field speed number|nil Koef for delta time
+---@field add fun(self: world, ...): ...
+---@field addEntity fun(self: world, entity: entity): entity
+---@field addSystem fun(self: world, system: system): system
+---@field remove fun(self: world, ...)
+---@field removeEntity fun(self: world, entity: entity): entity
+---@field removeSystem fun(self: world, system: system): system
+---@field refresh fun(self: world)
+---@field update fun(self: world, dt:number, filter:fun()|nil)
+---@field clearEntities fun(self: world)
+---@field clearSystems fun(self: world)
+---@field getEntityCount fun(self: world)
+---@field getSystemCount fun(self: world)
+---@field setSystemIndex fun(self: world)
+---@field entitiesToChange entity[]
+---@field entitiesToRemove entity[]
+---@field systemsToChange system[]
+---@field systemsToAdd system[]
+---@field systemsToRemove system[]
+---@field findEntities fun(world: world, component_id: string, component_value: any|nil): entity[]
+---@field findEntity fun(world: world, component_id: string, component_value: any|nil): entity|nil
+
+---@class tiny_ecs Tiny ECS module
+---@field requireAll fun(...): ... Returns a filter function that requires all of the specified components
+---@field requireAny fun(...): ... Returns a filter function that requires any of the specified components
+---@field rejectAll fun(...): ... Returns a filter function that rejects all of the specified components
+---@field rejectAny fun(...): ... Returns a filter function that rejects any of the specified components
+---@field filter fun(pattern: string): any, any Returns a filter function that matches the specified pattern
+---@field system fun(table: system|nil): system Creates a new system
+---@field processingSystem fun(table: system|nil): system Creates a new processing system
+---@field sortedSystem fun(table: system|nil): system Creates a new sorted system
+---@field sortedProcessingSystem fun(table: system|nil): system Creates a new sorted processing system
+---@field world fun(...): world, ... Creates a new world
+---@field addEntity fun(world: world, entity: entity): entity Adds an entity to the world
+---@field addSystem fun(world: world, system: system): system Adds a system to the world
+---@field add fun(world: world, ...): ... Adds entities to the world
+---@field removeEntity fun(world: world, entity: entity): entity Removes an entity from the world
+---@field removeSystem fun(world: world, system: system): system Removes a system from the world
+---@field remove fun(world: world, ...): ... Removes entities from the world
+---@field refresh fun(world: world) Refreshes the world
+---@field update fun(world: world, dt: number, filter: fun(...)|nil): ... Updates the world
+---@field clearEntities fun(world: world) Clears all entities from the world
+---@field clearSystems fun(world: world) Clears all systems from the world
+---@field getEntityCount fun(world: world): number Returns the number of entities in the world
+---@field getSystemCount fun(world: world): number Returns the number of systems in the world
+---@field setSystemIndex fun(world: world, system: system, index: number): number Sets the index of a system in the world
 local tiny = {}
 
 -- Local versions of standard lua functions
@@ -121,6 +198,7 @@ do
 		return loader(...)
 	end
 
+	---@param ... any
 	function filterJoin(...)
 		local state, value = pcall(filterJoinRaw, ...)
 		if state then return value else return nil, value end
@@ -161,8 +239,7 @@ do
 
 end
 
---- Makes a Filter that selects Entities with all specified Components and
--- Filters.
+---Makes a Filter that selects Entities with all specified Components and filters.
 function tiny.requireAll(...)
 	return filterJoin('', ' and ', ...)
 end
@@ -609,7 +686,6 @@ function tiny_manageSystems(world)
 	end
 end
 
-local NEXT_ENTITY_ID = 1
 -- Adds, removes, and changes Entities that have been marked.
 function tiny_manageEntities(world)
 	local e2r = world.entitiesToRemove
@@ -634,10 +710,6 @@ function tiny_manageEntities(world)
 			local index = #entities + 1
 			entities[entity] = index
 			entities[index] = entity
-		end
-		if not entity.id then
-			entity.id = NEXT_ENTITY_ID
-			NEXT_ENTITY_ID = NEXT_ENTITY_ID + 1
 		end
 		for j = 1, #systems do
 			local system = systems[j]
@@ -878,19 +950,40 @@ function tiny.setSystemIndex(world, system, index)
 	return oldIndex
 end
 
+---@param world world
+---@param component_id string
+---@param component_value any|nil
+---@return entity[]
+function tiny.findEntities(world, component_id, component_value)
+	local entities = {}
+	for i = 1, #world.entities do
+		local entity = world.entities[i]
+		if entity[component_id] and (not component_value or entity[component_id] == component_value) then
+			table.insert(entities, entity)
+		end
+	end
+	return entities
+end
+
+
+---@param world world
+---@param component_id string
+---@param component_value any|nil
+---@return entity|nil
+function tiny.findEntity(world, component_id, component_value)
+	return tiny.findEntities(world, component_id, component_value)[1]
+end
+
+
 -- Construct world metatable.
 worldMetaTable = {
 	__index = {
 		add = tiny.add,
 		addEntity = tiny.addEntity,
-		add_entity = tiny.addEntity,
 		addSystem = tiny.addSystem,
-		add_system = tiny.addSystem,
 		remove = tiny.remove,
 		removeEntity = tiny.removeEntity,
-		remove_entity = tiny.removeEntity,
 		removeSystem = tiny.removeSystem,
-		remove_system = tiny.removeSystem,
 		refresh = tiny.refresh,
 		update = tiny.update,
 		fixed_update = tiny.fixed_update,
@@ -899,7 +992,9 @@ worldMetaTable = {
 		clearSystems = tiny.clearSystems,
 		getEntityCount = tiny.getEntityCount,
 		getSystemCount = tiny.getSystemCount,
-		setSystemIndex = tiny.setSystemIndex
+		setSystemIndex = tiny.setSystemIndex,
+		findEntities = tiny.findEntities,
+		findEntity = tiny.findEntity
 	},
 	__tostring = function()
 		return "<tiny-ecs_World>"

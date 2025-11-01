@@ -4,8 +4,6 @@
 ---@field merge_callbacks table<string, fun(events: any[], new_event: any):boolean> The merge policy for events. If the merge policy returns true, the events are merged and not will be added as new event
 local M = {}
 
-local tinsert = table.insert
-
 ---Creates a new event bus.
 ---@return decore.event_bus
 function M.create()
@@ -28,8 +26,9 @@ function M:trigger(event_name, data)
 
 	local merge_callback = self.merge_callbacks[event_name]
 	local is_merged = merge_callback and merge_callback(data, stash)
+
 	if not is_merged then
-		tinsert(stash, data or true)
+		table.insert(stash, data or true)
 	end
 end
 
@@ -87,5 +86,4 @@ function M:get_stash(event_name)
 end
 
 
-local global_queue = M.create()
-return global_queue
+return M

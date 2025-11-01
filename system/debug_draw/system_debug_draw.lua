@@ -136,9 +136,10 @@ function M:update()
 
 	if self.is_dirty then
 		self.is_cleared = false
+		self.is_dirty = false
 	end
-	self.is_dirty = false
 end
+
 
 function M:convert_to_texture(x, y)
 	local camera = self.world.command_camera:get_current_camera()

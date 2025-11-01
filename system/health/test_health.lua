@@ -8,19 +8,21 @@ return function()
 			decore = require("decore.decore")
 			system_health = require("system.health.system_health")
 
-			world = decore.world()
+			world = decore.new_world()
 			world:add(system_health.create_system())
 		end)
 
 		it("Should set current health", function()
-			local entity = world:add({ health = { max_health = 100 } })
+			local entity = decore.create({ health = { max_health = 100 } })
+			world:add(entity)
 			world:refresh()
 
 			assert(entity.health.current_health == 100)
 		end)
 
 		it("Should catch health command", function()
-			local entity = world:add({ health = { max_health = 100 } })
+			local entity = decore.create({ health = { max_health = 100 } })
+			world:add(entity)
 			world:refresh()
 
 			world.command_health:apply_damage(entity, 10)
@@ -28,7 +30,8 @@ return function()
 		end)
 
 		it("Should produce health_event", function()
-			local entity = world:add({ health = { max_health = 100 } })
+			local entity = decore.create({ health = { max_health = 100 } })
+			world:add(entity)
 			world:refresh()
 
 			world.command_health:apply_damage(entity, 10)

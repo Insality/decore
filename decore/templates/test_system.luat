@@ -8,7 +8,7 @@ return function()
 			decore = require("decore.decore")
 			system_TEMPLATE = require("system.TEMPLATE.system_TEMPLATE")
 
-			world = decore.world()
+			world = decore.new_world()
 			world:add(system_TEMPLATE.create_system())
 		end)
 

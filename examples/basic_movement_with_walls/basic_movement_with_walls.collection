@@ -45,24 +45,11 @@ instances {
 }
 instances {
   id: "entity_camera"
-  prototype: "/core/system/camera/entity_camera.go"
+  prototype: "/system/camera/entity_camera.go"
   position {
     x: 480.0
     y: 320.0
     z: 10.0
-  }
-  component_properties {
-    id: "entity"
-    properties {
-      id: "size_x"
-      value: "960.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
-    properties {
-      id: "size_y"
-      value: "540.0"
-      type: PROPERTY_TYPE_NUMBER
-    }
   }
 }
 instances {

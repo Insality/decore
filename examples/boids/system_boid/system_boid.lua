@@ -1,6 +1,5 @@
 local decore = require("decore.decore")
 local command_boid = require("examples.boids.system_boid.command_boid")
-local bindings = require("druid.bindings")
 
 ---@class entity
 ---@field boid component.boid|nil

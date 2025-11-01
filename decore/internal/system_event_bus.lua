@@ -1,4 +1,4 @@
-local ecs = require("decore.ecs")
+local ecs = require("decore.internal.ecs")
 local event_bus = require("decore.internal.event_bus")
 
 ---System to manage event bus inside the world
@@ -8,7 +8,10 @@ local M = {}
 
 ---@return system.bus.event
 function M.create_system()
-	return setmetatable(ecs.system({ id = "event_bus" }), { __index = M })
+	local self = setmetatable(ecs.system(), { __index = M }) --[[@as system.bus.event]]
+	self.id = "event_bus"
+
+	return self
 end
 
 

@@ -1,15 +1,19 @@
-local decore_internal = require("decore.internal.decore_internal")
+local logger = require("decore.internal.decore_logger")
+local decore_internal = require("decore.internal.decore_utils")
 
 local M = {}
+M.entities = nil
+M.entities_order = nil
+M.components = nil
+M.components_order = nil
 
-local TYPE_TABLE = "table"
 
 function M.clear()
-	---@type table<string, table<string, entity>> @Key: pack_id, Value: <prefab_id, entity>
+	---@type table<string, table<string, entity>> Key: pack_id, Value: <prefab_id, entity>
 	M.entities = {}
 	M.entities_order = {}
 
-	---@type table<string, table<string, any>> @Key: pack_id, Value: <component_id, component>
+	---@type table<string, table<string, any>> Key: pack_id, Value: <component_id, component>
 	M.components = {}
 	M.components_order = {}
 end
@@ -42,7 +46,7 @@ function M.get_component(component_id, component_pack_id)
 		local prefab = components_pack[component_id]
 
 		if prefab ~= nil and (not component_pack_id or component_pack_id == pack_id) then
-			if type(prefab) == TYPE_TABLE then
+			if type(prefab) == "table" then
 				return decore_internal.deepcopy(prefab)
 			else
 				return prefab
@@ -112,7 +116,7 @@ function M.get_entity(prefab_id, pack_id)
 		end
 	end
 
-	decore_internal.logger:warn("Entity not found", {
+	decore_internal.logger:warn("Entity is not registered in Decore to spawn", {
 		prefab_id = prefab_id,
 		pack_id = pack_id,
 	})
@@ -122,8 +126,7 @@ end
 
 
 ---Log all loaded packs for entities, components and worlds
----@param logger decore.logger
-function M.print_loaded_packs_debug_info(logger)
+function M.print_loaded_packs_debug_info()
 	logger:debug("Entities packs:")
 	for _, pack_id in ipairs(M.entities_order) do
 		logger:debug(" - " .. pack_id)
@@ -146,8 +149,7 @@ end
 
 ---Log all loaded systems
 ---@param world world
----@param logger decore.logger
-function M.print_loaded_systems_debug_info(world, logger)
+function M.print_loaded_systems_debug_info(world)
 	logger:debug("Systems:")
 	for _, system in ipairs(world.systems) do
 		logger:debug(" - " .. system.id)

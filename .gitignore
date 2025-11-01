@@ -11,3 +11,4 @@ bob*.jar
 manifest.*.der
 /.editor_settings
 lls_export.json
+deployer_version_settings.ini

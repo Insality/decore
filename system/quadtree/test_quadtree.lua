@@ -10,7 +10,7 @@ return function()
 			system_quadtree = require("system.quadtree.system_quadtree")
 			quadtree = require("system.quadtree.quadtree")
 
-			world = decore.world()
+			world = decore.new_world()
 			world:add(system_quadtree.create_system())
 		end)
 

@@ -1,7 +1,7 @@
 local events = require("event.events")
 local decore_data = require("decore.internal.decore_data")
 
-local ecs = require("decore.ecs")
+local ecs = require("decore.internal.ecs")
 
 ---@class entity
 ---@field id number|nil Unique entity id, autofilled by decore.create_entity
@@ -31,12 +31,51 @@ local M = {}
 ---@param decore decore
 ---@return system.decore
 function M.create_system(decore)
-	local system = setmetatable(ecs.system({ id = "decore" }), { __index = M })
-	system.filter = ecs.requireAll("child_instancies")
-	system.decore = decore
-	system.id_to_entity = {}
+	local self = setmetatable(ecs.system(), { __index = M }) --[[@as system.decore]]
+	self.id = "decore"
+	self.filter = ecs.rejectAny("")
 
-	return system
+	self.decore = decore
+	self.id_to_entity = {}
+
+	return self
+end
+
+
+---Apply parent transform to child transform
+---@param child_transform table Transform component of child
+---@param parent_transform table Transform component of parent
+function M.apply_parent_transform(child_transform, parent_transform)
+	-- First scale the local position
+	local scaled_x = child_transform.position_x * parent_transform.scale_x
+	local scaled_y = child_transform.position_y * parent_transform.scale_y
+
+	-- Then rotate the position if parent is rotated
+	local rotated_x = scaled_x
+	local rotated_y = scaled_y
+	local rotation = parent_transform.rotation or 0
+	local rad = math.rad(rotation)
+	local cos_val = math.cos(rad)
+	local sin_val = math.sin(rad)
+	rotated_x = scaled_x * cos_val - scaled_y * sin_val
+	rotated_y = scaled_x * sin_val + scaled_y * cos_val
+
+	-- Calculate offsets and rotate them by parent rotation
+	local offset_x = parent_transform.size_x and (parent_transform.size_x / 2) or 0
+	local offset_y = parent_transform.size_y and (parent_transform.size_y / 2) or 0
+	local rotated_offset_x = offset_x * cos_val - offset_y * sin_val
+	local rotated_offset_y = offset_x * sin_val + offset_y * cos_val
+
+	-- Apply parent position with rotated offset adjustment
+	child_transform.position_x = rotated_x + parent_transform.position_x -- rotated_offset_x
+	child_transform.position_y = rotated_y + parent_transform.position_y -- rotated_offset_y
+
+	-- Scale: Child scale * parent scale
+	child_transform.scale_x = child_transform.scale_x * parent_transform.scale_x
+	child_transform.scale_y = child_transform.scale_y * parent_transform.scale_y
+
+	-- Rotation: Child rotation + parent rotation
+	child_transform.rotation = child_transform.rotation + parent_transform.rotation
 end
 
 
@@ -55,35 +94,37 @@ end
 ---@param entity entity
 function M:onAdd(entity)
 	self.id_to_entity[entity.id] = entity
-	self:add_children(entity)
+	self:spawn_children(entity)
 end
 
 
 ---@param entity entity
 function M:onRemove(entity)
-	self.id_to_entity[entity.id] = nil
 	self:remove_children(entity)
 	self:remove_from_parent(entity)
+	self.id_to_entity[entity.id] = nil
 end
 
 
 ---@param entity entity
-function M:add_children(entity)
+function M:spawn_children(entity)
 	-- Create real chilnd entities from prefab data
 	local child_entities = entity.child_instancies
 	if child_entities then
 		entity.children_ids = {}
 		for index = 1, #child_entities do
 			local child_entity = child_entities[index]
-			local child = self.decore.create_entity(child_entity.prefab_id, child_entity.pack_id, child_entity.components)
+			local child = self.decore.create_prefab(child_entity.prefab_id, child_entity.pack_id, child_entity.components)
 			self.decore.apply_component(child, "transform")
 
 			-- Add my position to child
-			if entity.transform then
-				child.transform.position_x = child.transform.position_x + entity.transform.position_x
-				child.transform.position_y = child.transform.position_y + entity.transform.position_y
+			local child_transform = child.transform
+			local parent_transform = entity.transform
+			if parent_transform and child_transform then
+				M.apply_parent_transform(child_transform, parent_transform)
 			end
 
+			-- Is in need to be here?
 			if child.tiled_id and entity.tiled_id then
 				child.tiled_id = entity.tiled_id .. "/" .. child.tiled_id
 			end
@@ -117,8 +158,8 @@ end
 function M:remove_from_parent(entity)
 	local parent_id = entity.parent_id
 	local parent = self.id_to_entity[parent_id]
+	local children_ids = parent and parent.children_ids
 
-	local children_ids = parent.children_ids
 	if children_ids then
 		for index = #children_ids, 1, -1 do
 			local child_id = children_ids[index]

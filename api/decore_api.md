@@ -1,21 +1,20 @@
 # decore API
 
-> at /decore/decore.lua
+> at decore/decore.lua
 
 ## Functions
 
-- [world](#world)
+- [new_world](#new_world)
+- [on_message](#on_message)
 - [system](#system)
 - [processing_system](#processing_system)
 - [sorted_system](#sorted_system)
 - [sorted_processing_system](#sorted_processing_system)
-- [on_input](#on_input)
-- [on_message](#on_message)
-- [final](#final)
 - [register_entity](#register_entity)
 - [register_entities](#register_entities)
 - [unregister_entities](#unregister_entities)
-- [create_entity](#create_entity)
+- [create](#create)
+- [create_prefab](#create_prefab)
 - [register_component](#register_component)
 - [register_components](#register_components)
 - [unregister_components](#unregister_components)
@@ -23,29 +22,25 @@
 - [apply_component](#apply_component)
 - [apply_components](#apply_components)
 - [get_entity_by_id](#get_entity_by_id)
-- [find_entities_by_component_value](#find_entities_by_component_value)
-- [is_alive](#is_alive)
+- [find_entities](#find_entities)
 - [print_loaded_packs_debug_info](#print_loaded_packs_debug_info)
 - [print_loaded_systems_debug_info](#print_loaded_systems_debug_info)
-- [parse_command](#parse_command)
-- [call_command](#call_command)
 - [set_logger](#set_logger)
 - [get_logger](#get_logger)
+- [render_properties_panel](#render_properties_panel)
 
 ## Fields
 
 - [clamp](#clamp)
 - [ecs](#ecs)
-- [last_world](#last_world)
-- [logger](#logger)
 
 
 
-### world
+### new_world
 
 ---
 ```lua
-decore.world(...)
+decore.new_world(...)
 ```
 
 Create a new world instance
@@ -55,6 +50,21 @@ Create a new world instance
 
 - **Returns:**
 	- `` *(world)*:
+
+### on_message
+
+---
+```lua
+decore.on_message(world, message_id, [message], [sender])
+```
+
+Add window event to the world event bus
+
+- **Parameters:**
+	- `world` *(world)*:  command_velocity.lua
+	- `message_id` *(hash)*:
+	- `[message]` *(table|nil)*:
+	- `[sender]` *(url|nil)*:
 
 ### system
 
@@ -66,7 +76,7 @@ decore.system(system_module, system_id, [require_all_filters])
 - **Parameters:**
 	- `system_module` *(<T>)*: The module with system functions
 	- `system_id` *(string)*: The system id
-	- `[require_all_filters]` *(string|string[]|nil)*: The required components. Example: {"transform", "game_object"} or "transform"
+	- `[require_all_filters]` *(string|string[]|nil)*: The required components. Example: {"transform", "game_object"} or "transform". If nil - system will contain no entities
 
 - **Returns:**
 	- `` *(<T>)*:
@@ -116,48 +126,6 @@ decore.sorted_processing_system(system_module, system_id, [require_all_filters])
 - **Returns:**
 	- `` *(<T>)*:
 
-### on_input
-
----
-```lua
-decore.on_input(world, action_id, action)
-```
-
-Add input event to the world queue
-
-- **Parameters:**
-	- `world` *(world)*:  command_velocity.lua
-	- `action_id` *(hash)*:
-	- `action` *(action)*:  This one should be a part of Defold annotations
-
-- **Returns:**
-	- `` *(boolean)*:
-
-### on_message
-
----
-```lua
-decore.on_message(world, message_id, [message], [sender])
-```
-
-Add window event to the world event bus
-
-- **Parameters:**
-	- `world` *(world)*:  command_velocity.lua
-	- `message_id` *(hash)*:
-	- `[message]` *(table|nil)*:
-	- `[sender]` *(url|nil)*:
-
-### final
-
----
-```lua
-decore.final([world])
-```
-
-- **Parameters:**
-	- `[world]` *(any)*:
-
 ### register_entity
 
 ---
@@ -165,7 +133,7 @@ decore.final([world])
 decore.register_entity(entity_id, entity_data, [pack_id])
 ```
 
-Register entity to decore entities
+Register entity to create it with `create_prefab` function
 
 - **Parameters:**
 	- `entity_id` *(string)*:
@@ -181,7 +149,7 @@ decore.register_entities(pack_id, entities)
 
 Add entities pack to decore entities
 If entities pack with same id already loaded, do nothing.
-If the same id is used in different packs, the last one will be used in M.create_entity
+If the same id is used in different packs, the last one will be used in `create_prefab` function
 
 - **Parameters:**
 	- `pack_id` *(string)*:
@@ -199,19 +167,34 @@ Unload entities pack from decore entities
 - **Parameters:**
 	- `pack_id` *(string)*:
 
-### create_entity
+### create
 
 ---
 ```lua
-decore.create_entity([prefab_id], [pack_id], [data])
+decore.create([components])
 ```
 
-Create entity instance from prefab
+Create new entity instance
+
+- **Parameters:**
+	- `[components]` *(table<string, any>)*:
+
+- **Returns:**
+	- `` *(entity)*:
+
+### create_prefab
+
+---
+```lua
+decore.create_prefab([prefab_id], [pack_id], [components])
+```
+
+Create new entity instance from prefab
 
 - **Parameters:**
 	- `[prefab_id]` *(string|hash|nil)*:
 	- `[pack_id]` *(string|nil)*:
-	- `[data]` *(table|nil)*: additional data to merge with prefab
+	- `[components]` *(table<string, any>|nil)*: additional components to merge with prefab
 
 - **Returns:**
 	- `` *(entity)*:
@@ -234,13 +217,13 @@ Register component to decore components
 
 ---
 ```lua
-decore.register_components(components_data_or_path)
+decore.register_components(components_data)
 ```
 
 Register components pack to decore components
 
 - **Parameters:**
-	- `components_data_or_path` *(string|decore.components_pack_data)*: if string, load data from JSON file from custom resources
+	- `components_data` *(decore.components_pack_data)*:  JSON file scheme for components data
 
 - **Returns:**
 	- `` *(boolean)*:
@@ -324,11 +307,11 @@ decore.get_entity_by_id(world, id)
 - **Returns:**
 	- `` *(entity|nil)*:
 
-### find_entities_by_component_value
+### find_entities
 
 ---
 ```lua
-decore.find_entities_by_component_value(world, component_id, [component_value])
+decore.find_entities(world, component_id, [component_value])
 ```
 
 Return all entities with component_id equal to component_value or all entities with component_id if component_value is nil.
@@ -341,22 +324,6 @@ It looks for component_id in entity and entityToChange tables
 
 - **Returns:**
 	- `` *(entity[])*:
-
-### is_alive
-
----
-```lua
-decore.is_alive(world_or_system, entity)
-```
-
-Return if entity is alive in the system
-
-- **Parameters:**
-	- `world_or_system` *(system|world)*: If world, return if entity is alive in the world, if system, return if entity is alive in the system
-	- `entity` *(entity)*: The entity to check
-
-- **Returns:**
-	- `is_alive` *(boolean)*: Is entity exists in the system or in the world
 
 ### print_loaded_packs_debug_info
 
@@ -379,34 +346,6 @@ Log all loaded systems
 - **Parameters:**
 	- `world` *(world)*:  command_velocity.lua
 
-### parse_command
-
----
-```lua
-decore.parse_command(command)
-```
-
-Grab a command in text format to provide a way to call functions from the system
-
-- **Parameters:**
-	- `command` *(string)*: Example: "system_name.function_name, arg1, arg2". Separators can be: " ", "," and "\n"
-
-- **Returns:**
-	- `` *(any[])*:
-
-### call_command
-
----
-```lua
-decore.call_command(world, [command])
-```
-
-Call command from params array. Example: {"system_name", "function_name", "arg1", "arg2", ...}
-
-- **Parameters:**
-	- `world` *(world)*:  command_velocity.lua
-	- `[command]` *(any[])*: Example: [ "command_debug", "toggle_profiler", true ],
-
 ### set_logger
 
 ---
@@ -415,21 +354,33 @@ decore.set_logger([logger_instance])
 ```
 
 - **Parameters:**
-	- `[logger_instance]` *(table|decore.logger|nil)*: Logger interface
+	- `[logger_instance]` *(table|decore.logger|nil)*:
 
 ### get_logger
 
 ---
 ```lua
-decore.get_logger(name, [level])
+decore.get_logger([name], [level])
 ```
 
 - **Parameters:**
-	- `name` *(string)*:
+	- `[name]` *(string?)*:
 	- `[level]` *(string|nil)*:
 
 - **Returns:**
 	- `` *(decore.logger)*:
+
+### render_properties_panel
+
+---
+```lua
+decore.render_properties_panel(world, druid, properties_panel)
+```
+
+- **Parameters:**
+	- `world` *(world)*:  command_velocity.lua
+	- `druid` *(druid.instance)*:
+	- `properties_panel` *(druid.widget.properties_panel)*:
 
 
 ## Fields
@@ -437,11 +388,5 @@ decore.get_logger(name, [level])
 - **clamp** (_function_)
 
 <a name="ecs"></a>
-- **ecs** (_table_)
-
-<a name="last_world"></a>
-- **last_world** (_nil_):  command_velocity.lua
-
-<a name="logger"></a>
-- **logger** (_decore.logger_): Logger interface
+- **ecs** (_tiny_ecs_)
 

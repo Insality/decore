@@ -1,0 +1,13 @@
+---@diagnostic disable: missing-fields
+---@class entity.TEMPLATE: entity
+
+---@class entity
+---@field TEMPLATE component.TEMPLATE?
+
+---@class entity.TEMPLATE: entity
+---@field TEMPLATE component.TEMPLATE
+return {
+	transform = {},
+	game_object = { factory_url = "/entities#TEMPLATE" },
+	TEMPLATE = {}
+}

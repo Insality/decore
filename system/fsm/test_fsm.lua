@@ -7,12 +7,12 @@ return function()
 		before(function()
 			decore = require("decore.decore")
 			system_fsm = require("system.fsm.system_fsm")
-			world = decore.world()
+			world = decore.new_world()
 			world:add(system_fsm.create_system())
 		end)
 
 		local get_entity = function()
-			return { fsm = {
+			return decore.create({ fsm = {
 				state = "idle",
 				events = {
 					["walk"] = {
@@ -25,7 +25,7 @@ return function()
 						["walk"] = "idle",
 					}
 				}
-			}}
+			}})
 		end
 
 		it("Should init system", function()

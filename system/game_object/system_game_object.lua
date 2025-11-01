@@ -50,7 +50,7 @@ local cos = math.cos
 local rad = math.rad
 
 ---@return system.game_object
-function M.create_system()
+function M.create()
 	local system = setmetatable(decore.ecs.system(), { __index = M })
 	system.filter = decore.ecs.requireAll("game_object", "transform", decore.ecs.rejectAll("hidden"))
 	system.id = "game_object"
@@ -235,7 +235,7 @@ end
 
 local PROPERTIES = {
 	[ROOT_URL] = {
-		is_spawn_by_entity = true
+		is_factory_object = true
 	}
 }
 ---@param entity entity.game_object

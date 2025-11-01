@@ -1,0 +1,17 @@
+local decore = require("decore.decore")
+
+---@class component.TEMPLATE
+decore.register_component("TEMPLATE")
+
+---@class system.TEMPLATE: system
+---@field entities entity.TEMPLATE[]
+local M = {}
+
+
+---@return system.TEMPLATE
+function M.create()
+	return decore.system(M, "TEMPLATE", { "TEMPLATE" })
+end
+
+
+return M
