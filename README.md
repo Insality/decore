@@ -26,7 +26,7 @@ The library in development stage. May be not fully tested and README may be not 
 
 Add in your `game.project` dependencies:
 ```
-https://github.com/Insality/decore/archive/refs/tags/1.zip
+https://github.com/Insality/decore/archive/refs/tags/2.zip
 ```
 
 ### Basic Usage
