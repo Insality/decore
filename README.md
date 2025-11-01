@@ -14,11 +14,11 @@ The library in development stage. May be not fully tested and README may be not 
 
 # Decore
 
-**Decore** - a Defold library for managing ECS game entities and components in a data-driven way. The ECS is based on tiny ECS library.
+**Decore** - a Defold library for managing ECS game entities and components in a data-driven way. The ECS is based on [tiny ECS](https://github.com/bakpakin/tiny-ecs) library.
 
 ## Features
 
-* **Entity Management**: Create and manage game entities
+* **Entity Management**: Register, create and manage game entities
 * **Component Management**: Add, remove and update entity components
 * **Easy Integration**: Simple setup and integration with Defold projects
 
@@ -42,7 +42,7 @@ function init(self)
 	)
 
 	decore.register_entities("game", {
-		["camera"] = require("system.camera.camera_entity")
+		["player"] = require("entity.player.player_entity")
 	})
 
 	world:addEntity(decore.create_prefab("player"))
@@ -54,12 +54,13 @@ end
 
 
 function on_input(self, action_id, action)
-	return decore.on_input(self.world, action_id, action)
+	return self.world.input:on_input(action_id, action)
 end
 
 
 function final(self)
-	decore.final(self.world)
+	self.world:clearEntities()
+	self.world:clearSystems()
 end
 ```
 

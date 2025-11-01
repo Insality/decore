@@ -5,34 +5,6 @@ local TYPE_TABLE = "table"
 local M = {}
 
 
----Split string by separator
----@param s string
----@param sep string
-function M.split(s, sep)
-	sep = sep or "%s"
-	local t = {}
-	local i = 1
-	for str in string.gmatch(s, "([^" .. sep .. "]+)") do
-		t[i] = str
-		i = i + 1
-	end
-	return t
-end
-
-
----Split string by separator
----@param s string
----@param sep string[]
-function M.split_by_several_separators(s, sep)
-	local t = {}
-	local pattern = table.concat(sep, "|")
-	for str in string.gmatch(s, "([^" .. pattern .. "]+)") do
-		table.insert(t, str)
-	end
-	return t
-end
-
-
 ---Clamp value between min and max (either can be nil)
 ---@param value number
 ---@param v1 number
