@@ -70,44 +70,41 @@ end
 ```lua
 local decore = require("decore.decore")
 
+-- Create new world instance
 decore.new_world(...)
-decore.on_input(world, action_id, action)
-decore.on_message(world, message_id, [message], [sender])
-decore.final(world)
 
+-- Create new system instance
 decore.system(system_module, system_id, [require_all_filters])
 decore.processing_system(system_module, system_id, [require_all_filters])
 decore.sorted_system(system_module, system_id, [require_all_filters])
 decore.sorted_processing_system(system_module, system_id, [require_all_filters])
 
+-- Register entity to create it with `create_prefab` function
 decore.register_entity(entity_id, entity_data, [pack_id])
 decore.register_entities(pack_id, entities)
 decore.unregister_entities(pack_id)
 
+-- Create new entity instance
 decore.create([components])
 decore.create_prefab([prefab_id], [pack_id], [components])
 
+-- Register component to decore components
 decore.register_component(component_id, [component_data], [pack_id])
 decore.register_components(components_data)
 decore.unregister_components(pack_id)
 
+-- Create new component instance
 decore.create_component(component_id, [component_pack_id])
 decore.apply_component(entity, component_id, [component_data])
 decore.apply_components(entity, [components])
 
-decore.get_entity_by_id(world, id)
 decore.find_entities(world, component_id, [component_value])
 
 decore.print_loaded_packs_debug_info()
 decore.print_loaded_systems_debug_info(world)
 
-decore.parse_command(command_string)
-decore.call_command(world, [command])
-
 decore.set_logger([logger_instance])
 decore.get_logger([name], [level])
-
-decore.render_properties_panel(world, druid, properties_panel)
 ```
 
 ## License
