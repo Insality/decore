@@ -3,7 +3,6 @@ local logger = require("decore.internal.decore_logger")
 
 local decore_data = require("decore.internal.decore_data")
 local decore_utils = require("decore.internal.decore_utils")
-local decore_debug_page = require("decore.decore_debug_page")
 
 local system_decore = require("decore.internal.system_decore")
 local system_event_bus = require("decore.internal.system_event_bus")
@@ -344,14 +343,6 @@ function M.get_logger(name, level)
 	end
 
 	return setmetatable({ name = name, level = level }, { __index = logger })
-end
-
-
----@param world world
----@param druid druid.instance
----@param properties_panel druid.widget.properties_panel
-function M.render_properties_panel(world, druid, properties_panel)
-	decore_debug_page.render_properties_panel(M, world, druid, properties_panel)
 end
 
 

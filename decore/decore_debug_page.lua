@@ -1,5 +1,4 @@
----@diagnostic disable: inject-field
----@
+local decore = require("decore.decore")
 local decore_data = require("decore.internal.decore_data")
 
 local property_entity_prefab = require("decore.properties_panel.property_entity_prefab")
@@ -7,11 +6,10 @@ local property_system = require("decore.properties_panel.property_system")
 local M = {}
 
 
----@param decore decore
 ---@param world world
 ---@param druid druid.instance
 ---@param properties_panel druid.widget.properties_panel
-function M.render_properties_panel(decore, world, druid, properties_panel)
+function M.render_properties_panel(world, druid, properties_panel)
 	properties_panel:next_scene()
 	properties_panel:set_header("Decore Panel")
 
@@ -21,7 +19,7 @@ function M.render_properties_panel(decore, world, druid, properties_panel)
 		button:set_color("#A1D7F5")
 		button.button.on_click:subscribe(function()
 			--self:select_page(PAGES.ENTITIES, self.world.entities, "Entities")
-			M.render_entities_page(decore, world, druid, properties_panel)
+			M.render_entities_page(world, druid, properties_panel)
 		end)
 	end)
 
@@ -31,7 +29,7 @@ function M.render_properties_panel(decore, world, druid, properties_panel)
 		button:set_color("#E6DF9F")
 		button.button.on_click:subscribe(function()
 			--self:select_page(PAGES.SYSTEMS, self.world.systems, "Systems")
-			M.render_systems_page(decore, world, druid, properties_panel)
+			M.render_systems_page(world, druid, properties_panel)
 		end)
 	end)
 
@@ -40,17 +38,16 @@ function M.render_properties_panel(decore, world, druid, properties_panel)
 		button:set_text_button("Open")
 		button.button.on_click:subscribe(function()
 			--self:select_page(PAGES.ENTITY_PREFABS, nil, "Entity Prefabs")
-			M.render_entity_prefabs_page(decore, world, druid, properties_panel)
+			M.render_entity_prefabs_page(world, druid, properties_panel)
 		end)
 	end)
 end
 
 
----@param decore decore
 ---@param world world
 ---@param druid druid.instance
 ---@param properties_panel druid.widget.properties_panel
-function M.render_entities_page(decore, world, druid, properties_panel)
+function M.render_entities_page(world, druid, properties_panel)
 	properties_panel:next_scene()
 	properties_panel:set_header("Entities")
 
@@ -104,7 +101,7 @@ end
 ---@param world world
 ---@param druid druid.instance
 ---@param properties_panel druid.widget.properties_panel
-function M.render_systems_page(decore, world, druid, properties_panel)
+function M.render_systems_page(world, druid, properties_panel)
 	properties_panel:next_scene()
 	properties_panel:set_header("Systems")
 
@@ -134,7 +131,7 @@ end
 ---@param world world
 ---@param druid druid.instance
 ---@param properties_panel druid.widget.properties_panel
-function M.render_entity_prefabs_page(decore, world, druid, properties_panel)
+function M.render_entity_prefabs_page(world, druid, properties_panel)
 	properties_panel:next_scene()
 	properties_panel:set_header("Entity Prefabs")
 
