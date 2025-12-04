@@ -73,6 +73,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ---@field systemsToChange system[]
 ---@field systemsToAdd system[]
 ---@field systemsToRemove system[]
+---@field entitySignatures table<entity, string[]> Cache: entity -> sorted array of component names
+---@field systemFilterCache table<system, {required: table<string, boolean>, rejected: table<string, boolean>, analyzed: boolean}> Cache: system -> filter analysis
+---@field signatureToSystems table<string, system[]> Cache: signature_hash -> array of matching systems
 ---@field findEntities fun(world: world, component_id: string, component_value: any|nil): entity[]
 ---@field findEntity fun(world: world, component_id: string, component_value: any|nil): entity|nil
 
@@ -276,6 +279,173 @@ end
 function tiny.filter(pattern)
 	local state, value = pcall(filterBuildString, pattern)
 	if state then return value else return nil, value end
+end
+
+-- Filter cache optimization functions
+
+-- Analyzes a filter function to extract component requirements.
+-- Returns {required: set, rejected: set, analyzed: true} or nil if analysis fails.
+local function analyzeFilter(filter_func)
+	if not filter_func then
+		return nil
+	end
+
+	-- Try to get function source code
+	local info = debug.getinfo(filter_func, "S")
+	if not info then
+		return nil
+	end
+
+	local source = info.source
+	if not source or type(source) ~= "string" or source:match("^@") then
+		-- Source is a file path, not source code, or not available
+		return nil
+	end
+
+	-- Extract component names from source code
+	-- Pattern: e["component_name"] ~= nil (required) or e["component_name"] == nil (rejected)
+	local required = {}
+	local rejected = {}
+
+	-- Match patterns for required components: e["component"] ~= nil
+	for component in source:gmatch('e%[([%w_"]+)%]%s*~=%s*nil') do
+		component = component:gsub('^"', ''):gsub('"$', '')
+		if component and component ~= "" then
+			required[component] = true
+		end
+	end
+
+	-- Match patterns for rejected components: e["component"] == nil
+	for component in source:gmatch('e%[([%w_"]+)%]%s*==%s*nil') do
+		component = component:gsub('^"', ''):gsub('"$', '')
+		if component and component ~= "" then
+			rejected[component] = true
+		end
+	end
+
+	-- Handle nested filters with "not" - these are typically rejectAll/rejectAny
+	-- Look for patterns like: not (e["component"] ~= nil) which means component should not exist
+	if source:match('not%s*%(') then
+		-- Extract components inside not() blocks as rejected
+		for component in source:gmatch('not%s*%([^)]*e%[([%w_"]+)%]') do
+			component = component:gsub('^"', ''):gsub('"$', '')
+			if component and component ~= "" then
+				rejected[component] = true
+			end
+		end
+	end
+
+	-- If we found any components, return the analysis
+	if next(required) or next(rejected) then
+		return {
+			required = required,
+			rejected = rejected,
+			analyzed = true
+		}
+	end
+
+	return nil
+end
+
+-- Computes a component signature for an entity (sorted list of component names).
+-- Returns a sorted array of component names.
+local function computeEntitySignature(entity)
+	local components = {}
+	for key, value in pairs(entity) do
+		-- Skip non-component fields (functions, metatables, etc.)
+		if type(key) == "string" and type(value) ~= "function" and key ~= "__index" and key ~= "__newindex" then
+			-- Add as component (we filter out functions and special keys above)
+			components[#components + 1] = key
+		end
+	end
+	-- Sort for consistent hashing
+	tsort(components)
+	return components
+end
+
+-- Creates a hash key from a component signature array.
+local function signatureHash(signature)
+	return table.concat(signature, ",")
+end
+
+-- Gets matching systems for an entity using the cache.
+-- Returns array of systems that match the entity.
+local function getMatchingSystems(world, entity)
+	local signature = world.entitySignatures[entity]
+	if not signature then
+		-- Compute signature if not cached
+		signature = computeEntitySignature(entity)
+		world.entitySignatures[entity] = signature
+	end
+
+	local sig_hash = signatureHash(signature)
+	local cached_systems = world.signatureToSystems[sig_hash]
+	if cached_systems then
+		return cached_systems
+	end
+
+	-- Build signature set for fast lookup
+	local sig_set = {}
+	for i = 1, #signature do
+		sig_set[signature[i]] = true
+	end
+
+	-- Find matching systems
+	local matching = {}
+	local systems = world.systems
+
+	for i = 1, #systems do
+		local system = systems[i]
+		if not system.nocache then
+			local filter = system.filter
+			if filter then
+				local cache_info = world.systemFilterCache[system]
+				local matches = false
+
+				if cache_info and cache_info.analyzed then
+					-- Use cached filter analysis
+					local required = cache_info.required
+					local rejected = cache_info.rejected
+
+					-- Check required components
+					local has_all_required = true
+					if next(required) then
+						for comp in pairs(required) do
+							if not sig_set[comp] then
+								has_all_required = false
+								break
+							end
+						end
+					end
+
+					-- Check rejected components
+					local has_no_rejected = true
+					if next(rejected) then
+						for comp in pairs(rejected) do
+							if sig_set[comp] then
+								has_no_rejected = false
+								break
+							end
+						end
+					end
+
+					matches = has_all_required and has_no_rejected
+				else
+					-- Fallback to calling filter function
+					matches = filter(system, entity)
+				end
+
+				if matches then
+					matching[#matching + 1] = system
+				end
+			end
+		end
+		-- Skip nocache systems, they handle filtering themselves
+	end
+
+	-- Cache the result
+	world.signatureToSystems[sig_hash] = matching
+	return matching
 end
 
 --- System functions.
@@ -512,7 +682,12 @@ function tiny.world(...)
 		entities = {},
 
 		-- List of Systems
-		systems = {}
+		systems = {},
+
+		-- Filter cache optimization structures
+		entitySignatures = {}, -- entity -> sorted array of component names
+		systemFilterCache = {}, -- system -> {required: set, rejected: set, analyzed: bool}
+		signatureToSystems = {} -- signature_hash -> array of matching systems
 
 	}, worldMetaTable)
 
@@ -633,6 +808,11 @@ function tiny_manageSystems(world)
 		end
 		s2r[i] = nil
 
+		-- Clean up System cache
+		world.systemFilterCache[system] = nil
+		-- Invalidate signature cache since systems changed
+		world.signatureToSystems = {}
+
 		-- Clean up System
 		system.world = nil
 		system.entities = nil
@@ -656,21 +836,42 @@ function tiny_manageSystems(world)
 			local index = #systems + 1
 			system.index = index
 			systems[index] = system
+
+			-- Analyze filter for cache optimization
+			local filter = system.filter
+			if filter then
+				local cache_info = analyzeFilter(filter)
+				if cache_info then
+					world.systemFilterCache[system] = cache_info
+				end
+			end
+
+			-- Invalidate signature cache since systems changed
+			world.signatureToSystems = {}
+
 			local onAddToWorld = system.onAddToWorld
 			if onAddToWorld then
 				onAddToWorld(system, world)
 			end
 
-			-- Try to add Entities
+			-- Try to add Entities using cache
 			if not system.nocache then
 				local entityList = system.entities
 				local entityIndices = system.indices
 				local onAdd = system.onAdd
-				local filter = system.filter
 				if filter then
 					for j = 1, #worldEntityList do
 						local entity = worldEntityList[j]
-						if filter(system, entity) then
+						-- Use cache to check if entity matches
+						local matching_systems = getMatchingSystems(world, entity)
+						local matches = false
+						for k = 1, #matching_systems do
+							if matching_systems[k] == system then
+								matches = true
+								break
+							end
+						end
+						if matches then
 							local entityIndex = #entityList + 1
 							entityList[entityIndex] = entity
 							entityIndices[entity] = entityIndex
@@ -711,14 +912,33 @@ function tiny_manageEntities(world)
 			entities[entity] = index
 			entities[index] = entity
 		end
+
+		-- Invalidate entity signature cache since entity changed
+		world.entitySignatures[entity] = nil
+		-- Invalidate all signature caches since entity changed (simpler and safer)
+		world.signatureToSystems = {}
+
+		-- Get matching systems using cache
+		local matching_systems = getMatchingSystems(world, entity)
+
+		-- Update systems based on cache results
 		for j = 1, #systems do
 			local system = systems[j]
 			if not system.nocache then
 				local ses = system.entities
 				local seis = system.indices
 				local index = seis[entity]
-				local filter = system.filter
-				if filter and filter(system, entity) then
+
+				-- Check if system matches (from cache)
+				local matches = false
+				for k = 1, #matching_systems do
+					if matching_systems[k] == system then
+						matches = true
+						break
+					end
+				end
+
+				if matches then
 					if not index then
 						system.modified = true
 						index = #ses + 1
@@ -758,6 +978,10 @@ function tiny_manageEntities(world)
 			entities[entity] = nil
 			entities[listIndex] = lastEntity
 			entities[#entities] = nil
+
+			-- Clean up entity signature cache
+			world.entitySignatures[entity] = nil
+
 			-- Remove from cached systems
 			for j = 1, #systems do
 				local system = systems[j]
@@ -908,6 +1132,9 @@ function tiny.clearEntities(world)
 	for i = 1, #el do
 		tiny_removeEntity(world, el[i])
 	end
+	-- Clear entity signature cache
+	world.entitySignatures = {}
+	world.signatureToSystems = {}
 end
 
 --- Removes all Systems from the World.
@@ -916,6 +1143,9 @@ function tiny.clearSystems(world)
 	for i = #systems, 1, -1 do
 		tiny_removeSystem(world, systems[i])
 	end
+	-- Clear system filter cache
+	world.systemFilterCache = {}
+	world.signatureToSystems = {}
 end
 
 --- Gets number of Entities in the World.
