@@ -116,7 +116,7 @@ function M.get_entity(prefab_id, pack_id)
 		end
 	end
 
-	decore_internal.logger:warn("Entity is not registered in Decore to spawn", {
+	logger:warn("Entity is not registered in Decore to spawn", {
 		prefab_id = prefab_id,
 		pack_id = pack_id,
 	})
