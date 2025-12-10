@@ -8,7 +8,6 @@ local system_decore = require("decore.internal.system_decore")
 local system_event_bus = require("decore.internal.system_event_bus")
 
 local EMPTY_HASH = hash("")
-local TYPE_TABLE = "table"
 local NEXT_ENTITY_ID = 0
 
 ---@class world
@@ -255,7 +254,7 @@ function M.apply_component(entity, component_id, component_data)
 	end
 
 	if component_data ~= nil then
-		if type(component_data) == TYPE_TABLE then
+		if type(component_data) == "table" then
 			decore_utils.merge_tables(entity[component_id], component_data)
 		else
 			entity[component_id] = component_data

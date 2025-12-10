@@ -38,10 +38,10 @@ end
 ---@param t table
 ---@param depth number?
 ---@param result string|nil Internal parameter
----@return string, boolean result String representation of table, Is max string length reached
+---@return string result String representation of table
 function M.table_to_string(t, depth, result)
 	if type(t) ~= "table" then
-		return tostring(t) or "", false
+		return tostring(t) or ""
 	end
 
 	depth = depth or 0
@@ -71,7 +71,7 @@ function M.table_to_string(t, depth, result)
 		end
 	end
 
-	return result .. "}", false
+	return result .. "}"
 end
 
 
