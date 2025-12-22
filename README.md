@@ -111,6 +111,10 @@ decore.set_logger([logger_instance])
 decore.get_logger([name], [level])
 ```
 
+## Use Cases
+
+Read the [Use Cases](USE_CASES.md) file to see several examples of how to use the this module in your Defold game development projects.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
