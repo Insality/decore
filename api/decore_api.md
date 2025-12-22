@@ -1,6 +1,6 @@
 # decore API
 
-> at decore/decore.lua
+> at /decore/decore.lua
 
 ## Functions
 
@@ -27,8 +27,6 @@
 - [print_loaded_systems_debug_info](#print_loaded_systems_debug_info)
 - [set_logger](#set_logger)
 - [get_logger](#get_logger)
-- [render_properties_panel](#render_properties_panel)
-
 ## Fields
 
 - [clamp](#clamp)
@@ -61,7 +59,7 @@ decore.on_message(world, message_id, [message], [sender])
 Add window event to the world event bus
 
 - **Parameters:**
-	- `world` *(world)*:  command_velocity.lua
+	- `world` *(world)*:
 	- `message_id` *(hash)*:
 	- `[message]` *(table|nil)*:
 	- `[sender]` *(url|nil)*:
@@ -223,7 +221,7 @@ decore.register_components(components_data)
 Register components pack to decore components
 
 - **Parameters:**
-	- `components_data` *(decore.components_pack_data)*:  JSON file scheme for components data
+	- `components_data` *(decore.components_data)*:
 
 - **Returns:**
 	- `` *(boolean)*:
@@ -301,7 +299,7 @@ decore.get_entity_by_id(world, id)
 ```
 
 - **Parameters:**
-	- `world` *(world)*:  command_velocity.lua
+	- `world` *(world)*:
 	- `id` *(number)*:
 
 - **Returns:**
@@ -318,7 +316,7 @@ Return all entities with component_id equal to component_value or all entities w
 It looks for component_id in entity and entityToChange tables
 
 - **Parameters:**
-	- `world` *(world)*:  command_velocity.lua
+	- `world` *(world)*:
 	- `component_id` *(string)*:
 	- `[component_value]` *(any)*: if nil, return all entities with component_id
 
@@ -344,7 +342,7 @@ decore.print_loaded_systems_debug_info(world)
 Log all loaded systems
 
 - **Parameters:**
-	- `world` *(world)*:  command_velocity.lua
+	- `world` *(world)*:
 
 ### set_logger
 
@@ -370,18 +368,6 @@ decore.get_logger([name], [level])
 - **Returns:**
 	- `` *(decore.logger)*:
 
-### render_properties_panel
-
----
-```lua
-decore.render_properties_panel(world, druid, properties_panel)
-```
-
-- **Parameters:**
-	- `world` *(world)*:  command_velocity.lua
-	- `druid` *(druid.instance)*:
-	- `properties_panel` *(druid.widget.properties_panel)*:
-
 
 ## Fields
 <a name="clamp"></a>
@@ -389,4 +375,3 @@ decore.render_properties_panel(world, druid, properties_panel)
 
 <a name="ecs"></a>
 - **ecs** (_tiny_ecs_)
-
