@@ -18,7 +18,6 @@ title = Decore
 version = 2
 publisher = Insality
 developer = Maksim Tuprikov, Insality
-custom_resources = /resources
 dependencies#0 = https://github.com/britzl/deftest/archive/master.zip
 dependencies#1 = https://github.com/Insality/defold-tweener/archive/refs/tags/3.zip
 dependencies#2 = https://github.com/subsoap/defos/archive/refs/tags/v2.8.3.zip
@@ -52,9 +51,6 @@ max_instances = 32000
 
 [gui]
 max_count = 2048
-
-[native_extension]
-app_manifest = /examples/manifest.appmanifest
 
 [event]
 use_xpcall = 1
