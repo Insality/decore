@@ -57,6 +57,35 @@ return function()
 			assert(type(component) == "table")
 		end)
 
+		it("Should check if component is registered", function()
+			assert(decore_data.is_component_registered("non_existent") == false)
+			decore.register_component("test_component", { value = 100 })
+			assert(decore_data.is_component_registered("test_component") == true)
+			assert(decore_data.is_component_registered("test_component", "decore") == true)
+			assert(decore_data.is_component_registered("test_component", "other_pack") == false)
+		end)
+
+		it("Should check if component is registered with custom pack", function()
+			decore.register_component("custom_component", { value = 50 }, "custom_pack")
+			assert(decore_data.is_component_registered("custom_component") == true)
+			assert(decore_data.is_component_registered("custom_component", "custom_pack") == true)
+			assert(decore_data.is_component_registered("custom_component", "other_pack") == false)
+		end)
+
+		it("Should register component with nil data as true", function()
+			decore.register_component("flag_component", nil)
+			assert(decore_data.is_component_registered("flag_component") == true)
+			local component = decore.create_component("flag_component")
+			assert(component == true)
+		end)
+
+		it("Should register component with nil data as true", function()
+			decore.register_component("empty_component", nil)
+			assert(decore_data.is_component_registered("empty_component") == true)
+			local component = decore.create_component("empty_component")
+			assert(component == true)
+		end)
+
 		it("Should register components pack", function()
 			local components_data = {
 				pack_id = "test_pack",

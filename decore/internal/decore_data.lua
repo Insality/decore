@@ -33,7 +33,7 @@ function M.register_component(component_id, component_data, pack_id)
 	end
 
 	if component_data == nil then
-		M.components[pack_id][component_id] = {}
+		M.components[pack_id][component_id] = true
 	else
 		M.components[pack_id][component_id] = component_data
 	end

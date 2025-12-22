@@ -57,7 +57,7 @@ return {
   -- Overrules `include`.
   exclude = {
     "^test%/.+$",
-    "^decore/ecs$",
+    "^decore/internal/ecs$",
     -- Dont include all **/test_NAME files
      "^.+/test_%w+$"
   },
