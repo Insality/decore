@@ -7,11 +7,6 @@
 [![Github-sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/insality) [![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/insality) [![BuyMeACoffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/insality)
 
 
-# Disclaimer
-
-The library in development stage. May be not fully tested and README may be not full. If you have any questions, please, create an issue.
-
-
 # Decore
 
 **Decore** - a Defold library for managing ECS game entities and components in a data-driven way. The ECS is based on [tiny ECS](https://github.com/bakpakin/tiny-ecs) library.
@@ -64,6 +59,27 @@ function final(self)
 end
 ```
 
+Look at system examples to get more information about how to use systems.
+[System examples](https://github.com/Insality/asset-store/tree/main/system/Insality)
+
+## Entities prefab Example
+
+```lua
+-- /entity/player/player_entity.lua
+---@diagnostic disable: missing-fields
+---@type entity
+return {
+	transform = { size_x = 128, size_y = 128 },
+	game_object = { factory_url = "/entities#player" },
+	field = { solid = true },
+	player = true,
+	panthera = { animation_path = require("entity.player.player_panthera"), default_animation = "idle", is_loop = true, play_on_start = "idle" },
+	player_visual = true,
+	field_movable = true,
+	user_controlled = true,
+}
+
+```
 
 ## Quick API Reference
 
@@ -114,6 +130,23 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Issues and suggestions
 
 If you have any issues, questions or suggestions please [create an issue](https://github.com/Insality/decore/issues).
+
+## Changelog
+
+<details>
+
+### **V1**
+	- Initial release
+
+### **V2**
+	- Reworked API and internal structure
+	- Updated documentation
+
+### **V3**
+	- Updated event bus system for better performance
+	- Update documentation
+
+</details>
 
 ## ❤️ Support project ❤️
 

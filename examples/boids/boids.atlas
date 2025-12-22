@@ -1,4 +1,0 @@
-images {
-  image: "/examples/boids/boid/boid.png"
-}
-extrude_borders: 2
