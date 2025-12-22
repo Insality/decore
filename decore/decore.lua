@@ -189,7 +189,7 @@ end
 
 
 ---Register components pack to decore components
----@param components_data decore.components_pack_data
+---@param components_data decore.components_data
 ---@return boolean
 function M.register_components(components_data)
 	local pack_id = components_data.pack_id

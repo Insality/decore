@@ -3,12 +3,21 @@ local decore_data = require("decore.internal.decore_data")
 
 local ecs = require("decore.internal.ecs")
 
+---@class decore.entity_prefab_data
+---@field prefab_id string|nil
+---@field pack_id string|nil
+---@field components table<string, any>|nil
+
+---@class decore.components_data
+---@field pack_id string
+---@field components table<string, any>
+
 ---@class entity
 ---@field id number|nil Unique entity id, autofilled by decore.create_entity
 ---@field prefab_id string|nil The entity id from decore collections, autofilled by decore.create_entity
 ---@field pack_id string|nil The entity id from decore collections, autofilled by decore.create_entity
 ---@field parent_prefab_id string|nil The parent prefab_id, used for prefab inheritance
----@field child_instancies decore.entities_pack_data.instance[]|nil The child instances to spawn on entity creation
+---@field child_instancies decore.entity_prefab_data[]|nil The child instances to spawn on entity creation
 ---@field parent_id number|nil The parent id
 ---@field children_ids number[]|nil The children ids
 

@@ -26,6 +26,7 @@ dependencies#4 = https://github.com/AGulev/drawpixels/archive/refs/tags/2.0.1.zi
 dependencies#5 = https://github.com/Insality/defold-event/archive/refs/tags/11.zip
 dependencies#6 = https://github.com/Insality/druid/archive/refs/heads/develop.zip
 dependencies#7 = https://github.com/Insality/panthera/archive/refs/tags/runtime.4.zip
+dependencies#8 = https://github.com/Insality/asset-store/archive/refs/heads/main.zip
 
 [library]
 include_dirs = decore

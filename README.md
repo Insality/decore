@@ -21,7 +21,7 @@
 
 Add in your `game.project` dependencies:
 ```
-https://github.com/Insality/decore/archive/refs/tags/2.zip
+https://github.com/Insality/decore/archive/refs/tags/3.zip
 ```
 
 ### Basic Usage
@@ -47,11 +47,10 @@ function update(self, dt)
 	self.world:update(dt)
 end
 
-
 function on_input(self, action_id, action)
+	-- Systems can be accessed via world, if registered
 	return self.world.input:on_input(action_id, action)
 end
-
 
 function final(self)
 	self.world:clearEntities()
@@ -59,27 +58,13 @@ function final(self)
 end
 ```
 
-Look at system examples to get more information about how to use systems.
-[System examples](https://github.com/Insality/asset-store/tree/main/system/Insality)
+## Examples
+Look at next examples to get more information about how to use the library:
+- [System examples](https://github.com/Insality/asset-store/tree/main/system/Insality) - System examples
+- [Entity example](https://github.com/Insality/cosmic-dash-jam-2025/blob/main/entity/player/player_entity.lua) - Entity example
+- [Shooting Circles](https://github.com/Insality/shooting_circles) - Game Example
+- [Cosmic Dash](https://github.com/Insality/cosmic-dash-jam-2025) - Game Example
 
-## Entities prefab Example
-
-```lua
--- /entity/player/player_entity.lua
----@diagnostic disable: missing-fields
----@type entity
-return {
-	transform = { size_x = 128, size_y = 128 },
-	game_object = { factory_url = "/entities#player" },
-	field = { solid = true },
-	player = true,
-	panthera = { animation_path = require("entity.player.player_panthera"), default_animation = "idle", is_loop = true, play_on_start = "idle" },
-	player_visual = true,
-	field_movable = true,
-	user_controlled = true,
-}
-
-```
 
 ## Quick API Reference
 
@@ -114,11 +99,14 @@ decore.create_component(component_id, [component_pack_id])
 decore.apply_component(entity, component_id, [component_data])
 decore.apply_components(entity, [components])
 
+-- Find entities
 decore.find_entities(world, component_id, [component_value])
 
+-- Debug functions
 decore.print_loaded_packs_debug_info()
 decore.print_loaded_systems_debug_info(world)
 
+-- Logging
 decore.set_logger([logger_instance])
 decore.get_logger([name], [level])
 ```
