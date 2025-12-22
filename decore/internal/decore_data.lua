@@ -32,7 +32,11 @@ function M.register_component(component_id, component_data, pack_id)
 		table.insert(M.components_order, pack_id)
 	end
 
-	M.components[pack_id][component_id] = component_data or {}
+	if component_data == nil then
+		M.components[pack_id][component_id] = {}
+	else
+		M.components[pack_id][component_id] = component_data
+	end
 end
 
 
