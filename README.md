@@ -7,11 +7,6 @@
 [![Github-sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/insality) [![Ko-Fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/insality) [![BuyMeACoffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/insality)
 
 
-# Disclaimer
-
-The library in development stage. May be not fully tested and README may be not full. If you have any questions, please, create an issue.
-
-
 # Decore
 
 **Decore** - a Defold library for managing ECS game entities and components in a data-driven way. The ECS is based on [tiny ECS](https://github.com/bakpakin/tiny-ecs) library.
@@ -26,7 +21,7 @@ The library in development stage. May be not fully tested and README may be not 
 
 Add in your `game.project` dependencies:
 ```
-https://github.com/Insality/decore/archive/refs/tags/2.zip
+https://github.com/Insality/decore/archive/refs/tags/3.zip
 ```
 
 ### Basic Usage
@@ -52,17 +47,23 @@ function update(self, dt)
 	self.world:update(dt)
 end
 
-
 function on_input(self, action_id, action)
+	-- Systems can be accessed via world, if registered
 	return self.world.input:on_input(action_id, action)
 end
-
 
 function final(self)
 	self.world:clearEntities()
 	self.world:clearSystems()
 end
 ```
+
+## Examples
+Look at next examples to get more information about how to use the library:
+- [System examples](https://github.com/Insality/asset-store/tree/main/system/Insality) - System examples
+- [Entity example](https://github.com/Insality/cosmic-dash-jam-2025/blob/main/entity/player/player_entity.lua) - Entity example
+- [Shooting Circles](https://github.com/Insality/shooting_circles) - Game Example
+- [Cosmic Dash](https://github.com/Insality/cosmic-dash-jam-2025) - Game Example
 
 
 ## Quick API Reference
@@ -98,11 +99,14 @@ decore.create_component(component_id, [component_pack_id])
 decore.apply_component(entity, component_id, [component_data])
 decore.apply_components(entity, [components])
 
+-- Find entities
 decore.find_entities(world, component_id, [component_value])
 
+-- Debug functions
 decore.print_loaded_packs_debug_info()
 decore.print_loaded_systems_debug_info(world)
 
+-- Logging
 decore.set_logger([logger_instance])
 decore.get_logger([name], [level])
 ```
@@ -114,6 +118,23 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Issues and suggestions
 
 If you have any issues, questions or suggestions please [create an issue](https://github.com/Insality/decore/issues).
+
+## Changelog
+
+<details>
+
+### **V1**
+	- Initial release
+
+### **V2**
+	- Reworked API and internal structure
+	- Updated documentation
+
+### **V3**
+	- Updated event bus system for better performance
+	- Update documentation
+
+</details>
 
 ## ❤️ Support project ❤️
 

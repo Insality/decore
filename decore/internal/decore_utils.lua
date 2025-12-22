@@ -27,7 +27,7 @@ end
 function M.deepcopy(value_to_copy)
 	local orig_type = type(value_to_copy)
 	local copy
-	if orig_type == 'table' then
+	if orig_type == "table" then
 		copy = {}
 		for orig_key, orig_value in next, value_to_copy, nil do
 			copy[M.deepcopy(orig_key)] = M.deepcopy(orig_value)
