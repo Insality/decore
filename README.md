@@ -11,18 +11,30 @@
 
 **Decore** - a Defold library for managing ECS game entities and components in a data-driven way. The ECS is based on [tiny ECS](https://github.com/bakpakin/tiny-ecs) library.
 
+The API of Tiny ECS is unchanged, so you can get familiar with it first and then use Decore. Decore provides an architecture for your game with additional features, tools and examples.
+
 ## Features
 
 * **Entity Management**: Register, create and manage game entities
 * **Component Management**: Add, remove and update entity components
 * **Easy Integration**: Simple setup and integration with Defold projects
 
-## Installation
+## Setup
 
 Add in your `game.project` dependencies:
 ```
 https://github.com/Insality/decore/archive/refs/tags/3.zip
 ```
+
+### Library Size
+
+> **Note:** The library size is calculated based on the build report per platform
+
+| Platform         | Library Size |
+| ---------------- | ------------ |
+| HTML5            | **11.86 KB**  |
+| Desktop / Mobile | **19.17 KB**  |
+
 
 ### Basic Usage
 
@@ -49,6 +61,7 @@ end
 
 function on_input(self, action_id, action)
 	-- Systems can be accessed via world, if registered
+	-- Example: https://github.com/Insality/asset-store/blob/main/system/Insality/input/input_command.lua
 	return self.world.input:on_input(action_id, action)
 end
 
