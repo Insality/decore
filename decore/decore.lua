@@ -181,7 +181,7 @@ end
 
 ---Register component to decore components
 ---@param component_id string
----@param component_data any
+---@param component_data table|string|number|boolean
 ---@param pack_id string|nil default "decore"
 function M.register_component(component_id, component_data, pack_id)
 	decore_data.register_component(component_id, component_data, pack_id)

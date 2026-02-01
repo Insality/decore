@@ -34,7 +34,7 @@ function M:trigger(event_name, data)
 	local stash_by_entity = self.stash_by_entity[event_name]
 
 	local merge_callback = self.merge_callbacks[event_name]
-	local entity = data and data.entity
+	local entity = data and type(data) == "table" and data.entity
 	local is_merged = false
 
 	if merge_callback then
