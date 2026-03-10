@@ -39,7 +39,7 @@ local M = {}
 
 ---@param decore decore
 ---@return system.decore
-function M.create_system(decore)
+function M.create(decore)
 	local self = setmetatable(ecs.system(), { __index = M }) --[[@as system.decore]]
 	self.id = "decore"
 	self.filter = ecs.rejectAny("")
@@ -123,7 +123,8 @@ function M:spawn_children(entity)
 		entity.children_ids = {}
 		for index = 1, #child_entities do
 			local child_entity = child_entities[index]
-			local child = self.decore.create_prefab(child_entity.prefab_id, child_entity.pack_id, child_entity.components)
+			local prefab_id = child_entity.prefab_id
+			local child = self.decore.create_prefab(prefab_id, child_entity.pack_id, child_entity)
 			self.decore.apply_component(child, "transform")
 
 			-- Add my position to child
@@ -131,11 +132,6 @@ function M:spawn_children(entity)
 			local parent_transform = entity.transform
 			if parent_transform and child_transform then
 				M.apply_parent_transform(child_transform, parent_transform)
-			end
-
-			-- Is in need to be here?
-			if child.tiled_id and entity.tiled_id then
-				child.tiled_id = entity.tiled_id .. "/" .. child.tiled_id
 			end
 
 			child.parent_id = entity.id

@@ -64,6 +64,30 @@ function M:process(event_name, callback, context)
 
 	if callback then
 		if context then
+			for i = 1, #events do
+				local event = events[i]
+				callback(context, event)
+			end
+		else
+			for i = 1, #events do
+				local event = events[i]
+				callback(event)
+			end
+		end
+	end
+
+	return events
+end
+
+
+function M:process_all(event_name, callback, context)
+	local events = self.events[event_name]
+	if not events or #events == 0 then
+		return nil
+	end
+
+	if callback then
+		if context then
 			callback(context, events)
 		else
 			callback(events)

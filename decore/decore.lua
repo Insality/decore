@@ -4,8 +4,8 @@ local logger = require("decore.internal.decore_logger")
 local decore_data = require("decore.internal.decore_data")
 local decore_utils = require("decore.internal.decore_utils")
 
-local system_decore = require("decore.internal.system_decore")
-local system_event_bus = require("decore.internal.system_event_bus")
+local system_decore = require("decore.internal.decore_system")
+local system_event_bus = require("decore.internal.event_bus_system")
 
 local EMPTY_HASH = hash("")
 local NEXT_ENTITY_ID = 0
@@ -25,8 +25,8 @@ M.ecs = ecs
 function M.new_world(...)
 	local world = M.ecs.world(
 		-- Always included systems
-		system_decore.create_system(M),
-		system_event_bus.create_system()
+		system_decore.create(M),
+		system_event_bus.create()
 	)
 
 	-- Add systems passed to world constructor
