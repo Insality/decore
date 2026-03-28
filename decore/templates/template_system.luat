@@ -1,5 +1,7 @@
 local decore = require("decore.decore")
 
+local TEMPLATE_command = require("system.TEMPLATE.TEMPLATE_command")
+
 ---@class component.TEMPLATE
 decore.register_component("TEMPLATE")
 
@@ -10,7 +12,9 @@ local M = {}
 
 ---@return system.TEMPLATE
 function M.create()
-	return decore.system(M, "TEMPLATE", { "TEMPLATE" })
+	local self = decore.system(M, "TEMPLATE", { "TEMPLATE" })
+	TEMPLATE_command.register(self)
+	return self
 end
 
 

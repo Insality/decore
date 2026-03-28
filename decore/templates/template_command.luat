@@ -1,14 +1,17 @@
----@class world
----@field TEMPLATE system.TEMPLATE.command
-
 ---@class system.TEMPLATE.command
----@field private TEMPLATE system.TEMPLATE
+---@field TEMPLATE system.TEMPLATE
 local M = {}
 
 
----@return system.TEMPLATE.command
-function M.create(TEMPLATE)
-	return setmetatable({ TEMPLATE = TEMPLATE, world = TEMPLATE.world }, { __index = M })
+---@param TEMPLATE system.TEMPLATE
+function M.register(TEMPLATE)
+	M.TEMPLATE = TEMPLATE
+end
+
+
+--- Example: expose a plain function; delegate to the backing system with `:` where needed.
+function M.example(...)
+	M.TEMPLATE:example(...)
 end
 
 
