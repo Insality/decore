@@ -3,11 +3,6 @@ local decore_data = require("decore.internal.decore_data")
 
 local ecs = require("decore.internal.ecs")
 
----@class decore.entity_prefab_data
----@field prefab_id string|nil
----@field pack_id string|nil
----@field components table<string, any>|nil
-
 ---@class decore.components_data
 ---@field pack_id string
 ---@field components table<string, any>
@@ -17,7 +12,7 @@ local ecs = require("decore.internal.ecs")
 ---@field prefab_id string|nil The entity id from decore collections, autofilled by decore.create_entity
 ---@field pack_id string|nil The entity id from decore collections, autofilled by decore.create_entity
 ---@field parent_prefab_id string|nil The parent prefab_id, used for prefab inheritance
----@field child_instancies decore.entity_prefab_data[]|nil The child instances to spawn on entity creation
+---@field child_instancies entity|nil The child instances to spawn on entity creation
 ---@field parent_id number|nil The parent id
 ---@field children_ids number[]|nil The children ids
 
@@ -123,8 +118,7 @@ function M:spawn_children(entity)
 		entity.children_ids = {}
 		for index = 1, #child_entities do
 			local child_entity = child_entities[index]
-			local prefab_id = child_entity.prefab_id
-			local child = self.decore.create_prefab(prefab_id, child_entity.pack_id, child_entity)
+			local child = self.decore.create_prefab(child_entity.prefab_id, child_entity.pack_id, child_entity)
 			self.decore.apply_component(child, "transform")
 
 			-- Add my position to child

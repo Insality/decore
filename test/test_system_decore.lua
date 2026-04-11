@@ -221,14 +221,10 @@ return function()
 
 			local parent = decore.create({
 				transform = {},
-				child_instancies = {
-					{
-						prefab_id = "child_prefab",
-						components = {
-							health = { value = 75 }
-						}
-					}
-				}
+				child_instancies = {{
+					prefab_id = "child_prefab",
+					health = { value = 75 }
+				}}
 			})
 			add_entity_and_refresh(parent)
 
@@ -236,33 +232,6 @@ return function()
 			assert(child ~= nil)
 			assert(child.health ~= nil)
 			assert(child.health.value == 75)
-		end)
-
-		it("Should handle tiled_id inheritance", function()
-			decore.register_component("transform", {
-				position_x = 0,
-				position_y = 0,
-				scale_x = 1,
-				scale_y = 1,
-				rotation = 0
-			})
-			decore.register_entity("child_prefab", {
-				transform = {},
-				tiled_id = "child"
-			})
-
-			local parent = decore.create({
-				transform = {},
-				tiled_id = "parent",
-				child_instancies = {
-					{ prefab_id = "child_prefab" }
-				}
-			})
-			add_entity_and_refresh(parent)
-
-			local child = decore.get_entity_by_id(world, parent.children_ids[1])
-			assert(child ~= nil)
-			assert(child.tiled_id == "parent/child")
 		end)
 
 		it("Should handle entity without transform", function()

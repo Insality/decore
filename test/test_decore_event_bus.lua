@@ -66,12 +66,12 @@ return function()
 			assert(events[1].data == "test")
 		end)
 
-		it("Should process events with callback", function()
+		it("Should process_all events with callback", function()
 			world.event_bus:trigger("test_event", { data = "test" })
 			world.event_bus:stash_to_events()
 
 			local processed_data = nil
-			world.event_bus:process("test_event", function(events)
+			world.event_bus:process_all("test_event", function(events)
 				assert(events ~= nil)
 				assert(events[1] ~= nil)
 				processed_data = events[1].data
@@ -79,13 +79,13 @@ return function()
 			assert(processed_data == "test")
 		end)
 
-		it("Should process events with context", function()
+		it("Should process_all events with context", function()
 			world.event_bus:trigger("test_event", { data = "test" })
 			world.event_bus:stash_to_events()
 
 			local processed_data = nil
 			local context = { value = 100 }
-			world.event_bus:process("test_event", function(ctx, events)
+			world.event_bus:process_all("test_event", function(ctx, events)
 				assert(events ~= nil)
 				assert(events[1] ~= nil)
 				processed_data = { context = ctx, data = events[1].data }
@@ -93,6 +93,37 @@ return function()
 			assert(processed_data ~= nil)
 			assert(processed_data.context.value == 100)
 			assert(processed_data.data == "test")
+		end)
+
+		it("Should process events with callback once per event", function()
+			world.event_bus:trigger("test_event", { data = 1 })
+			world.event_bus:trigger("test_event", { data = 2 })
+			world.event_bus:trigger("test_event", { data = 3 })
+			world.event_bus:stash_to_events()
+
+			local seen = {}
+			world.event_bus:process("test_event", function(event)
+				table.insert(seen, event.data)
+			end)
+			assert(#seen == 3)
+			assert(seen[1] == 1)
+			assert(seen[2] == 2)
+			assert(seen[3] == 3)
+		end)
+
+		it("Should process events with context once per event", function()
+			world.event_bus:trigger("test_event", { data = "a" })
+			world.event_bus:trigger("test_event", { data = "b" })
+			world.event_bus:stash_to_events()
+
+			local context = { prefix = "x" }
+			local seen = {}
+			world.event_bus:process("test_event", function(ctx, event)
+				table.insert(seen, ctx.prefix .. event.data)
+			end, context)
+			assert(#seen == 2)
+			assert(seen[1] == "xa")
+			assert(seen[2] == "xb")
 		end)
 
 		it("Should return events from process", function()
@@ -107,6 +138,23 @@ return function()
 
 		it("Should return nil when processing non-existent event", function()
 			local events = world.event_bus:process("non_existent")
+			assert(events == nil)
+		end)
+
+		it("Should return events from process_all", function()
+			world.event_bus:trigger("test_event", { data = "one" })
+			world.event_bus:trigger("test_event", { data = "two" })
+			world.event_bus:stash_to_events()
+
+			local events = world.event_bus:process_all("test_event")
+			assert(events ~= nil)
+			assert(#events == 2)
+			assert(events[1].data == "one")
+			assert(events[2].data == "two")
+		end)
+
+		it("Should return nil when process_all non-existent event", function()
+			local events = world.event_bus:process_all("non_existent")
 			assert(events == nil)
 		end)
 
