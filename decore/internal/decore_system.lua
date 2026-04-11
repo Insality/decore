@@ -42,7 +42,7 @@ local M = {}
 function M.create(decore)
 	local self = setmetatable(ecs.system(), { __index = M }) --[[@as system.decore]]
 	self.id = "decore"
-	self.filter = ecs.rejectAny("")
+	self.filter = ecs.rejectAny("") -- Include all
 
 	self.decore = decore
 	self.id_to_entity = {}

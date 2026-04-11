@@ -2,8 +2,14 @@ local decore = require("decore.decore")
 
 local TEMPLATE_command = require("system.TEMPLATE.TEMPLATE_command")
 
+---@class entity
+---@field TEMPLATE component.TEMPLATE|nil
+
+---@class entity.TEMPLATE
+---@field TEMPLATE component.TEMPLATE
+
 ---@class component.TEMPLATE
-decore.register_component("TEMPLATE")
+decore.register_component("TEMPLATE", {})
 
 ---@class system.TEMPLATE: system
 ---@field entities entity.TEMPLATE[]

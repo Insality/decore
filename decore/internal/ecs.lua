@@ -46,6 +46,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ---@field preWrap fun(system: system, dt:number)|nil
 ---@field postWrap fun(system: system, dt:number)|nil
 ---@field update fun(system: system, dt:number)|nil
+---@field fixed_update fun(system: system, dt:number)|nil
+---@field late_update fun(system: system, dt:number)|nil
 ---@field preProcess fun(system: system, dt:number)|nil
 ---@field process fun(system: system, entity:entity, dt:number)|nil
 ---@field postProcess fun(system: system, dt:number)|nil
@@ -63,6 +65,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ---@field removeSystem fun(self: world, system: system): system
 ---@field refresh fun(self: world)
 ---@field update fun(self: world, dt:number, filter:fun()|nil)
+---@field fixed_update fun(self: world, dt:number, filter:fun()|nil)
+---@field late_update fun(self: world, dt:number, filter:fun()|nil)
 ---@field clearEntities fun(self: world)
 ---@field clearSystems fun(self: world)
 ---@field getEntityCount fun(self: world)
@@ -895,6 +899,30 @@ function tiny.fixed_update(world, dt, filter)
 end
 
 
+--- Runs `late_update` on Systems after `tiny.update`, in system order. Takes an
+-- optional `filter` like `tiny.update`. Applies `world.speed` the same way as
+-- `tiny.update` when you pass the same raw `dt`.
+function tiny.late_update(world, dt, filter)
+	local speed = world.speed or 1
+	if speed <= 0 then
+		return
+	end
+	dt = dt * speed
+
+	local systems = world.systems
+
+	for i = 1, #systems do
+		local system = systems[i]
+		if system.active and ((not filter) or filter(world, system)) then
+			local late_update = system.late_update
+			if late_update then
+				late_update(system, dt)
+			end
+		end
+	end
+end
+
+
 --- Removes all Entities and Systems from the World.
 function tiny.clear(world)
 	tiny.clearEntities(world)
@@ -987,6 +1015,7 @@ worldMetaTable = {
 		refresh = tiny.refresh,
 		update = tiny.update,
 		fixed_update = tiny.fixed_update,
+		late_update = tiny.late_update,
 		clear = tiny.clear,
 		clearEntities = tiny.clearEntities,
 		clearSystems = tiny.clearSystems,
