@@ -23,7 +23,7 @@ The API of Tiny ECS is unchanged, so you can get familiar with it first and then
 
 Add in your `game.project` dependencies:
 ```
-https://github.com/Insality/decore/archive/refs/tags/3.zip
+https://github.com/Insality/decore/archive/refs/tags/4.zip
 ```
 
 ### Library Size
@@ -150,6 +150,10 @@ If you have any issues, questions or suggestions please [create an issue](https:
 ### **V3**
 	- Updated event bus system for better performance
 	- Update documentation
+
+### **V4**
+	- ECS: `world:late_update(dt)` / `system.late_update` (runs after `update`, same `world.speed` scaling)
+	- Event bus: `process` invokes the callback once per event; added `process_all` for the previous “whole batch” behavior
 
 </details>
 
