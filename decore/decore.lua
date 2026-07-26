@@ -3,6 +3,7 @@ local logger = require("decore.internal.decore_logger")
 
 local decore_data = require("decore.internal.decore_data")
 local decore_utils = require("decore.internal.decore_utils")
+local decore_shape = require("decore.internal.decore_shape")
 
 local system_decore = require("decore.internal.decore_system")
 local system_event_bus = require("decore.internal.event_bus_system")
@@ -17,6 +18,7 @@ local NEXT_ENTITY_ID = 0
 local M = {}
 M.clamp = decore_utils.clamp
 M.ecs = ecs
+M.shape = decore_shape
 
 
 ---Create a new world instance
@@ -124,6 +126,7 @@ function M.unregister_entities(pack_id)
 
 	decore_data.entities[pack_id] = nil
 	decore_utils.remove_by_value(decore_data.entities_order, pack_id)
+	decore_data.invalidate_caches()
 end
 
 
@@ -155,25 +158,20 @@ function M.create_prefab(prefab_id, pack_id, components)
 		return { id = NEXT_ENTITY_ID }
 	end
 
-	local entity = nil
+	local entity
 	local prefab = decore_data.get_entity(prefab_id, pack_id)
-	if prefab and prefab.parent_prefab_id then
-		entity = M.create_prefab(prefab.parent_prefab_id)
+	if prefab then
+		entity = decore_utils.deepcopy(decore_data.get_prefab_template(prefab))
+		---@diagnostic disable-next-line: invisible
+		entity.__shape = decore_shape.token_for_prefab(prefab)
+	else
+		entity = {}
+		---@diagnostic disable-next-line: invisible
+		entity.__shape = decore_shape.token_for_prefab(decore_shape.EMPTY)
 	end
 
-	entity = entity or {}
-	M.apply_components(entity, prefab)
 	M.apply_components(entity, components)
 	entity.id = NEXT_ENTITY_ID
-
-	local transform = entity.transform
-	logger:trace("Entity created", {
-		id = entity.id,
-		prefab_id = prefab_id,
-		parent_prefab_id = prefab and prefab.parent_prefab_id,
-		x = transform and transform.position_x or 0,
-		y = transform and transform.position_y or 0,
-	})
 
 	return entity
 end
@@ -217,6 +215,7 @@ function M.unregister_components(pack_id)
 
 	decore_data.components[pack_id] = nil
 	decore_utils.remove_by_value(decore_data.components_order, pack_id)
+	decore_data.invalidate_caches()
 end
 
 
@@ -244,6 +243,8 @@ end
 ---If component not exists, it will be created with default values
 ---If component already exists, it will be merged with the new data
 ---To refresh system filters, call world:addEntity(entity) after this function
+---When a new component key is introduced, the entity shape token is derived so the
+---system-membership cache stays valid. Prefer this over direct assignment for filter-relevant keys.
 ---@param entity entity
 ---@param component_id string
 ---@param component_data any|nil if nil, create component with default values
@@ -251,6 +252,10 @@ end
 function M.apply_component(entity, component_id, component_data)
 	if entity[component_id] == nil then
 		entity[component_id] = M.create_component(component_id)
+		---@diagnostic disable-next-line: invisible
+		local shape = entity.__shape
+		---@diagnostic disable-next-line: invisible
+		entity.__shape = decore_shape.derive(shape, component_id)
 	end
 
 	if component_data ~= nil then
@@ -283,31 +288,40 @@ function M.apply_components(entity, components)
 end
 
 
+---Remove a component key from entity and clear its shape cache token.
+---To refresh system filters, call world:addEntity(entity) after this function.
+---@param entity entity
+---@param component_id string
+---@return entity
+function M.remove_component(entity, component_id)
+	entity[component_id] = nil
+	---@diagnostic disable-next-line: invisible
+	entity.__shape = nil
+	return entity
+end
+
+
 ---@param world world
 ---@param id number
 ---@return entity|nil
 function M.get_entity_by_id(world, id)
+	local id_to_entity = world.id_to_entity
+	if id_to_entity then
+		return id_to_entity[id]
+	end
+
 	return M.find_entities(world, "id", id)[1]
 end
 
 
 ---Return all entities with component_id equal to component_value or all entities with component_id if component_value is nil.
----It looks for component_id in entity and entityToChange tables
 ---@param world world
 ---@param component_id string
 ---@param component_value any|nil if nil, return all entities with component_id
+---@param out entity[]|nil optional out table to avoid allocation
 ---@return entity[]
-function M.find_entities(world, component_id, component_value)
-	local entities = {}
-
-	for index = 1, #world.entities do
-		local entity = world.entities[index]
-		if entity[component_id] and (not component_value or entity[component_id] == component_value) then
-			table.insert(entities, entity)
-		end
-	end
-
-	return entities
+function M.find_entities(world, component_id, component_value, out)
+	return ecs.findEntities(world, component_id, component_value, out)
 end
 
 
