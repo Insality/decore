@@ -77,6 +77,10 @@ function final(self)
 end
 ```
 
+## Introduction
+
+Start here: **[INTRODUCTION.md](INTRODUCTION.md)** — mental model, bootstrap, prefabs, systems, `world.event`, and a suggested project layout.
+
 ## Examples
 Look at next examples to get more information about how to use the library:
 - [System examples](https://github.com/Insality/asset-store/tree/main/system/Insality) - System examples
