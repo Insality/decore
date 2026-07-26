@@ -71,7 +71,7 @@ end
 ---Remove the value from the array table by value
 ---@param t table
 ---@param v any
----@return boolean @true if value was removed
+---@return boolean true if value was removed
 function M.remove_by_value(t, v)
 	for index = 1, #t do
 		if t[index] == v then
@@ -94,6 +94,8 @@ function M.create_system(ecs_system, system_module, system_id, require_all_filte
 	local system = setmetatable(ecs_system, { __index = system_module })
 	system.id = system_id
 
+	-- Filters must be presence-only (component key exists). Value-based filters
+	-- break the prefab shape -> system-list cache in ecs.lua.
 	if require_all_filters then
 		if type(require_all_filters) == TYPE_TABLE then
 			---@cast require_all_filters string[]
