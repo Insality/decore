@@ -12,7 +12,8 @@ local EMPTY_HASH = hash("")
 local NEXT_ENTITY_ID = 0
 
 ---@class world
----@field event_bus decore.event_bus
+---@field event decore.event_bus
+---@field event_bus decore.event_bus Deprecated alias of `event`
 
 ---@class decore
 local M = {}
@@ -47,7 +48,7 @@ end
 ---@param message table|nil
 ---@param sender url|nil
 function M.on_message(world, message_id, message, sender)
-	world.event_bus:trigger("on_message", {
+	world.event:trigger("on_message", nil, {
 		message_id = message_id,
 		message = message,
 		sender = sender,

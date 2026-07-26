@@ -16,12 +16,14 @@ end
 
 
 function M:onAddToWorld(world)
-	world.event_bus = event_bus.create()
+	world.event = event_bus.create()
+	-- Deprecated alias
+	world.event_bus = world.event
 end
 
 
 function M:postWrap()
-	self.world.event_bus:stash_to_events()
+	self.world.event:stash_to_events()
 end
 
 

@@ -19,7 +19,8 @@ return function()
 
 		it("Should create world with default systems", function()
 			assert(world ~= nil)
-			assert(world.event_bus ~= nil)
+			assert(world.event ~= nil)
+			assert(world.event_bus == world.event) -- deprecated alias
 			assert(#world.systems >= 2)
 		end)
 
@@ -333,7 +334,7 @@ return function()
 		it("Should handle on_message", function()
 			decore.on_message(world, hash("test_message"), { data = "test" })
 			world:update(0)
-			local events = world.event_bus:get_events("on_message")
+			local events = world.event:get_events("on_message")
 			assert(events ~= nil)
 			assert(#events == 1)
 			assert(events[1].message_id == hash("test_message"))
