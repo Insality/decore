@@ -46,7 +46,9 @@ else
 fi
 
 if [ "${repeats}" -gt 1 ]; then
-	artifact="$(sed -n 's/.*Build artifact: //p' "${output}" | tail -1 | tr -d '\r')"
+	# The deployer colours that line, so drop the escape sequences around the path
+	artifact="$(sed -n 's/.*Build artifact: //p' "${output}" | tail -1 |
+		tr -d '\033\r' | sed 's/\[[0-9;]*m//g')"
 
 	if [ -d "${artifact}/Contents/MacOS" ]; then
 		binary="$(find "${artifact}/Contents/MacOS" -maxdepth 1 -type f -perm -u+x | head -1)"
