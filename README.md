@@ -9,9 +9,9 @@
 
 # Decore
 
-**Decore** - a Defold library for managing ECS game entities and components in a data-driven way. The ECS is based on [tiny ECS](https://github.com/bakpakin/tiny-ecs) library.
+**Decore** - a Defold library for managing ECS game entities and components in a data-driven way. The ECS core is based on [tiny-ecs](https://github.com/bakpakin/tiny-ecs).
 
-The API of Tiny ECS is unchanged, so you can get familiar with it first and then use Decore. Decore provides an architecture for your game with additional features, tools and examples.
+Tiny-ecs concepts still apply (`world`, `system`, filters, `addEntity` / `refresh` / `update`). Prefer the Decore wrappers below for entity/component creation so shape tokens and caches stay valid.
 
 ## Features
 
@@ -111,9 +111,11 @@ decore.unregister_components(pack_id)
 decore.create_component(component_id, [component_pack_id])
 decore.apply_component(entity, component_id, [component_data])
 decore.apply_components(entity, [components])
+decore.remove_component(entity, component_id)
 
 -- Find entities
-decore.find_entities(world, component_id, [component_value])
+decore.get_entity_by_id(world, id)
+decore.find_entities(world, component_id, [component_value], [out])
 
 -- Debug functions
 decore.print_loaded_packs_debug_info()
@@ -154,6 +156,11 @@ If you have any issues, questions or suggestions please [create an issue](https:
 ### **V4**
 	- ECS: `world:late_update(dt)` / `system.late_update` (runs after `update`, same `world.speed` scaling)
 	- Event bus: `process` invokes the callback once per event; added `process_all` for the previous “whole batch” behavior
+
+### **V5**
+	- ECS: shape-based system membership cache, precomputed update/preWrap/postWrap/fixed/late dispatch lists
+	- Prefab/component template caches; `get_entity_by_id` via `world.id_to_entity`
+	- Headless ECS benchmark suite under `test/benchmark/`
 
 </details>
 

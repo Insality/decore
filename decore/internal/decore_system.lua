@@ -139,7 +139,7 @@ end
 
 ---@param entity entity
 function M:spawn_children(entity)
-	-- Create real chilnd entities from prefab data
+	-- Create real child entities from prefab data
 	local child_entities = entity.child_instancies
 	if child_entities then
 		entity.children_ids = entity.children_ids or {}

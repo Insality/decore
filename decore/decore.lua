@@ -110,9 +110,11 @@ end
 ---@param pack_id string
 ---@param entities table<string, table>
 function M.register_entities(pack_id, entities)
+	decore_data.suspend_cache_invalidation()
 	for prefab_id, entity_data in pairs(entities) do
 		decore_data.register_entity(prefab_id, entity_data, pack_id)
 	end
+	decore_data.resume_cache_invalidation()
 end
 
 
@@ -197,9 +199,11 @@ function M.register_components(components_data)
 		return false
 	end
 
+	decore_data.suspend_cache_invalidation()
 	for component_id, component_data in pairs(components_data.components) do
 		decore_data.register_component(component_id, component_data, pack_id)
 	end
+	decore_data.resume_cache_invalidation()
 
 	return true
 end

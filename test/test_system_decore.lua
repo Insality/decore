@@ -205,6 +205,25 @@ return function()
 			assert(parent.children_ids[1] ~= child_id)
 		end)
 
+		it("Should register manually parented entity on children_ids", function()
+			decore.register_component("transform", {
+				position_x = 0,
+				position_y = 0,
+				scale_x = 1,
+				scale_y = 1,
+				rotation = 0
+			})
+			local parent = decore.create({ transform = {} })
+			add_entity_and_refresh(parent)
+
+			local child = decore.create({ transform = {}, parent_id = parent.id })
+			add_entity_and_refresh(child)
+
+			assert(parent.children_ids ~= nil)
+			assert(#parent.children_ids == 1)
+			assert(parent.children_ids[1] == child.id)
+		end)
+
 		it("Should handle child with custom components", function()
 			decore.register_component("transform", {
 				position_x = 0,

@@ -246,6 +246,44 @@ return function()
 			assert(found ~= nil)
 			assert(found.id == entity.id)
 			assert(found.name == "Test")
+			assert(world.id_to_entity[entity.id] == entity)
+		end)
+
+		it("Should remove component and clear shape token", function()
+			decore.register_component("health", { value = 100 })
+			local entity = decore.create({ health = { value = 10 } })
+			assert(entity.health ~= nil)
+			assert(entity.__shape ~= nil)
+
+			decore.remove_component(entity, "health")
+			assert(entity.health == nil)
+			assert(entity.__shape == nil)
+		end)
+
+		it("Should reuse out table in find_entities", function()
+			decore.register_component("health", { value = 100 })
+			local entity = decore.create({ health = { value = 1 } })
+			world:addEntity(entity)
+			world:refresh()
+
+			local out = { "stale" }
+			local found = decore.find_entities(world, "health", nil, out)
+			assert(found == out)
+			assert(#found == 1)
+			assert(found[1] == entity)
+			assert(found[2] == nil)
+		end)
+
+		it("Should derive shape when apply_component adds a new key", function()
+			decore.register_component("health", { value = 100 })
+			decore.register_component("mana", { value = 50 })
+			local entity = decore.create({ health = {} })
+			local before = entity.__shape
+			assert(before ~= nil)
+
+			decore.apply_component(entity, "mana")
+			assert(entity.__shape ~= nil)
+			assert(entity.__shape ~= before)
 		end)
 
 		it("Should create system without filter", function()

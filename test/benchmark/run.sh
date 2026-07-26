@@ -10,8 +10,8 @@
 ###
 ### Comparing two branches:
 ###   git checkout develop && bash test/benchmark/run.sh bench_develop.txt 3
-###   git checkout shapes  && bash test/benchmark/run.sh bench_shapes.txt 3
-###   lua test/benchmark/compare.lua bench_develop.txt bench_shapes.txt
+###   git checkout other   && bash test/benchmark/run.sh bench_other.txt 3
+###   lua test/benchmark/compare.lua bench_develop.txt bench_other.txt
 ###
 ### Set DEPLOYER to a local defold-deployer checkout to skip the download.
 
@@ -25,6 +25,11 @@ fi
 branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo run)"
 output="${1:-bench_${branch//\//_}.txt}"
 repeats="${2:-1}"
+
+if ! [[ "${repeats}" =~ ^[1-9][0-9]*$ ]]; then
+	echo "repeats must be a positive integer, got: ${repeats}"
+	exit 1
+fi
 
 case "$(uname -s)" in
 	Darwin) platform="m" ;;
@@ -42,7 +47,10 @@ if [ -n "${DEPLOYER}" ]; then
 	bash "${DEPLOYER}" "${deployer_args[@]}" 2>&1 | tee "${output}"
 else
 	deployer_url="https://raw.githubusercontent.com/Insality/defold-deployer/1/deployer.sh"
-	curl -s "${deployer_url}" | bash -s "${deployer_args[@]}" 2>&1 | tee "${output}"
+	deployer_tmp="$(mktemp)"
+	curl -fsSL "${deployer_url}" -o "${deployer_tmp}"
+	bash "${deployer_tmp}" "${deployer_args[@]}" 2>&1 | tee "${output}"
+	rm -f "${deployer_tmp}"
 fi
 
 if [ "${repeats}" -gt 1 ]; then
@@ -50,21 +58,25 @@ if [ "${repeats}" -gt 1 ]; then
 	artifact="$(sed -n 's/.*Build artifact: //p' "${output}" | tail -1 |
 		tr -d '\033\r' | sed 's/\[[0-9;]*m//g')"
 
-	if [ -d "${artifact}/Contents/MacOS" ]; then
-		binary="$(find "${artifact}/Contents/MacOS" -maxdepth 1 -type f -perm -u+x | head -1)"
+	if [ -z "${artifact}" ] || [ ! -e "${artifact}" ]; then
+		echo "Could not find the built artifact, skipping the extra repeats"
 	else
-		binary="$(find "${artifact}" -maxdepth 1 -type f -perm -u+x | head -1)"
-	fi
+		if [ -d "${artifact}/Contents/MacOS" ]; then
+			binary="$(find "${artifact}/Contents/MacOS" -maxdepth 1 -type f -perm -u+x | head -1)"
+		else
+			binary="$(find "${artifact}" -maxdepth 1 -type f -perm -u+x | head -1)"
+		fi
 
-	if [ -z "${binary}" ]; then
-		echo "Could not find the built executable, skipping the extra repeats"
-	else
-		for run in $(seq 2 "${repeats}"); do
-			echo "Repeat ${run}/${repeats}"
-			# Let the machine settle after the build, it skews the first samples
-			sleep 5
-			"${binary}" 2>&1 | tee -a "${output}"
-		done
+		if [ -z "${binary}" ]; then
+			echo "Could not find the built executable, skipping the extra repeats"
+		else
+			for run in $(seq 2 "${repeats}"); do
+				echo "Repeat ${run}/${repeats}"
+				# Let the machine settle after the build, it skews the first samples
+				sleep 5
+				"${binary}" 2>&1 | tee -a "${output}"
+			done
+		fi
 	fi
 fi
 

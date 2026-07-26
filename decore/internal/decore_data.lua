@@ -14,6 +14,10 @@ local resolved_components = {}
 ---@type table<table, table> prefab table -> fully resolved instance template
 local prefab_templates = {}
 
+---When true, invalidate_caches only marks dirty; resume_cache_invalidation flushes once.
+local invalidate_suspended = false
+local invalidate_pending = false
+
 
 function M.clear()
 	---@type table<string, table<string, entity>> Key: pack_id, Value: <prefab_id, entity>
@@ -27,14 +31,36 @@ function M.clear()
 	resolved_components = {}
 	prefab_templates = {}
 	decore_shape.clear()
+	invalidate_suspended = false
+	invalidate_pending = false
 end
 M.clear()
 
 
 function M.invalidate_caches()
+	if invalidate_suspended then
+		invalidate_pending = true
+		return
+	end
+
 	resolved_components = {}
 	prefab_templates = {}
 	decore_shape.clear()
+	invalidate_pending = false
+end
+
+
+---Suspend cache clears while registering a pack, then flush once.
+function M.suspend_cache_invalidation()
+	invalidate_suspended = true
+end
+
+
+function M.resume_cache_invalidation()
+	invalidate_suspended = false
+	if invalidate_pending then
+		M.invalidate_caches()
+	end
 end
 
 

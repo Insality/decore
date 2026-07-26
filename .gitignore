@@ -12,4 +12,6 @@ manifest.*.der
 /.editor_settings
 lls_export.json
 bench_*.txt
+luacov.report.out
+luacov.stats.out
 deployer_version_settings.ini
