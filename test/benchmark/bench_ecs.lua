@@ -36,6 +36,7 @@ local function add_entities_case(system_count, entity_count)
 		end,
 		check = function(ctx)
 			assert(ctx.world:getEntityCount() == entity_count, "entities were not added")
+			fixture.assert_membership(ctx.world)
 		end,
 		teardown = function(ctx)
 			fixture.destroy_world(ctx.world)
@@ -97,6 +98,7 @@ benchmark.add({
 	check = function(ctx)
 		assert(ctx.world:getEntityCount() == 5000, "entity count changed during re-filter")
 		assert(ctx.entities[1][fixture.TAG_COMPONENT_ID] ~= nil, "component was not applied")
+		fixture.assert_membership(ctx.world)
 	end,
 	teardown = function(ctx)
 		fixture.destroy_world(ctx.world)
@@ -147,6 +149,7 @@ benchmark.add({
 	end,
 	check = function(ctx)
 		assert(ctx.world:getEntityCount() == 2000, "spawn and despawn counts drifted apart")
+		fixture.assert_membership(ctx.world)
 	end,
 	teardown = function(ctx)
 		fixture.destroy_world(ctx.world)
@@ -178,6 +181,7 @@ benchmark.add({
 			total = total + #ctx.systems[index].entities
 		end
 		assert(total > 0, "new systems matched no entities")
+		fixture.assert_membership(ctx.world)
 	end,
 	teardown = function(ctx)
 		fixture.destroy_world(ctx.world)

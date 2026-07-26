@@ -176,6 +176,7 @@ benchmark.add({
 	check = function(ctx)
 		assert(ctx.world:getEntityCount() == 4000, "children were not spawned")
 		assert(#ctx.parents[1].children_ids == 3, "parent is missing children ids")
+		fixture.assert_membership(ctx.world)
 	end,
 	teardown = function(ctx)
 		fixture.destroy_world(ctx.world)

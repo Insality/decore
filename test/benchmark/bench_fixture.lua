@@ -281,6 +281,35 @@ function M.create_systems(count, seed)
 end
 
 
+---Every system's entity list has to hold exactly the entities its filter accepts.
+---Optimizations that cache system membership can silently under-populate those
+---lists, which would make the membership benchmarks look fast for the wrong
+---reason, so verify them against a brute force pass.
+---@param world world
+function M.assert_membership(world)
+	local systems = world.systems
+	local entities = world.entities
+
+	for index = 1, #systems do
+		local system = systems[index]
+		local filter = system.filter
+		local expected = 0
+
+		if filter then
+			for entity_index = 1, #entities do
+				if filter(system, entities[entity_index]) then
+					expected = expected + 1
+				end
+			end
+		end
+
+		local actual = system.entities and #system.entities or 0
+		assert(actual == expected, ("system %s holds %d entities, its filter accepts %d"):format(
+			tostring(system.id), actual, expected))
+	end
+end
+
+
 ---Sum of a counter field across all generated systems of a world. Used by the
 ---benchmark checks to prove the measured loop actually did something.
 ---@param world world
