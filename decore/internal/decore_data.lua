@@ -190,6 +190,7 @@ end
 
 
 ---Apply one component onto a template the same way decore.apply_component does.
+---Nested tables from prefab/component data stay by reference (not copied).
 ---@param template table
 ---@param component_id string
 ---@param component_data any|nil
@@ -208,11 +209,9 @@ local function template_apply_component(template, component_id, component_data)
 	if component_data ~= nil then
 		if type(component_data) == "table" then
 			if type(template[component_id]) ~= "table" then
-				template[component_id] = decore_internal.deepcopy(component_data)
-			else
-				-- Deepcopy prefab data so nested tables are not aliased to the registered prefab
-				decore_internal.merge_tables(template[component_id], decore_internal.deepcopy(component_data))
+				template[component_id] = {}
 			end
+			decore_internal.merge_tables(template[component_id], component_data)
 		else
 			template[component_id] = component_data
 		end
@@ -229,7 +228,7 @@ local function build_prefab_template(prefab)
 	if prefab.parent_prefab_id then
 		local parent = M.get_entity(prefab.parent_prefab_id)
 		if parent then
-			template = decore_internal.deepcopy(M.get_prefab_template(parent))
+			template = decore_internal.instantiate_template(M.get_prefab_template(parent))
 		end
 	end
 
@@ -243,7 +242,8 @@ local function build_prefab_template(prefab)
 end
 
 
----Return cached fully-resolved prefab template. Caller must deepcopy before use.
+---Return cached fully-resolved prefab template.
+---Caller must instantiate via instantiate_template (not deepcopy) to keep nested tables by ref.
 ---@param prefab entity
 ---@return table
 function M.get_prefab_template(prefab)

@@ -164,7 +164,7 @@ function M.create_prefab(prefab_id, pack_id, components)
 	local entity
 	local prefab = decore_data.get_entity(prefab_id, pack_id)
 	if prefab then
-		entity = decore_utils.deepcopy(decore_data.get_prefab_template(prefab))
+		entity = decore_utils.instantiate_template(decore_data.get_prefab_template(prefab))
 		---@diagnostic disable-next-line: invisible
 		entity.__shape = decore_shape.token_for_prefab(prefab)
 	else

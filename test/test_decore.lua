@@ -158,6 +158,22 @@ return function()
 			assert(entity.prefab_id == "player")
 		end)
 
+		it("Should share nested prefab tables by reference across instances", function()
+			local nested = { x = 1, y = 2 }
+			decore.register_component("transform", {})
+			decore.register_entity("node", {
+				transform = { position = nested }
+			})
+
+			local a = decore.create_prefab("node")
+			local b = decore.create_prefab("node")
+
+			assert(a.transform ~= b.transform)
+			assert(a.transform.position == nested)
+			assert(b.transform.position == nested)
+			assert(a.transform.position == b.transform.position)
+		end)
+
 		it("Should create prefab with additional components", function()
 			decore.register_component("health", { value = 100 })
 			decore.register_entity("player", {
