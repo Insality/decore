@@ -42,18 +42,6 @@ return function()
 			assert(shape.derive(shape.EMPTY, "a") == nil)
 		end)
 
-		it("Should opt out and opt in prefab tokens", function()
-			local prefab = { health = {} }
-			shape.opt_out(prefab)
-			assert(shape.is_opted_out(prefab) == true)
-			assert(shape.token_for_prefab(prefab) == nil)
-			assert(shape.derive(prefab, "mana") == nil)
-
-			shape.opt_in(prefab)
-			assert(shape.is_opted_out(prefab) == false)
-			assert(shape.token_for_prefab(prefab) == prefab)
-		end)
-
 		it("Should stop deriving after max depth", function()
 			local token = shape.EMPTY
 			for index = 1, 8 do

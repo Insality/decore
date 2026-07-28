@@ -64,6 +64,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ---@field systemsFixedUpdate system[]
 ---@field systemsOnModify system[]
 ---@field shapeSystems table<any, system[]> Shape token -> matched systems
+---@field shapeGeneration number|nil Generation of shapeSystems (vs ecs shape cache bump)
 ---@field speed number|nil Koef for delta time
 ---@field id_to_entity table<number, entity>|nil Entity id -> entity (set by decore system)
 ---@field add fun(self: world, ...): ...
@@ -114,6 +115,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ---@field getSystemCount fun(world: world): number Returns the number of systems in the world
 ---@field setSystemIndex fun(world: world, system: system, index: number): number Sets the index of a system in the world
 ---@field setShapeValidation fun(enabled: boolean) Enable/disable shape-cache validation (debug)
+---@field bumpShapeCache fun() Invalidate world shapeSystems (call when packs change)
 local tiny = {}
 
 -- Local versions of standard lua functions
@@ -136,6 +138,9 @@ local tiny_removeSystem
 -- Shape-cache validation (off by default). When on, fast path also runs full
 -- scan and prints mismatches — use to catch presence-filter violations.
 local shape_validation = false
+
+-- Bumped when prefab/component packs change so worlds drop stale shapeSystems.
+local shape_cache_generation = 0
 
 
 --- Filter functions.
@@ -662,6 +667,7 @@ function tiny.world(...)
 
 		-- Shape token -> matched systems list
 		shapeSystems = {},
+		shapeGeneration = shape_cache_generation,
 
 	}, worldMetaTable)
 
@@ -759,6 +765,7 @@ function tiny_manageSystems(world)
 	world.systemsToRemove = {}
 	-- System set changed — drop shape cache (rebuilds lazily)
 	world.shapeSystems = {}
+	world.shapeGeneration = shape_cache_generation
 
 	local worldEntityList = world.entities
 	local systems = world.systems
@@ -843,6 +850,12 @@ function tiny_manageEntities(world)
 
 	local entities = world.entities
 	local systems = world.systems
+
+	-- Prefab/component packs may have changed since this world last cached
+	if world.shapeGeneration ~= shape_cache_generation then
+		world.shapeSystems = {}
+		world.shapeGeneration = shape_cache_generation
+	end
 	local shapeSystems = world.shapeSystems
 
 	-- Change Entities
@@ -1101,6 +1114,7 @@ function tiny.setSystemIndex(world, system, index)
 
 	rebuildDispatchLists(world)
 	world.shapeSystems = {}
+	world.shapeGeneration = shape_cache_generation
 
 	return oldIndex
 end
@@ -1109,6 +1123,13 @@ end
 ---@param enabled boolean
 function tiny.setShapeValidation(enabled)
 	shape_validation = enabled
+end
+
+
+---Bump the global shape-membership generation. Live worlds drop shapeSystems
+---lazily on the next entity manage pass.
+function tiny.bumpShapeCache()
+	shape_cache_generation = shape_cache_generation + 1
 end
 
 

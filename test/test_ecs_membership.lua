@@ -140,6 +140,48 @@ return function()
 			assert(#system.entities == 2)
 		end)
 
+		it("Should drop shapeSystems when parent prefab keys change", function()
+			decore.register_component("health", { value = 100 })
+			decore.register_component("mana", { value = 50 })
+
+			local child_prefab = { parent_prefab_id = "parent" }
+			decore.register_entity("parent", { health = { value = 1 } })
+			decore.register_entity("child", child_prefab)
+
+			local health_system = decore.system({}, "health_system", "health")
+			local mana_system = decore.system({}, "mana_system", "mana")
+			world:add(health_system, mana_system)
+			refresh()
+
+			local first = decore.create_prefab("child")
+			assert(first.health ~= nil)
+			assert(first.mana == nil)
+			world:addEntity(first)
+			refresh()
+
+			local shape = first.__shape
+			assert(shape == child_prefab)
+			assert(world.shapeSystems[shape] ~= nil)
+			assert(#health_system.entities == 1)
+			assert(#mana_system.entities == 0)
+
+			-- Same child table identity, parent gains a filter-relevant key
+			decore.register_entity("parent", { health = { value = 1 }, mana = { value = 1 } })
+
+			local second = decore.create_prefab("child")
+			assert(second.mana ~= nil)
+			assert(second.__shape == shape)
+			world:addEntity(second)
+			refresh()
+
+			assert(world.shapeSystems[shape] ~= nil)
+			assert(#health_system.entities == 2)
+			assert(#mana_system.entities == 1)
+			assert(mana_system.entities[1] == second)
+			assert(membership_matches_filter(health_system))
+			assert(membership_matches_filter(mana_system))
+		end)
+
 		it("Should keep onAdd and onRemove callbacks with shape path", function()
 			decore.register_component("health", { value = 100 })
 			decore.register_entity("mob", { health = { value = 1 } })

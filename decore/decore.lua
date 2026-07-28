@@ -102,6 +102,7 @@ end
 ---@param pack_id string|nil default "decore"
 function M.register_entity(entity_id, entity_data, pack_id)
 	decore_data.register_entity(entity_id, entity_data, pack_id)
+	decore_data.invalidate_caches()
 end
 
 
@@ -111,11 +112,10 @@ end
 ---@param pack_id string
 ---@param entities table<string, table>
 function M.register_entities(pack_id, entities)
-	decore_data.suspend_cache_invalidation()
 	for prefab_id, entity_data in pairs(entities) do
 		decore_data.register_entity(prefab_id, entity_data, pack_id)
 	end
-	decore_data.resume_cache_invalidation()
+	decore_data.invalidate_caches()
 end
 
 
@@ -186,6 +186,7 @@ end
 ---@param pack_id string|nil default "decore"
 function M.register_component(component_id, component_data, pack_id)
 	decore_data.register_component(component_id, component_data, pack_id)
+	decore_data.invalidate_caches()
 end
 
 
@@ -200,11 +201,10 @@ function M.register_components(components_data)
 		return false
 	end
 
-	decore_data.suspend_cache_invalidation()
 	for component_id, component_data in pairs(components_data.components) do
 		decore_data.register_component(component_id, component_data, pack_id)
 	end
-	decore_data.resume_cache_invalidation()
+	decore_data.invalidate_caches()
 
 	return true
 end
@@ -258,9 +258,7 @@ function M.apply_component(entity, component_id, component_data)
 	if entity[component_id] == nil then
 		entity[component_id] = M.create_component(component_id)
 		---@diagnostic disable-next-line: invisible
-		local shape = entity.__shape
-		---@diagnostic disable-next-line: invisible
-		entity.__shape = decore_shape.derive(shape, component_id)
+		entity.__shape = decore_shape.derive(entity.__shape, component_id)
 	end
 
 	if component_data ~= nil then

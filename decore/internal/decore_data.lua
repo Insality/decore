@@ -1,6 +1,7 @@
 local logger = require("decore.internal.decore_logger")
 local decore_internal = require("decore.internal.decore_utils")
 local decore_shape = require("decore.internal.decore_shape")
+local ecs = require("decore.internal.ecs")
 
 local M = {}
 M.entities = nil
@@ -14,9 +15,15 @@ local resolved_components = {}
 ---@type table<table, table> prefab table -> fully resolved instance template
 local prefab_templates = {}
 
----When true, invalidate_caches only marks dirty; resume_cache_invalidation flushes once.
-local invalidate_suspended = false
-local invalidate_pending = false
+
+---Drop resolved/template/shape caches and bump the ECS shape-membership generation
+---so live worlds discard stale shapeSystems on next refresh.
+function M.invalidate_caches()
+	resolved_components = {}
+	prefab_templates = {}
+	decore_shape.clear()
+	ecs.bumpShapeCache()
+end
 
 
 function M.clear()
@@ -28,40 +35,9 @@ function M.clear()
 	M.components = {}
 	M.components_order = {}
 
-	resolved_components = {}
-	prefab_templates = {}
-	decore_shape.clear()
-	invalidate_suspended = false
-	invalidate_pending = false
+	M.invalidate_caches()
 end
 M.clear()
-
-
-function M.invalidate_caches()
-	if invalidate_suspended then
-		invalidate_pending = true
-		return
-	end
-
-	resolved_components = {}
-	prefab_templates = {}
-	decore_shape.clear()
-	invalidate_pending = false
-end
-
-
----Suspend cache clears while registering a pack, then flush once.
-function M.suspend_cache_invalidation()
-	invalidate_suspended = true
-end
-
-
-function M.resume_cache_invalidation()
-	invalidate_suspended = false
-	if invalidate_pending then
-		M.invalidate_caches()
-	end
-end
 
 
 ---Register component to decore components
@@ -81,8 +57,6 @@ function M.register_component(component_id, component_data, pack_id)
 	else
 		M.components[pack_id][component_id] = component_data
 	end
-
-	M.invalidate_caches()
 end
 
 
@@ -157,8 +131,6 @@ function M.register_entity(entity_id, entity_data, pack_id)
 	-- The prefab_id in components often used to see from which entity it is instanced
 	entity_data.prefab_id = entity_id
 	entity_data.pack_id = pack_id
-
-	M.invalidate_caches()
 end
 
 
