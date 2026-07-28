@@ -1,6 +1,6 @@
 # Introduction to Decore
 
-Decore is a data-driven ECS layer for Defold on top of [tiny-ecs](https://github.com/bakpakin/tiny-ecs).
+Decore is a data-driven layer for Defold on top of [tiny-ecs](https://github.com/bakpakin/tiny-ecs).
 You describe **prefabs** (component tables), write **systems** that own rules, and drive the frame with `world:update(dt)`.
 
 This page is the mental model. For the full function list see [README](README.md) and [api/decore_api.md](api/decore_api.md).

@@ -9,7 +9,9 @@
 
 # Decore
 
-**Decore** - a Defold library for managing ECS game entities and components in a data-driven way. The ECS core is based on [tiny-ecs](https://github.com/bakpakin/tiny-ecs).
+**Decore** is a data-driven layer for Defold built on [tiny-ecs](https://github.com/bakpakin/tiny-ecs): worlds, prefab entities, components, and systems. Use it to structure game logic — data in prefabs, rules in systems, cross-talk via `world.event`.
+
+Entities are Lua tables (`entity.transform`, `entity.health`, …). Components are fields on those tables. Systems match entities by **component presence**.
 
 Tiny-ecs concepts still apply (`world`, `system`, filters, `addEntity` / `refresh` / `update`). Prefer the Decore wrappers below for entity/component creation so shape tokens and caches stay valid.
 
