@@ -1,0 +1,27 @@
+--- Benchmark entry point. Not part of the test suite: it builds its own worlds,
+--- prints a report and exits the engine.
+---
+--- Run headless (macOS `m`, linux `l`, windows `w`):
+---   bash ../defold-deployer/deployer.sh mbd --headless --settings ./test/bench.ini | tee bench_develop.txt
+---
+--- Run a subset by name pattern:
+---   ... --settings ./test/bench.ini --param "--bench-pattern=update"
+--- or set `bench.pattern` in test/bench.ini.
+---
+--- Compare two captured runs:
+---   lua test/benchmark/compare.lua bench_develop.txt bench_shapes.txt
+
+local benchmark = require("test.benchmark.benchmark")
+
+require("test.benchmark.bench_decore")
+require("test.benchmark.bench_ecs")
+
+
+function init(self)
+	local pattern = sys.get_config_string("bench.pattern", "")
+
+	benchmark.verbose = sys.get_config_int("bench.verbose", 0) == 1
+	benchmark.run(pattern ~= "" and pattern or nil)
+
+	os.exit(0)
+end

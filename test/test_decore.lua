@@ -19,7 +19,8 @@ return function()
 
 		it("Should create world with default systems", function()
 			assert(world ~= nil)
-			assert(world.event_bus ~= nil)
+			assert(world.event ~= nil)
+			assert(world.event_bus == world.event) -- deprecated alias
 			assert(#world.systems >= 2)
 		end)
 
@@ -157,6 +158,22 @@ return function()
 			assert(entity.prefab_id == "player")
 		end)
 
+		it("Should share nested prefab tables by reference across instances", function()
+			local nested = { x = 1, y = 2 }
+			decore.register_component("transform", {})
+			decore.register_entity("node", {
+				transform = { position = nested }
+			})
+
+			local a = decore.create_prefab("node")
+			local b = decore.create_prefab("node")
+
+			assert(a.transform ~= b.transform)
+			assert(a.transform.position == nested)
+			assert(b.transform.position == nested)
+			assert(a.transform.position == b.transform.position)
+		end)
+
 		it("Should create prefab with additional components", function()
 			decore.register_component("health", { value = 100 })
 			decore.register_entity("player", {
@@ -246,6 +263,44 @@ return function()
 			assert(found ~= nil)
 			assert(found.id == entity.id)
 			assert(found.name == "Test")
+			assert(world.id_to_entity[entity.id] == entity)
+		end)
+
+		it("Should remove component and clear shape token", function()
+			decore.register_component("health", { value = 100 })
+			local entity = decore.create({ health = { value = 10 } })
+			assert(entity.health ~= nil)
+			assert(entity.__shape ~= nil)
+
+			decore.remove_component(entity, "health")
+			assert(entity.health == nil)
+			assert(entity.__shape == nil)
+		end)
+
+		it("Should reuse out table in find_entities", function()
+			decore.register_component("health", { value = 100 })
+			local entity = decore.create({ health = { value = 1 } })
+			world:addEntity(entity)
+			world:refresh()
+
+			local out = { "stale" }
+			local found = decore.find_entities(world, "health", nil, out)
+			assert(found == out)
+			assert(#found == 1)
+			assert(found[1] == entity)
+			assert(found[2] == nil)
+		end)
+
+		it("Should derive shape when apply_component adds a new key", function()
+			decore.register_component("health", { value = 100 })
+			decore.register_component("mana", { value = 50 })
+			local entity = decore.create({ health = {} })
+			local before = entity.__shape
+			assert(before ~= nil)
+
+			decore.apply_component(entity, "mana")
+			assert(entity.__shape ~= nil)
+			assert(entity.__shape ~= before)
 		end)
 
 		it("Should create system without filter", function()
@@ -295,7 +350,7 @@ return function()
 		it("Should handle on_message", function()
 			decore.on_message(world, hash("test_message"), { data = "test" })
 			world:update(0)
-			local events = world.event_bus:get_events("on_message")
+			local events = world.event:get_events("on_message")
 			assert(events ~= nil)
 			assert(#events == 1)
 			assert(events[1].message_id == hash("test_message"))

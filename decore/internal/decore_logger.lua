@@ -4,6 +4,7 @@
 ---@field info fun(_, msg: string, data: any)
 ---@field warn fun(_, msg: string, data: any)
 ---@field error fun(_, msg: string, data: any)
+
 local M = {}
 
 local EMPTY_FUNCTION = function(_, message, context) end

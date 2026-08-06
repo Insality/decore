@@ -9,15 +9,23 @@
 
 # Decore
 
-**Decore** - a Defold library for managing ECS game entities and components in a data-driven way. The ECS is based on [tiny ECS](https://github.com/bakpakin/tiny-ecs) library.
+**Decore** is a data-driven layer for Defold built on [tiny-ecs](https://github.com/bakpakin/tiny-ecs): worlds, prefab entities, components, and systems. Use it to structure game logic — data in prefabs, rules in systems, cross-talk via `world.event`.
 
-The API of Tiny ECS is unchanged, so you can get familiar with it first and then use Decore. Decore provides an architecture for your game with additional features, tools and examples.
+Entities are Lua tables (`entity.transform`, `entity.health`, …). Components are fields on those tables. Systems match entities by **component presence**.
+
+Tiny-ecs concepts still apply (`world`, `system`, filters, `addEntity` / `refresh` / `update`). Prefer the Decore wrappers below for entity/component creation so shape tokens and caches stay valid.
 
 ## Features
 
 * **Entity Management**: Register, create and manage game entities
 * **Component Management**: Add, remove and update entity components
 * **Easy Integration**: Simple setup and integration with Defold projects
+
+## When to use
+
+Good for games built from prefabs and small systems: enemies, pickups, projectiles, UI entities — things that appear and disappear often. Think action games, shooters, casual titles, arenas, lighter roguelikes or tower defense, usually with hundreds or a few thousand live entities.
+
+Less ideal when you need tens of thousands of nearly identical objects updated every frame, or when system filters depend on component *values* rather than whether a component exists.
 
 ## Setup
 
@@ -71,6 +79,10 @@ function final(self)
 end
 ```
 
+## Introduction
+
+Start here: **[INTRODUCTION.md](INTRODUCTION.md)** — mental model, bootstrap, prefabs, systems, `world.event`, and a suggested project layout.
+
 ## Examples
 Look at next examples to get more information about how to use the library:
 - [System examples](https://github.com/Insality/asset-store/tree/main/system/Insality) - System examples
@@ -111,9 +123,11 @@ decore.unregister_components(pack_id)
 decore.create_component(component_id, [component_pack_id])
 decore.apply_component(entity, component_id, [component_data])
 decore.apply_components(entity, [components])
+decore.remove_component(entity, component_id)
 
 -- Find entities
-decore.find_entities(world, component_id, [component_value])
+decore.get_entity_by_id(world, id)
+decore.find_entities(world, component_id, [component_value], [out])
 
 -- Debug functions
 decore.print_loaded_packs_debug_info()
@@ -154,6 +168,48 @@ If you have any issues, questions or suggestions please [create an issue](https:
 ### **V4**
 	- ECS: `world:late_update(dt)` / `system.late_update` (runs after `update`, same `world.speed` scaling)
 	- Event bus: `process` invokes the callback once per event; added `process_all` for the previous “whole batch” behavior
+
+### **V5**
+	- ECS: shape-based system membership cache, precomputed update/preWrap/postWrap/fixed/late dispatch lists
+	- Prefab/component template caches; `get_entity_by_id` via `world.id_to_entity`
+	- Headless ECS benchmark suite under `test/benchmark/`
+	- Event bus: `world.event` (was `world.event_bus`; old name kept as deprecated alias)
+	- Event bus: `trigger(event_id, entity?, data?)` — entity is a separate arg, not a field inside `data`
+	- Event bus: `process` callback is `callback(entity, data)` / `callback(context, entity, data)`; `data` is `nil` when omitted
+	- Event bus: removed `process_all` — use `process`, or `get_events` / `get_event_entities` for raw arrays
+	- Event bus: merge policy is `fun(entity, data, datas, entity_map): boolean`
+	- Migration:
+```lua
+-- before
+world.event_bus:trigger("died", { entity = entity })
+world.event_bus:trigger("hit", { entity = entity, dmg = 3 })
+world.event_bus:trigger("wave_start", {})
+world.event_bus:process("hit", function(event)
+	do_hit(event.entity, event.dmg)
+end)
+world.event_bus:process_all("hit", function(events) -- removed in V5
+	for i = 1, #events do
+		do_hit(events[i].entity, events[i].dmg)
+	end
+end)
+world.event_bus:set_merge_policy("hit", function(new_event, events, entity_map)
+	local existing = entity_map[new_event.entity]
+	-- ...
+end)
+
+-- after
+world.event:trigger("died", entity)                 -- no alloc
+world.event:trigger("hit", entity, { dmg = 3 })
+world.event:trigger("wave_start")                   -- no alloc
+world.event:process("hit", function(entity, data)
+	do_hit(entity, data.dmg)
+end)
+world.event:set_merge_policy("hit", function(entity, data, datas, entity_map)
+	local existing = entity_map[entity]
+	-- ...
+end)
+-- world.event_bus still works (deprecated alias of world.event)
+```
 
 </details>
 

@@ -1,11 +1,29 @@
 local logger = require("decore.internal.decore_logger")
 local decore_internal = require("decore.internal.decore_utils")
+local decore_shape = require("decore.internal.decore_shape")
+local ecs = require("decore.internal.ecs")
 
 local M = {}
 M.entities = nil
 M.entities_order = nil
 M.components = nil
 M.components_order = nil
+
+---@type table<string, table<string, any>> pack_id|"*" -> component_id -> source value (not deepcopied)
+local resolved_components = {}
+
+---@type table<table, table> prefab table -> fully resolved instance template
+local prefab_templates = {}
+
+
+---Drop resolved/template/shape caches and bump the ECS shape-membership generation
+---so live worlds discard stale shapeSystems on next refresh.
+function M.invalidate_caches()
+	resolved_components = {}
+	prefab_templates = {}
+	decore_shape.clear()
+	ecs.bumpShapeCache()
+end
 
 
 function M.clear()
@@ -16,6 +34,8 @@ function M.clear()
 	---@type table<string, table<string, any>> Key: pack_id, Value: <component_id, component>
 	M.components = {}
 	M.components_order = {}
+
+	M.invalidate_caches()
 end
 M.clear()
 
@@ -42,23 +62,45 @@ end
 
 ---@param component_id string
 ---@param component_pack_id string|nil
----@return any|nil
-function M.get_component(component_id, component_pack_id)
+---@return any|nil source value (not deepcopied); caller must deepcopy tables
+local function resolve_component_source(component_id, component_pack_id)
+	local pack_key = component_pack_id or "*"
+	local pack_cache = resolved_components[pack_key]
+	if pack_cache and pack_cache[component_id] ~= nil then
+		return pack_cache[component_id]
+	end
+
 	for index = #M.components_order, 1, -1 do
 		local pack_id = M.components_order[index]
 		local components_pack = M.components[pack_id]
 		local prefab = components_pack[component_id]
 
 		if prefab ~= nil and (not component_pack_id or component_pack_id == pack_id) then
-			if type(prefab) == "table" then
-				return decore_internal.deepcopy(prefab)
-			else
-				return prefab
-			end
+			pack_cache = pack_cache or {}
+			resolved_components[pack_key] = pack_cache
+			pack_cache[component_id] = prefab
+			return prefab
 		end
 	end
 
 	return nil
+end
+
+
+---@param component_id string
+---@param component_pack_id string|nil
+---@return any|nil
+function M.get_component(component_id, component_pack_id)
+	local prefab = resolve_component_source(component_id, component_pack_id)
+	if prefab == nil then
+		return nil
+	end
+
+	if type(prefab) == "table" then
+		return decore_internal.deepcopy(prefab)
+	end
+
+	return prefab
 end
 
 
@@ -67,17 +109,7 @@ end
 ---@param component_pack_id string|nil
 ---@return boolean
 function M.is_component_registered(component_id, component_pack_id)
-	for index = #M.components_order, 1, -1 do
-		local pack_id = M.components_order[index]
-		local components_pack = M.components[pack_id]
-		local prefab = components_pack[component_id]
-
-		if prefab ~= nil and (not component_pack_id or component_pack_id == pack_id) then
-			return true
-		end
-	end
-
-	return false
+	return resolve_component_source(component_id, component_pack_id) ~= nil
 end
 
 
@@ -126,6 +158,75 @@ function M.get_entity(prefab_id, pack_id)
 	})
 
 	return nil
+end
+
+
+---Apply one component onto a template the same way decore.apply_component does.
+---Nested tables from prefab/component data stay by reference (not copied).
+---@param template table
+---@param component_id string
+---@param component_data any|nil
+local function template_apply_component(template, component_id, component_data)
+	if template[component_id] == nil then
+		local default = resolve_component_source(component_id)
+		if default == nil then
+			template[component_id] = {}
+		elseif type(default) == "table" then
+			template[component_id] = decore_internal.deepcopy(default)
+		else
+			template[component_id] = default
+		end
+	end
+
+	if component_data ~= nil then
+		if type(component_data) == "table" then
+			if type(template[component_id]) ~= "table" then
+				template[component_id] = {}
+			end
+			decore_internal.merge_tables(template[component_id], component_data)
+		else
+			template[component_id] = component_data
+		end
+	end
+end
+
+
+---Build fully resolved instance template for a prefab (defaults + parent chain + prefab data).
+---@param prefab entity
+---@return table
+local function build_prefab_template(prefab)
+	local template
+
+	if prefab.parent_prefab_id then
+		local parent = M.get_entity(prefab.parent_prefab_id)
+		if parent then
+			template = decore_internal.instantiate_template(M.get_prefab_template(parent))
+		end
+	end
+
+	template = template or {}
+
+	for component_id, component_data in pairs(prefab) do
+		template_apply_component(template, component_id, component_data)
+	end
+
+	return template
+end
+
+
+---Return cached fully-resolved prefab template.
+---Caller must instantiate via instantiate_template (not deepcopy) to keep nested tables by ref.
+---@param prefab entity
+---@return table
+function M.get_prefab_template(prefab)
+	local template = prefab_templates[prefab]
+	if template then
+		return template
+	end
+
+	template = build_prefab_template(prefab)
+	prefab_templates[prefab] = template
+	return template
 end
 
 

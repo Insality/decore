@@ -33,7 +33,6 @@ decore.register_component("transform", {
 })
 
 ---@class system.transform.event
----@field entity entity.transform The entity that was changed.
 ---@field is_position_changed boolean|nil If true, the position was changed.
 ---@field is_scale_changed boolean|nil If true, the scale was changed.
 ---@field is_rotation_changed boolean|nil If true, the rotation was changed.
@@ -56,7 +55,7 @@ end
 
 function M:onAddToWorld()
 	self.world.transform = transform_command.create(self)
-	self.world.event_bus:set_merge_policy("transform_event", self.event_merge_policy)
+	self.world.event:set_merge_policy("transform_event", self.event_merge_policy)
 end
 
 
@@ -73,8 +72,7 @@ function M:set_position(entity, x, y, z)
 	t.position_z = z or t.position_z
 
 	if is_changed then
-		self.world.event_bus:trigger("transform_event", {
-			entity = entity,
+		self.world.event:trigger("transform_event", entity, {
 			is_position_changed = true,
 		})
 	end
@@ -94,8 +92,7 @@ function M:set_scale(entity, x, y, z)
 	t.scale_z = z or t.scale_z
 
 	if is_changed then
-		self.world.event_bus:trigger("transform_event", {
-			entity = entity,
+		self.world.event:trigger("transform_event", entity, {
 			is_scale_changed = true,
 		})
 	end
@@ -115,8 +112,7 @@ function M:set_size(entity, x, y, z)
 	t.size_z = z or t.size_z
 
 	if is_changed then
-		self.world.event_bus:trigger("transform_event", {
-			entity = entity,
+		self.world.event:trigger("transform_event", entity, {
 			is_size_changed = true,
 		})
 	end
@@ -131,8 +127,7 @@ function M:set_rotation(entity, rotation)
 	t.rotation = rotation or t.rotation
 
 	if is_changed then
-		self.world.event_bus:trigger("transform_event", {
-			entity = entity,
+		self.world.event:trigger("transform_event", entity, {
 			is_rotation_changed = true,
 		})
 	end
@@ -145,8 +140,7 @@ end
 ---@param delay number|nil
 ---@param callback function|nil
 function M:set_animate_time(entity, animate_time, easing, delay, callback)
-	self.world.event_bus:trigger("transform_event", {
-		entity = entity,
+	self.world.event:trigger("transform_event", entity, {
 		animate_time = animate_time,
 		easing = easing,
 		delay = delay,
@@ -155,28 +149,27 @@ function M:set_animate_time(entity, animate_time, easing, delay, callback)
 end
 
 
----@param new_event system.transform.event
----@param events system.transform.event[]
----@param entity_map table<entity|table, system.transform.event[]>
+---@param entity entity|nil
+---@param data system.transform.event
+---@param datas system.transform.event[]
+---@param entity_map table<entity|string, system.transform.event[]>
 ---@return boolean is_merged
-function M.event_merge_policy(new_event, events, entity_map)
-	local entity = new_event.entity
+function M.event_merge_policy(entity, data, datas, entity_map)
 	if not entity then
 		return false
 	end
 
 	local existing_events = entity_map[entity]
 	if existing_events and #existing_events > 0 then
-		-- Merge with the last event for this entity
-		local existing_event = existing_events[#existing_events]
-		existing_event.is_position_changed = new_event.is_position_changed or existing_event.is_position_changed
-		existing_event.is_scale_changed = new_event.is_scale_changed or existing_event.is_scale_changed
-		existing_event.is_rotation_changed = new_event.is_rotation_changed or existing_event.is_rotation_changed
-		existing_event.is_size_changed = new_event.is_size_changed or existing_event.is_size_changed
-		existing_event.animate_time = new_event.animate_time or existing_event.animate_time
-		existing_event.easing = new_event.easing or existing_event.easing
-		existing_event.delay = new_event.delay or existing_event.delay
-		existing_event.callback = new_event.callback or existing_event.callback
+		local existing = existing_events[#existing_events]
+		existing.is_position_changed = data.is_position_changed or existing.is_position_changed
+		existing.is_scale_changed = data.is_scale_changed or existing.is_scale_changed
+		existing.is_rotation_changed = data.is_rotation_changed or existing.is_rotation_changed
+		existing.is_size_changed = data.is_size_changed or existing.is_size_changed
+		existing.animate_time = data.animate_time or existing.animate_time
+		existing.easing = data.easing or existing.easing
+		existing.delay = data.delay or existing.delay
+		existing.callback = data.callback or existing.callback
 		return true
 	end
 

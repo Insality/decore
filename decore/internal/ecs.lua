@@ -25,6 +25,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -- @copyright 2016
 
 ---@class entity
+---@field __shape any|nil Shape token for system-membership cache (set by decore)
 
 ---@class system
 ---@field indices table<entity, number> Entity index in entities table
@@ -33,9 +34,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ---@field active boolean
 ---@field world world
 ---@field entities entity[]
----@field nocache boolean
 ---@field index number
 ---@field modified boolean
+---@field hasOnModify boolean|nil True when system has onModify; set by world
 ---@field interval number|nil
 ---@field bufferedTime number|nil
 ---@field onAdd fun(self: system, entity:entity)|nil
@@ -56,7 +57,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ---@class world
 ---@field entities entity[]
 ---@field systems system[]
+---@field systemsUpdate system[]
+---@field systemsPreWrap system[]
+---@field systemsPostWrap system[]
+---@field systemsLateUpdate system[]
+---@field systemsFixedUpdate system[]
+---@field systemsOnModify system[]
+---@field shapeSystems table<any, system[]> Shape token -> matched systems
+---@field shapeGeneration number|nil Generation of shapeSystems (vs ecs shape cache bump)
 ---@field speed number|nil Koef for delta time
+---@field id_to_entity table<number, entity>|nil Entity id -> entity (set by decore system)
 ---@field add fun(self: world, ...): ...
 ---@field addEntity fun(self: world, entity: entity): entity
 ---@field addSystem fun(self: world, system: system): system
@@ -77,7 +87,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ---@field systemsToChange system[]
 ---@field systemsToAdd system[]
 ---@field systemsToRemove system[]
----@field findEntities fun(world: world, component_id: string, component_value: any|nil): entity[]
+---@field findEntities fun(world: world, component_id: string, component_value: any|nil, out: entity[]|nil): entity[]
 ---@field findEntity fun(world: world, component_id: string, component_value: any|nil): entity|nil
 
 ---@class tiny_ecs Tiny ECS module
@@ -104,6 +114,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ---@field getEntityCount fun(world: world): number Returns the number of entities in the world
 ---@field getSystemCount fun(world: world): number Returns the number of systems in the world
 ---@field setSystemIndex fun(world: world, system: system, index: number): number Sets the index of a system in the world
+---@field setShapeValidation fun(enabled: boolean) Enable/disable shape-cache validation (debug)
+---@field bumpShapeCache fun() Invalidate world shapeSystems (call when packs change)
 local tiny = {}
 
 -- Local versions of standard lua functions
@@ -122,6 +134,14 @@ local tiny_addSystem
 local tiny_add
 local tiny_removeEntity
 local tiny_removeSystem
+
+-- Shape-cache validation (off by default). When on, fast path also runs full
+-- scan and prints mismatches — use to catch presence-filter violations.
+local shape_validation = false
+
+-- Bumped when prefab/component packs change so worlds drop stale shapeSystems.
+local shape_cache_generation = 0
+
 
 --- Filter functions.
 -- A Filter is a function that selects which Entities apply to a System.
@@ -160,6 +180,9 @@ local tiny_removeSystem
 --    -- Selects Entities with an "image" Component, but not Entities with a
 --    -- "Player" or "Enemy" Component.
 --    filter = tiny.requireAll("image", tiny.rejectAny("Player", "Enemy"))
+--
+-- IMPORTANT: Filters must be presence-only (component key exists or not).
+-- Value-based filters break the shape-membership cache.
 --
 -- @section Filter
 
@@ -261,7 +284,7 @@ function tiny.rejectAll(...)
 end
 
 --- Makes a Filter that rejects Entities with at least one of the specified
--- Components and Filters, and selects all other Entities.
+-- Components and Filters.
 function tiny.rejectAny(...)
 	return filterJoin('not', ' or ', ...)
 end
@@ -352,16 +375,6 @@ end
 -- in the next update, if it has one. This is usually managed by tiny-ecs, so
 -- users should mostly ignore this, too.
 --
--- There is another option to (hopefully) increase performance in systems that
--- have items added to or removed from them often, and have lots of entities in
--- them.  Setting the `nocache` field of the system might improve performance.
--- It is still experimental. There are some restriction to systems without
--- caching, however.
---
---   * There is no `entities` table.
---   * Callbacks such onAdd, onRemove, and onModify will never be called
---   * Noncached systems cannot be sorted (There is no entities list to sort).
---
 -- @section System
 
 -- Use an empty table as a key for identifying Systems. Any table that contains
@@ -372,6 +385,145 @@ local systemTableKey = { "SYSTEM_TABLE_KEY" }
 local function isSystem(table)
 	return table[systemTableKey]
 end
+
+
+---@param system system
+---@param entity entity
+local function addToSystem(system, entity)
+	local indices = system.indices
+	if indices[entity] then
+		return
+	end
+
+	local entities = system.entities
+	local index = #entities + 1
+	entities[index] = entity
+	indices[entity] = index
+
+	if system.hasOnModify then
+		system.modified = true
+	end
+
+	local onAdd = system.onAdd
+	if onAdd then
+		onAdd(system, entity)
+	end
+end
+
+
+---@param system system
+---@param entity entity
+local function removeFromSystem(system, entity)
+	local indices = system.indices
+	local index = indices[entity]
+	if not index then
+		return
+	end
+
+	local entities = system.entities
+	local tmpEntity = entities[#entities]
+	entities[index] = tmpEntity
+	indices[tmpEntity] = index
+	indices[entity] = nil
+	entities[#entities] = nil
+
+	if system.hasOnModify then
+		system.modified = true
+	end
+
+	local onRemove = system.onRemove
+	if onRemove then
+		onRemove(system, entity)
+	end
+end
+
+
+---@param world world
+---@param entity entity
+---@return system[]
+local function resolveShape(world, entity)
+	local matched = {}
+	local systems = world.systems
+	for i = 1, #systems do
+		local system = systems[i]
+		local filter = system.filter
+		if filter and filter(system, entity) then
+			matched[#matched + 1] = system
+		end
+	end
+	return matched
+end
+
+
+---@param world world
+local function rebuildDispatchLists(world)
+	local systems = world.systems
+	local systemsUpdate = {}
+	local systemsPreWrap = {}
+	local systemsPostWrap = {}
+	local systemsLateUpdate = {}
+	local systemsFixedUpdate = {}
+	local systemsOnModify = {}
+
+	for i = 1, #systems do
+		local system = systems[i]
+		if system.update then
+			systemsUpdate[#systemsUpdate + 1] = system
+		end
+		if system.preWrap then
+			systemsPreWrap[#systemsPreWrap + 1] = system
+		end
+		if system.postWrap then
+			systemsPostWrap[#systemsPostWrap + 1] = system
+		end
+		if system.late_update then
+			systemsLateUpdate[#systemsLateUpdate + 1] = system
+		end
+		if system.fixed_update then
+			systemsFixedUpdate[#systemsFixedUpdate + 1] = system
+		end
+		if system.onModify then
+			system.hasOnModify = true
+			systemsOnModify[#systemsOnModify + 1] = system
+		else
+			system.hasOnModify = false
+		end
+	end
+
+	world.systemsUpdate = systemsUpdate
+	world.systemsPreWrap = systemsPreWrap
+	world.systemsPostWrap = systemsPostWrap
+	world.systemsLateUpdate = systemsLateUpdate
+	world.systemsFixedUpdate = systemsFixedUpdate
+	world.systemsOnModify = systemsOnModify
+end
+
+
+---@param world world
+---@param entity entity
+---@param matched system[]
+local function validateShapeMatch(world, entity, matched)
+	local expected = {}
+	for i = 1, #matched do
+		expected[matched[i]] = true
+	end
+
+	local systems = world.systems
+	for i = 1, #systems do
+		local system = systems[i]
+		local filter = system.filter
+		local should_match = filter and filter(system, entity)
+		local does_match = expected[system]
+		if should_match and not does_match then
+			print(("SHAPE CACHE MISS: entity id=%s prefab=%s missing system %s"):format(
+				tostring(entity.id), tostring(entity.prefab_id), tostring(system.id)))
+		elseif does_match and not should_match then
+			print(("SHAPE CACHE EXTRA: entity id=%s prefab=%s unexpected system %s"):format(
+				tostring(entity.id), tostring(entity.prefab_id), tostring(system.id)))
+		end
+	end
+end
+
 
 -- Update function for all Processing Systems.
 local function processingSystemUpdate(system, dt)
@@ -384,22 +536,9 @@ local function processingSystemUpdate(system, dt)
 	end
 
 	if process then
-		if system.nocache then
-			local entities = system.world.entities
-			local filter = system.filter
-			if filter then
-				for i = 1, #entities do
-					local entity = entities[i]
-					if filter(system, entity) then
-						process(system, entity, dt)
-					end
-				end
-			end
-		else
-			local entities = system.entities
-			for i = 1, #entities do
-				process(system, entities[i], dt)
-			end
+		local entities = system.entities
+		for i = 1, #entities do
+			process(system, entities[i], dt)
 		end
 	end
 
@@ -506,17 +645,29 @@ function tiny.world(...)
 		-- List of Entities to change
 		entitiesToChange = {},
 
-		-- List of Entities to add
+		-- List of Systems to add
 		systemsToAdd = {},
 
-		-- List of Entities to remove
+		-- List of Systems to remove
 		systemsToRemove = {},
 
 		-- Set of Entities
 		entities = {},
 
 		-- List of Systems
-		systems = {}
+		systems = {},
+
+		-- Precomputed dispatch lists (rebuilt when systems change)
+		systemsUpdate = {},
+		systemsPreWrap = {},
+		systemsPostWrap = {},
+		systemsLateUpdate = {},
+		systemsFixedUpdate = {},
+		systemsOnModify = {},
+
+		-- Shape token -> matched systems list
+		shapeSystems = {},
+		shapeGeneration = shape_cache_generation,
 
 	}, worldMetaTable)
 
@@ -612,6 +763,9 @@ function tiny_manageSystems(world)
 
 	world.systemsToAdd = {}
 	world.systemsToRemove = {}
+	-- System set changed — drop shape cache (rebuilds lazily)
+	world.shapeSystems = {}
+	world.shapeGeneration = shape_cache_generation
 
 	local worldEntityList = world.entities
 	local systems = world.systems
@@ -621,7 +775,7 @@ function tiny_manageSystems(world)
 		local system = s2r[i]
 		local index = system.index
 		local onRemove = system.onRemove
-		if onRemove and not system.nocache then
+		if onRemove then
 			local entityList = system.entities
 			for j = 1, #entityList do
 				onRemove(system, entityList[j])
@@ -642,16 +796,15 @@ function tiny_manageSystems(world)
 		system.entities = nil
 		system.indices = nil
 		system.index = nil
+		system.hasOnModify = nil
 	end
 
 	-- Add Systems
 	for i = 1, #s2a do
 		local system = s2a[i]
 		if systems[system.index or 0] ~= system then
-			if not system.nocache then
-				system.entities = {}
-				system.indices = {}
-			end
+			system.entities = {}
+			system.indices = {}
 			if system.active == nil then
 				system.active = true
 			end
@@ -666,28 +819,20 @@ function tiny_manageSystems(world)
 			end
 
 			-- Try to add Entities
-			if not system.nocache then
-				local entityList = system.entities
-				local entityIndices = system.indices
-				local onAdd = system.onAdd
-				local filter = system.filter
-				if filter then
-					for j = 1, #worldEntityList do
-						local entity = worldEntityList[j]
-						if filter(system, entity) then
-							local entityIndex = #entityList + 1
-							entityList[entityIndex] = entity
-							entityIndices[entity] = entityIndex
-							if onAdd then
-								onAdd(system, entity)
-							end
-						end
+			local filter = system.filter
+			if filter then
+				for j = 1, #worldEntityList do
+					local entity = worldEntityList[j]
+					if filter(system, entity) then
+						addToSystem(system, entity)
 					end
 				end
 			end
 		end
 		s2a[i] = nil
 	end
+
+	rebuildDispatchLists(world)
 end
 
 -- Adds, removes, and changes Entities that have been marked.
@@ -706,44 +851,56 @@ function tiny_manageEntities(world)
 	local entities = world.entities
 	local systems = world.systems
 
+	-- Prefab/component packs may have changed since this world last cached
+	if world.shapeGeneration ~= shape_cache_generation then
+		world.shapeSystems = {}
+		world.shapeGeneration = shape_cache_generation
+	end
+	local shapeSystems = world.shapeSystems
+
 	-- Change Entities
 	for i = 1, #e2c do
 		local entity = e2c[i]
+		local isNew = entities[entity] == nil
+
 		-- Add if needed
-		if not entities[entity] then
+		if isNew then
 			local index = #entities + 1
 			entities[entity] = index
 			entities[index] = entity
+		else
+			-- Re-filter existing entity: drop shape cache for this instance
+			entity.__shape = nil
 		end
-		for j = 1, #systems do
-			local system = systems[j]
-			if not system.nocache then
-				local ses = system.entities
-				local seis = system.indices
-				local index = seis[entity]
+
+		local shape = entity.__shape
+		local matched = shape and shapeSystems[shape]
+
+		if isNew and shape then
+			if not matched then
+				matched = resolveShape(world, entity)
+				shapeSystems[shape] = matched
+			end
+
+			if shape_validation then
+				validateShapeMatch(world, entity, matched)
+			end
+
+			for j = 1, #matched do
+				addToSystem(matched[j], entity)
+			end
+		else
+			-- Full scan (no shape, or re-adding existing entity)
+			for j = 1, #systems do
+				local system = systems[j]
+				local index = system.indices[entity]
 				local filter = system.filter
 				if filter and filter(system, entity) then
 					if not index then
-						system.modified = true
-						index = #ses + 1
-						ses[index] = entity
-						seis[entity] = index
-						local onAdd = system.onAdd
-						if onAdd then
-							onAdd(system, entity)
-						end
+						addToSystem(system, entity)
 					end
 				elseif index then
-					system.modified = true
-					local tmpEntity = ses[#ses]
-					ses[index] = tmpEntity
-					seis[tmpEntity] = index
-					seis[entity] = nil
-					ses[#ses] = nil
-					local onRemove = system.onRemove
-					if onRemove then
-						onRemove(system, entity)
-					end
+					removeFromSystem(system, entity)
 				end
 			end
 		end
@@ -762,25 +919,16 @@ function tiny_manageEntities(world)
 			entities[entity] = nil
 			entities[listIndex] = lastEntity
 			entities[#entities] = nil
-			-- Remove from cached systems
-			for j = 1, #systems do
-				local system = systems[j]
-				if not system.nocache then
-					local ses = system.entities
-					local seis = system.indices
-					local index = seis[entity]
-					if index then
-						system.modified = true
-						local tmpEntity = ses[#ses]
-						ses[index] = tmpEntity
-						seis[tmpEntity] = index
-						seis[entity] = nil
-						ses[#ses] = nil
-						local onRemove = system.onRemove
-						if onRemove then
-							onRemove(system, entity)
-						end
-					end
+
+			local shape = entity.__shape
+			local matched = shape and shapeSystems[shape]
+			if matched then
+				for j = 1, #matched do
+					removeFromSystem(matched[j], entity)
+				end
+			else
+				for j = 1, #systems do
+					removeFromSystem(systems[j], entity)
 				end
 			end
 		end
@@ -793,14 +941,11 @@ end
 function tiny.refresh(world)
 	tiny_manageSystems(world)
 	tiny_manageEntities(world)
-	local systems = world.systems
-	for i = #systems, 1, -1 do
-		local system = systems[i]
-		if system.active then
-			local onModify = system.onModify
-			if onModify and system.modified then
-				onModify(system, 0)
-			end
+	local systemsOnModify = world.systemsOnModify
+	for i = #systemsOnModify, 1, -1 do
+		local system = systemsOnModify[i]
+		if system.active and system.modified then
+			system.onModify(system, 0)
 			system.modified = false
 		end
 	end
@@ -820,30 +965,29 @@ function tiny.update(world, dt, filter)
 	end
 	dt = dt * speed
 
-	local systems = world.systems
-
-	-- Iterate through Systems IN REVERSE ORDER
-	for i = #systems, 1, -1 do
-		local system = systems[i]
-		if system.active then
-			-- Call the modify callback on Systems that have been modified.
-			local onModify = system.onModify
-			if onModify and system.modified then
-				onModify(system, dt)
-			end
-			local preWrap = system.preWrap
-			if preWrap and
-				((not filter) or filter(world, system)) then
-				preWrap(system, dt)
-			end
+	-- Call onModify on systems that were modified (reverse order)
+	local systemsOnModify = world.systemsOnModify
+	for i = #systemsOnModify, 1, -1 do
+		local system = systemsOnModify[i]
+		if system.active and system.modified then
+			system.onModify(system, dt)
 		end
 	end
 
-	--  Iterate through Systems IN ORDER
-	for i = 1, #systems do
-		local system = systems[i]
+	-- preWrap in reverse order
+	local systemsPreWrap = world.systemsPreWrap
+	for i = #systemsPreWrap, 1, -1 do
+		local system = systemsPreWrap[i]
 		if system.active and ((not filter) or filter(world, system)) then
-			-- Update Systems that have an update method (most Systems)
+			system.preWrap(system, dt)
+		end
+	end
+
+	-- Update in order
+	local systemsUpdate = world.systemsUpdate
+	for i = 1, #systemsUpdate do
+		local system = systemsUpdate[i]
+		if system.active and ((not filter) or filter(world, system)) then
 			local update = system.update
 			if update then
 				local interval = system.interval
@@ -858,19 +1002,21 @@ function tiny.update(world, dt, filter)
 					update(system, dt)
 				end
 			end
-
 			system.modified = false
 		end
 	end
 
-	-- Iterate through Systems IN ORDER AGAIN
-	for i = 1, #systems do
-		local system = systems[i]
+	-- Also clear modified on onModify-only systems that have no update
+	for i = 1, #systemsOnModify do
+		systemsOnModify[i].modified = false
+	end
 
-		local postWrap = system.postWrap
-		if postWrap and system.active and
-			((not filter) or filter(world, system)) then
-			postWrap(system, dt)
+	-- postWrap in order
+	local systemsPostWrap = world.systemsPostWrap
+	for i = 1, #systemsPostWrap do
+		local system = systemsPostWrap[i]
+		if system.active and ((not filter) or filter(world, system)) then
+			system.postWrap(system, dt)
 		end
 	end
 end
@@ -881,18 +1027,12 @@ end
 -- Systems. If `filter` is not supplied, all Systems are updated. Put this
 -- function in your main loop.
 function tiny.fixed_update(world, dt, filter)
-	local systems = world.systems
+	local systemsFixedUpdate = world.systemsFixedUpdate
 
-	--  Iterate through Systems IN ORDER
-	for i = 1, #systems do
-		local system = systems[i]
+	for i = 1, #systemsFixedUpdate do
+		local system = systemsFixedUpdate[i]
 		if system.active and ((not filter) or filter(world, system)) then
-			-- Update Systems that have an update method (most Systems)
-			local update = system.fixed_update
-			if update then
-				update(system, dt)
-			end
-
+			system.fixed_update(system, dt)
 			system.modified = false
 		end
 	end
@@ -909,15 +1049,12 @@ function tiny.late_update(world, dt, filter)
 	end
 	dt = dt * speed
 
-	local systems = world.systems
+	local systemsLateUpdate = world.systemsLateUpdate
 
-	for i = 1, #systems do
-		local system = systems[i]
+	for i = 1, #systemsLateUpdate do
+		local system = systemsLateUpdate[i]
 		if system.active and ((not filter) or filter(world, system)) then
-			local late_update = system.late_update
-			if late_update then
-				late_update(system, dt)
-			end
+			system.late_update(system, dt)
 		end
 	end
 end
@@ -975,19 +1112,45 @@ function tiny.setSystemIndex(world, system, index)
 		systems[i].index = i
 	end
 
+	rebuildDispatchLists(world)
+	world.shapeSystems = {}
+	world.shapeGeneration = shape_cache_generation
+
 	return oldIndex
 end
+
+
+---@param enabled boolean
+function tiny.setShapeValidation(enabled)
+	shape_validation = enabled
+end
+
+
+---Bump the global shape-membership generation. Live worlds drop shapeSystems
+---lazily on the next entity manage pass.
+function tiny.bumpShapeCache()
+	shape_cache_generation = shape_cache_generation + 1
+end
+
 
 ---@param world world
 ---@param component_id string
 ---@param component_value any|nil
+---@param out entity[]|nil Optional out table to avoid allocation
 ---@return entity[]
-function tiny.findEntities(world, component_id, component_value)
-	local entities = {}
-	for i = 1, #world.entities do
-		local entity = world.entities[i]
+function tiny.findEntities(world, component_id, component_value, out)
+	local entities = out or {}
+	if out then
+		for i = #out, 1, -1 do
+			out[i] = nil
+		end
+	end
+
+	local world_entities = world.entities
+	for i = 1, #world_entities do
+		local entity = world_entities[i]
 		if entity[component_id] and (not component_value or entity[component_id] == component_value) then
-			table.insert(entities, entity)
+			entities[#entities + 1] = entity
 		end
 	end
 	return entities
@@ -999,7 +1162,14 @@ end
 ---@param component_value any|nil
 ---@return entity|nil
 function tiny.findEntity(world, component_id, component_value)
-	return tiny.findEntities(world, component_id, component_value)[1]
+	local world_entities = world.entities
+	for i = 1, #world_entities do
+		local entity = world_entities[i]
+		if entity[component_id] and (not component_value or entity[component_id] == component_value) then
+			return entity
+		end
+	end
+	return nil
 end
 
 

@@ -64,7 +64,7 @@ end
 
 
 function M:postWrap()
-	self.world.event_bus:process("transform_event", self.process_transform_event, self)
+	self.world.event:process("transform_event", self.process_transform_event, self)
 end
 
 
@@ -131,68 +131,70 @@ function M:remove_entity(entity)
 end
 
 
----@param events system.transform.event[]
-function M:process_transform_event(events)
-	for i = 1, #events do
-		local event = events[i]
-		local entity = event.entity
-		local transform = entity.transform
-		local game_object = entity.game_object
+---@param entity entity|nil
+---@param event system.transform.event|nil
+function M:process_transform_event(entity, event)
+	if not entity or not event then
+		return
+	end
 
-		if not self.indices[entity] or not game_object then
-			-- skip
+	local transform = entity.transform
+	local game_object = entity.game_object
+	if not self.indices[entity] or not game_object or not transform then
+		return
+	end
+
+	local root = game_object.root
+	if not root then
+		return
+	end
+
+	local delay = event.delay or 0
+
+	if event.is_position_changed then
+		TEMP_VECTOR.x = transform.position_x
+		TEMP_VECTOR.y = transform.position_y
+		--TEMP_VECTOR.z = transform.position_z
+		TEMP_VECTOR.z = self:get_position_z(transform)
+		if event.animate_time then
+			local easing = event.easing or go.EASING_OUTSINE
+			go.animate(root, HASH_POSITION, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, event.animate_time, delay)
 		else
-			local root = game_object.root
-			if root then
-				local delay = event.delay or 0
+			go.set_position(TEMP_VECTOR, root)
+		end
+	end
 
-				if event.is_position_changed then
-					TEMP_VECTOR.x = transform.position_x
-					TEMP_VECTOR.y = transform.position_y
-					--TEMP_VECTOR.z = transform.position_z
-					TEMP_VECTOR.z = self:get_position_z(transform)
-					if event.animate_time then
-						local easing = event.easing or go.EASING_OUTSINE
-						go.animate(root, HASH_POSITION, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, event.animate_time, delay)
-					else
-						go.set_position(TEMP_VECTOR, root)
-					end
-				end
+	if event.is_rotation_changed then
+		if event.animate_time then
+			local easing = event.easing or go.EASING_OUTSINE
+			go.animate(root, HASH_EULER_Z, go.PLAYBACK_ONCE_FORWARD, transform.rotation, easing, event.animate_time, delay)
+		else
+			go.set(root, HASH_EULER_Z, transform.rotation)
+		end
+	end
 
-				if event.is_rotation_changed then
-					if event.animate_time then
-						local easing = event.easing or go.EASING_OUTSINE
-						go.animate(root, HASH_EULER_Z, go.PLAYBACK_ONCE_FORWARD, transform.rotation, easing, event.animate_time, delay)
-					else
-						go.set(root, HASH_EULER_Z, transform.rotation)
-					end
-				end
+	if event.is_scale_changed then
+		TEMP_VECTOR.x = transform.scale_x
+		TEMP_VECTOR.y = transform.scale_y
+		TEMP_VECTOR.z = transform.scale_z
+		if event.animate_time then
+			local easing = event.easing or go.EASING_OUTSINE
+			go.animate(root, HASH_SCALE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, event.animate_time, delay)
+		else
+			go.set_scale(TEMP_VECTOR, root)
+		end
+	end
 
-				if event.is_scale_changed then
-					TEMP_VECTOR.x = transform.scale_x
-					TEMP_VECTOR.y = transform.scale_y
-					TEMP_VECTOR.z = transform.scale_z
-					if event.animate_time then
-						local easing = event.easing or go.EASING_OUTSINE
-						go.animate(root, HASH_SCALE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, event.animate_time, delay)
-					else
-						go.set_scale(TEMP_VECTOR, root)
-					end
-				end
+	if game_object.is_slice9 then
+		local component_url = M.get_component_url(entity, game_object.sprite_url or "/root#sprite")
 
-				if game_object.is_slice9 then
-					local component_url = M.get_component_url(entity, game_object.sprite_url or "/root#sprite")
-
-					TEMP_VECTOR.x = transform.size_x
-					TEMP_VECTOR.y = transform.size_y
-					if event.animate_time then
-						local easing = event.easing or go.EASING_OUTSINE
-						go.animate(component_url, HASH_SIZE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, event.animate_time, delay)
-					else
-						go.set(component_url, HASH_SIZE, TEMP_VECTOR)
-					end
-				end
-			end
+		TEMP_VECTOR.x = transform.size_x
+		TEMP_VECTOR.y = transform.size_y
+		if event.animate_time then
+			local easing = event.easing or go.EASING_OUTSINE
+			go.animate(component_url, HASH_SIZE, go.PLAYBACK_ONCE_FORWARD, TEMP_VECTOR, easing, event.animate_time, delay)
+		else
+			go.set(component_url, HASH_SIZE, TEMP_VECTOR)
 		end
 	end
 end
