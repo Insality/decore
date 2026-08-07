@@ -31,7 +31,7 @@ Less ideal when you need tens of thousands of nearly identical objects updated e
 
 Add in your `game.project` dependencies:
 ```
-https://github.com/Insality/decore/archive/refs/tags/5.zip
+https://github.com/Insality/decore/archive/refs/tags/6.zip
 ```
 
 ### Library Size
