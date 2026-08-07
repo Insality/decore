@@ -7,6 +7,7 @@ Decore distinguishes three kinds of values:
 | Scalar | `100`, `"player"`, `true`, `false` |
 | Plain table | `{ x = 1, y = 2 }` |
 | Object | `setmetatable({}, MT)` — event, promise, class instance |
+| Mutable userdata | `vmath.vector3`, `vmath.vector4`, `vmath.quat`, `vmath.matrix4` |
 
 ## On spawn
 
@@ -17,6 +18,7 @@ Decore distinguishes three kinds of values:
 | The component itself (`entity.health`) | new table, private to the entity |
 | Nested inside a component (`entity.health.range`) | **the same table by reference** as in the prefab data |
 | Object — as a component or as a direct field of one | full deep copy, private to the entity |
+| Mutable userdata — same positions | new value via its copy constructor, private to the entity |
 | Scalar | assigned as is |
 
 Two entities from one prefab always have separate components, but share the nested tables inside them — until something is written through the decore API.
@@ -61,7 +63,15 @@ A table with a metatable is treated as an object: it is never merged field by fi
 2. Keep component fields flat — that is both the fastest and the safest layout.
 3. Do not put live objects into prefab data unless every entity really should get a copy of that exact state.
 
+## vmath values
+
+`vmath.vector3` and friends are userdata, not tables, so they would otherwise be shared like scalars — one vector for every entity of a prefab. Decore copies them through their own copy constructor, in the same positions where an object is copied: as a component or as a direct field of one.
+
+The rule about sources holds here too: a vector coming from prefab data or a component default is copied per entity, a vector you pass at the call site is taken as is.
+
+Flat numbers (`position_x`, `position_y`) are still cheaper — no allocation per spawn — but nothing breaks if you use vmath.
+
 ## Known limits
 
-- `vmath.vector3` and friends are userdata, not tables, so they are shared by reference at every level. Store plain numbers in components (`position_x`, `position_y`) instead.
-- An object nested deeper than a direct field of a component belongs to a shared subtree and is shared along with it.
+- Only mutable vmath types are copied. `hash`, `url`, `vmath.vector` (arbitrary length) and userdata from native extensions stay shared by reference — `hash` and `url` because copying them makes no sense, the rest because there is no known copy constructor for them.
+- An object or a vector nested deeper than a direct field of a component belongs to a shared subtree and is shared along with it.

@@ -316,6 +316,50 @@ return function()
 			assert(from_prefab.test == from_create.test)
 		end)
 
+		it("Should give every instance its own vmath value from prefab data", function()
+			decore.register_component("transform", {})
+			decore.register_entity("node", {
+				position = vmath.vector3(1, 2, 3),
+				transform = { position = vmath.vector3(1, 2, 3) }
+			})
+
+			local a = decore.create_prefab("node")
+			local b = decore.create_prefab("node")
+
+			-- vmath types define __eq, so identity has to be checked with rawequal
+			assert(not rawequal(a.transform.position, b.transform.position))
+			assert(not rawequal(a.position, b.position))
+
+			a.transform.position.x = 5
+			a.position.x = 5
+			assert(b.transform.position.x == 1)
+			assert(b.position.x == 1)
+		end)
+
+		it("Should keep a vmath value passed by the caller as is", function()
+			local position = vmath.vector3(1, 2, 3)
+			decore.register_component("transform", {})
+			decore.register_entity("node", {})
+
+			local entity = decore.create_prefab("node", nil, {
+				transform = { position = position }
+			})
+
+			assert(rawequal(entity.transform.position, position))
+		end)
+
+		it("Should copy vmath values inside a component default", function()
+			decore.register_component("transform", { position = vmath.vector3(1, 2, 3) })
+
+			local a = decore.create({ transform = {} })
+			local b = decore.create({ transform = {} })
+
+			assert(not rawequal(a.transform.position, b.transform.position))
+
+			a.transform.position.x = 5
+			assert(b.transform.position.x == 1)
+		end)
+
 		it("Should copy a prefab object even when the caller overrides it", function()
 			local MT = {}
 			local prototype = setmetatable({ value = 1 }, MT)

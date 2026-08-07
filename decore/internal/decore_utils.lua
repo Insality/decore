@@ -1,6 +1,8 @@
 local ecs = require("decore.internal.ecs")
+local decore_userdata = require("decore.internal.decore_userdata")
 
 local TYPE_TABLE = "table"
+local TYPE_USERDATA = "userdata"
 
 local M = {}
 
@@ -42,9 +44,13 @@ function M.deepcopy(value_to_copy, copies)
 	copies[value_to_copy] = copy
 
 	for key, value in next, value_to_copy, nil do
-		if type(value) == TYPE_TABLE then
+		local value_type = type(value)
+		if value_type == TYPE_TABLE then
 			value = M.deepcopy(value, copies)
+		elseif value_type == TYPE_USERDATA then
+			value = decore_userdata.copy(value)
 		end
+		-- Keys stay as they are: a hash key must keep its identity
 		if type(key) == TYPE_TABLE then
 			key = M.deepcopy(key, copies)
 		end
@@ -164,26 +170,33 @@ end
 
 
 ---Clone entity/template for spawn: own top-level component tables, nested plain tables by reference.
----Objects (tables with a metatable) are deepcopied so their nested state is not shared.
+---Objects (tables with a metatable) and mutable Defold userdata are copied so that their
+---state is never shared between entities.
 ---@param template table
 ---@return table
 function M.instantiate_template(template)
 	local entity = {}
 
 	for key, value in pairs(template) do
-		if type(value) == TYPE_TABLE then
+		local value_type = type(value)
+		if value_type == TYPE_TABLE then
 			if getmetatable(value) then
 				entity[key] = M.deepcopy(value)
 			else
 				local component = {}
 				for component_key, component_value in pairs(value) do
-					if type(component_value) == TYPE_TABLE and getmetatable(component_value) then
+					local component_type = type(component_value)
+					if component_type == TYPE_TABLE and getmetatable(component_value) then
 						component_value = M.deepcopy(component_value)
+					elseif component_type == TYPE_USERDATA then
+						component_value = decore_userdata.copy(component_value)
 					end
 					component[component_key] = component_value
 				end
 				entity[key] = component
 			end
+		elseif value_type == TYPE_USERDATA then
+			entity[key] = decore_userdata.copy(value)
 		else
 			entity[key] = value
 		end
