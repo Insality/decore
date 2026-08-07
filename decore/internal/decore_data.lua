@@ -167,7 +167,8 @@ end
 ---@param component_id string
 ---@param component_data any|nil
 local function template_apply_component(template, component_id, component_data)
-	if template[component_id] == nil then
+	-- An object replaces the component as a whole, so the default is never read
+	if template[component_id] == nil and not decore_internal.is_object(component_data) then
 		local default = resolve_component_source(component_id)
 		if default == nil then
 			template[component_id] = {}
@@ -179,14 +180,7 @@ local function template_apply_component(template, component_id, component_data)
 	end
 
 	if component_data ~= nil then
-		if type(component_data) == "table" then
-			if type(template[component_id]) ~= "table" then
-				template[component_id] = {}
-			end
-			decore_internal.merge_tables(template[component_id], component_data)
-		else
-			template[component_id] = component_data
-		end
+		decore_internal.assign_component_prototype(template, component_id, component_data)
 	end
 end
 

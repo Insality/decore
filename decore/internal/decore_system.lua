@@ -1,5 +1,6 @@
 local events = require("event.events")
 local decore_data = require("decore.internal.decore_data")
+local decore_utils = require("decore.internal.decore_utils")
 
 local ecs = require("decore.internal.ecs")
 
@@ -144,7 +145,9 @@ function M:spawn_children(entity)
 	if child_entities then
 		entity.children_ids = entity.children_ids or {}
 		for index = 1, #child_entities do
-			local child_entity = child_entities[index]
+			-- The descriptor is prefab data shared with the template, so it has to be
+			-- instantiated: passing it as is would hand the same objects to every child
+			local child_entity = decore_utils.instantiate_template(child_entities[index])
 			local child = self.decore.create_prefab(child_entity.prefab_id, child_entity.pack_id, child_entity)
 			self.decore.apply_component(child, "transform")
 
