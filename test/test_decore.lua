@@ -174,6 +174,246 @@ return function()
 			assert(a.transform.position == b.transform.position)
 		end)
 
+		it("Should deepcopy metatable components so nested plain tables are not shared", function()
+			local MT = {}
+			local function make_board()
+				local on_cancel = { [0] = 0 }
+				local cancellation = { is_cancelled = false, on_cancel = on_cancel }
+				return setmetatable({
+					state = "pending",
+					cancellation = cancellation,
+					on_cancel = on_cancel,
+				}, MT)
+			end
+
+			decore.register_component("board", make_board())
+			decore.register_entity("with_board", {
+				board = make_board(),
+			})
+
+			local a = decore.create_prefab("with_board")
+			local b = decore.create_prefab("with_board")
+
+			assert(getmetatable(a.board) == MT)
+			assert(getmetatable(b.board) == MT)
+			assert(a.board ~= b.board)
+			assert(a.board.cancellation ~= b.board.cancellation)
+			-- Internal aliases must be preserved (promise.on_cancel == promise.cancellation.on_cancel)
+			assert(a.board.on_cancel == a.board.cancellation.on_cancel)
+			assert(b.board.on_cancel == b.board.cancellation.on_cancel)
+			assert(a.board.cancellation.is_cancelled == false)
+			assert(b.board.cancellation.is_cancelled == false)
+
+			a.board.cancellation.is_cancelled = true
+			assert(b.board.cancellation.is_cancelled == false)
+		end)
+
+		it("Should not leak nested override into prefab data or other instances", function()
+			local registered_nested = { x = 1, y = 2 }
+			decore.register_component("transform", {})
+			decore.register_entity("node", {
+				transform = { position = registered_nested }
+			})
+
+			local a = decore.create_prefab("node", nil, {
+				transform = { position = { x = 5 } }
+			})
+			local b = decore.create_prefab("node")
+
+			assert(a.transform.position.x == 5)
+			assert(a.transform.position.y == 2) -- untouched field is kept
+			assert(b.transform.position.x == 1) -- other instance is not affected
+			assert(registered_nested.x == 1) -- registered prefab data is not mutated
+			assert(a.transform.position ~= registered_nested) -- copy-on-write on the written path
+		end)
+
+		it("Should copy-on-write every level of an overridden nested path", function()
+			decore.register_component("state", {})
+			decore.register_entity("deep", {
+				state = { a = { b = { c = 1, keep = true } } }
+			})
+
+			local a = decore.create_prefab("deep", nil, {
+				state = { a = { b = { c = 9 } } }
+			})
+			local b = decore.create_prefab("deep")
+
+			assert(a.state.a.b.c == 9)
+			assert(a.state.a.b.keep == true)
+			assert(b.state.a.b.c == 1)
+		end)
+
+		it("Should not leak child prefab override into parent prefab template", function()
+			decore.register_component("transform", {})
+			decore.register_entity("base", {
+				transform = { position = { x = 1 } }
+			})
+			decore.register_entity("derived", {
+				parent_prefab_id = "base",
+				transform = { position = { x = 5 } }
+			})
+
+			local derived = decore.create_prefab("derived")
+			local base = decore.create_prefab("base")
+
+			assert(derived.transform.position.x == 5)
+			assert(base.transform.position.x == 1)
+		end)
+
+		it("Should replace scalar component default with table data", function()
+			decore.register_component("hp", 100)
+			decore.register_component("flag", false)
+
+			local entity = decore.create({
+				hp = { value = 1 },
+				flag = { enabled = true }
+			})
+
+			assert(entity.hp.value == 1)
+			assert(entity.flag.enabled == true)
+		end)
+
+		it("Should copy each component object independently", function()
+			local MT = {}
+			local shared = setmetatable({ value = 1 }, MT)
+
+			decore.register_component("first", {})
+			decore.register_component("second", {})
+			decore.register_entity("holder", {
+				first = shared,
+				second = shared
+			})
+
+			local a = decore.create_prefab("holder")
+			local b = decore.create_prefab("holder")
+
+			-- Identity is preserved inside one object, not between components
+			assert(a.first ~= a.second)
+			assert(a.first ~= b.first)
+			assert(a.first ~= shared)
+			assert(getmetatable(a.first) == MT)
+			assert(a.first.value == 1 and a.second.value == 1)
+		end)
+
+		it("Should keep an object passed by the caller as is", function()
+			local MT = {}
+			local object = setmetatable({ value = 1 }, MT)
+
+			decore.register_component("test", {})
+			decore.register_entity("holder", {})
+
+			-- The caller still holds the object and may have subscribed to it already
+			local from_prefab = decore.create_prefab("holder", nil, { test = object })
+			assert(from_prefab.test == object)
+
+			local from_create = decore.create({ test = object })
+			assert(from_create.test == object)
+
+			local applied = decore.apply_component(decore.create({}), "test", object)
+			assert(applied.test == object)
+
+			-- Two entities given the same object share it: that is the caller's choice
+			assert(from_prefab.test == from_create.test)
+		end)
+
+		it("Should give every instance its own vmath value from prefab data", function()
+			decore.register_component("transform", {})
+			decore.register_entity("node", {
+				position = vmath.vector3(1, 2, 3),
+				transform = { position = vmath.vector3(1, 2, 3) }
+			})
+
+			local a = decore.create_prefab("node")
+			local b = decore.create_prefab("node")
+
+			-- vmath types define __eq, so identity has to be checked with rawequal
+			assert(not rawequal(a.transform.position, b.transform.position))
+			assert(not rawequal(a.position, b.position))
+
+			a.transform.position.x = 5
+			a.position.x = 5
+			assert(b.transform.position.x == 1)
+			assert(b.position.x == 1)
+		end)
+
+		it("Should keep a vmath value passed by the caller as is", function()
+			local position = vmath.vector3(1, 2, 3)
+			decore.register_component("transform", {})
+			decore.register_entity("node", {})
+
+			local entity = decore.create_prefab("node", nil, {
+				transform = { position = position }
+			})
+
+			assert(rawequal(entity.transform.position, position))
+		end)
+
+		it("Should copy vmath values inside a component default", function()
+			decore.register_component("transform", { position = vmath.vector3(1, 2, 3) })
+
+			local a = decore.create({ transform = {} })
+			local b = decore.create({ transform = {} })
+
+			assert(not rawequal(a.transform.position, b.transform.position))
+
+			a.transform.position.x = 5
+			assert(b.transform.position.x == 1)
+		end)
+
+		it("Should copy a prefab object even when the caller overrides it", function()
+			local MT = {}
+			local prototype = setmetatable({ value = 1 }, MT)
+			local passed = setmetatable({ value = 2 }, MT)
+
+			decore.register_component("test", {})
+			decore.register_entity("holder", { test = prototype })
+
+			local default = decore.create_prefab("holder")
+			assert(default.test ~= prototype) -- prototype is materialized, not shared
+			assert(default.test.value == 1)
+
+			local overridden = decore.create_prefab("holder", nil, { test = passed })
+			assert(overridden.test == passed) -- caller value wins and is not copied
+		end)
+
+		it("Should keep aliases inside one object", function()
+			local MT = {}
+			local inner = { count = 0 }
+			local object = setmetatable({ direct = inner, wrapper = { inner = inner } }, MT)
+
+			decore.register_component("linked", {})
+			decore.register_entity("linked_holder", { linked = object })
+
+			local a = decore.create_prefab("linked_holder")
+			local b = decore.create_prefab("linked_holder")
+
+			assert(a.linked.direct == a.linked.wrapper.inner)
+			assert(a.linked.direct ~= b.linked.direct)
+
+			a.linked.direct.count = 5
+			assert(a.linked.wrapper.inner.count == 5)
+			assert(b.linked.direct.count == 0)
+			assert(inner.count == 0)
+		end)
+
+		it("Should deepcopy object nested inside a plain component", function()
+			local MT = {}
+			decore.register_component("wrapper", {})
+			decore.register_entity("wrapped", {
+				wrapper = {
+					object = setmetatable({ value = 1 }, MT),
+					plain = { value = 1 }
+				}
+			})
+
+			local a = decore.create_prefab("wrapped")
+			local b = decore.create_prefab("wrapped")
+
+			assert(a.wrapper.object ~= b.wrapper.object)
+			assert(getmetatable(a.wrapper.object) == MT)
+			assert(a.wrapper.plain == b.wrapper.plain) -- plain nested table stays shared
+		end)
+
 		it("Should create prefab with additional components", function()
 			decore.register_component("health", { value = 100 })
 			decore.register_entity("player", {

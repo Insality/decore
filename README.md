@@ -83,6 +83,8 @@ end
 
 Start here: **[INTRODUCTION.md](INTRODUCTION.md)** — mental model, bootstrap, prefabs, systems, `world.event`, and a suggested project layout.
 
+Then: **[COPY_SEMANTICS.md](COPY_SEMANTICS.md)** — which values are copied, which are shared by reference, and what happens on override.
+
 ## Examples
 Look at next examples to get more information about how to use the library:
 - [System examples](https://github.com/Insality/asset-store/tree/main/system/Insality) - System examples

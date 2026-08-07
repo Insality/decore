@@ -246,7 +246,8 @@ end
 
 ---Add component to entity.
 ---If component not exists, it will be created with default values
----If component already exists, it will be merged with the new data
+---If component already exists, plain table data is merged into it
+---An object (table with a metatable, like event or promise) replaces the component as a whole
 ---To refresh system filters, call world:addEntity(entity) after this function
 ---When a new component key is introduced, the entity shape token is derived so the
 ---system-membership cache stays valid. Prefer this over direct assignment for filter-relevant keys.
@@ -256,17 +257,19 @@ end
 ---@return entity
 function M.apply_component(entity, component_id, component_data)
 	if entity[component_id] == nil then
-		entity[component_id] = M.create_component(component_id)
+		-- An object replaces the component as a whole, so the default is never read.
+		-- Check the registration directly to keep the warning without building the default.
+		if not decore_utils.is_object(component_data) then
+			entity[component_id] = M.create_component(component_id)
+		elseif not decore_data.is_component_registered(component_id) then
+			logger:warn("No component_id in components data", { component_id = component_id })
+		end
 		---@diagnostic disable-next-line: invisible
 		entity.__shape = decore_shape.derive(entity.__shape, component_id)
 	end
 
 	if component_data ~= nil then
-		if type(component_data) == "table" then
-			decore_utils.merge_tables(entity[component_id], component_data)
-		else
-			entity[component_id] = component_data
-		end
+		decore_utils.assign_component_value(entity, component_id, component_data)
 	end
 
 	return entity
