@@ -155,33 +155,35 @@ If you have any issues, questions or suggestions please [create an issue](https:
 ## Changelog
 
 <details>
+<summary>Versions</summary>
 
 ### **V1**
-	- Initial release
+- Initial release
 
 ### **V2**
-	- Reworked API and internal structure
-	- Updated documentation
+- Reworked API and internal structure
+- Updated documentation
 
 ### **V3**
-	- Updated event bus system for better performance
-	- Update documentation
+- Updated event bus system for better performance
+- Update documentation
 
 ### **V4**
-	- ECS: `world:late_update(dt)` / `system.late_update` (runs after `update`, same `world.speed` scaling)
-	- Event bus: `process` invokes the callback once per event; added `process_all` for the previous “whole batch” behavior
+- ECS: `world:late_update(dt)` / `system.late_update` (runs after `update`, same `world.speed` scaling)
+- Event bus: `process` invokes the callback once per event; added `process_all` for the previous “whole batch” behavior
 
 ### **V5**
-	- ECS: shape-based system membership cache, precomputed update/preWrap/postWrap/fixed/late dispatch lists
-	- Prefab/component template caches; `get_entity_by_id` via `world.id_to_entity`
-	- Headless ECS benchmark suite under `test/benchmark/`
-	- Event bus: `world.event` (was `world.event_bus`; old name kept as deprecated alias)
-	- Event bus: `trigger(event_id, entity?, data?)` — entity is a separate arg, not a field inside `data`
-	- Event bus: `process` callback is `callback(entity, data)` / `callback(context, entity, data)`; `data` is `nil` when omitted
-	- Event bus: removed `process_all` — use `process`, or `get_events` / `get_event_entities` for raw arrays
-	- Event bus: merge policy is `fun(entity, data, datas, entity_map): boolean`
-	- Migration:
-```lua
+- ECS: shape-based system membership cache, precomputed update/preWrap/postWrap/fixed/late dispatch lists
+- Prefab/component template caches; `get_entity_by_id` via `world.id_to_entity`
+- Headless ECS benchmark suite under `test/benchmark/`
+- Event bus: `world.event` (was `world.event_bus`; old name kept as deprecated alias)
+- Event bus: `trigger(event_id, entity?, data?)` — entity is a separate arg, not a field inside `data`
+- Event bus: `process` callback is `callback(entity, data)` / `callback(context, entity, data)`; `data` is `nil` when omitted
+- Event bus: removed `process_all` — use `process`, or `get_events` / `get_event_entities` for raw arrays
+- Event bus: merge policy is `fun(entity, data, datas, entity_map): boolean`
+- Migration (event bus):
+
+~~~lua
 -- before
 world.event_bus:trigger("died", { entity = entity })
 world.event_bus:trigger("hit", { entity = entity, dmg = 3 })
@@ -211,7 +213,15 @@ world.event:set_merge_policy("hit", function(entity, data, datas, entity_map)
 	-- ...
 end)
 -- world.event_bus still works (deprecated alias of world.event)
-```
+~~~
+
+### **V6**
+- Prefab/component copy policy: own top-level component tables; nested plain tables shared by reference
+- Objects (tables with a metatable: event, promise, …) are never field-merged — copied whole from prototypes, taken by reference from call-site overrides
+- `deepcopy` is cycle-safe and preserves internal aliases (e.g. `promise.on_cancel == promise.cancellation.on_cancel`)
+- Mutable Defold userdata (`vmath.vector3` / `vector4` / `quat` / `matrix4`) copied on spawn like objects
+- Nested merge uses copy-on-write so overrides do not mutate prefab templates or other entities
+- Docs: [COPY_SEMANTICS.md](COPY_SEMANTICS.md)
 
 </details>
 
